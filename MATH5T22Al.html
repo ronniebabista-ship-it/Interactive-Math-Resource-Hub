@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math 5 T2 W2 — Round It Up! | The Rounding Arcade</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#f4efff; --mut:#b3a6d9; --card:#241543; --card2:#2d1b52; --line:#4b2f86; --bg:#170d2e;
+  --cyan:#4ff0ff; --yel:#ffd93d; --org:#ff8a4c; --grn:#b8ff5c; --pur:#b18cff; --pink:#ff4fd8; --red:#ff5c7a;
+  --shd:#0d0620;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#0a0518;overflow:hidden;font-family:'Nunito',sans-serif}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform:translate(-50%,-50%);
+  background-image:linear-gradient(rgba(177,140,255,.07) 1.5px,transparent 1.5px),
+    linear-gradient(90deg,rgba(177,140,255,.07) 1.5px,transparent 1.5px),
+    radial-gradient(circle at 50% 0%,#2a1650,#170d2e 70%);
+  background-size:52px 52px,52px 52px,100% 100%;
+  color:var(--ink);overflow:hidden}
+#fx{position:absolute;inset:0;z-index:1;pointer-events:none}
+#fx span{position:absolute;font-family:'Fredoka';font-weight:700;opacity:.14;animation:float 9s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-30px) rotate(6deg)}}
+
+[data-anim]{opacity:0}
+.on[data-anim],.on [data-anim]{animation:var(--an,popIn) .8s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d,0s)}
+@keyframes popIn{0%{opacity:0;transform:scale(.4)}70%{opacity:1;transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+@keyframes riseIn{from{opacity:0;transform:translateY(60px)}to{opacity:1;transform:none}}
+@keyframes slideL{from{opacity:0;transform:translateX(-80px)}to{opacity:1;transform:none}}
+@keyframes slideR{from{opacity:0;transform:translateX(80px)}to{opacity:1;transform:none}}
+@keyframes zoomIn{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:scale(1)}}
+@keyframes flipIn{from{opacity:0;transform:perspective(900px) rotateY(65deg)}to{opacity:1;transform:none}}
+@keyframes bounceIn{0%{opacity:0;transform:translateY(70px) scale(.85)}60%{opacity:1;transform:translateY(-14px) scale(1.05)}100%{opacity:1;transform:none}}
+@keyframes iconB{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes confFall{0%{transform:translateY(-60px) rotate(0)}100%{transform:translateY(1150px) rotate(720deg);opacity:0}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-14px)}40%{transform:translateX(12px)}60%{transform:translateX(-9px)}80%{transform:translateX(6px)}}
+@keyframes winSpin{0%{transform:scale(1) rotate(0deg)}35%{transform:scale(1.16) rotate(-4deg)}65%{transform:scale(1.08) rotate(4deg)}100%{transform:scale(1) rotate(0deg)}}
+@keyframes arrowB{0%,100%{transform:translateX(0);opacity:1}50%{transform:translateX(14px);opacity:.6}}
+/* ---- LOOPING raise/rest walkthrough cycle (3.2s) ---- */
+@keyframes flipOld{0%,40%{opacity:1;transform:none}50%,85%{opacity:0;transform:translateY(-46px)}95%,100%{opacity:1;transform:none}}
+@keyframes flipNew{0%,40%{opacity:0;transform:translateY(46px)}50%,85%{opacity:1;transform:none;text-shadow:0 0 24px rgba(184,255,92,.7)}95%,100%{opacity:0;transform:translateY(46px)}}
+@keyframes dropOut{0%,40%{opacity:1;transform:none}55%,85%{opacity:.15;transform:translateY(30px)}95%,100%{opacity:1;transform:none}}
+@keyframes shakeLoop{0%,8%{transform:translateX(0)}12%{transform:translateX(-12px)}16%{transform:translateX(10px)}20%{transform:translateX(-7px)}24%{transform:translateX(5px)}28%,100%{transform:translateX(0)}}
+@keyframes stayHold{0%,40%{transform:scale(1)}50%,85%{transform:scale(1.15);text-shadow:0 0 24px rgba(184,255,92,.7)}95%,100%{transform:scale(1)}}
+/* ---- decider sorter ---- */
+@keyframes raiseHop{0%,100%{transform:translateY(0)}45%{transform:translateY(-26px)}}
+@keyframes restGlow{0%,100%{box-shadow:0 0 0 rgba(79,240,255,0)}50%{box-shadow:0 0 20px rgba(79,240,255,.55)}}
+@keyframes markDrop{from{opacity:0;transform:translate(-50%,-36px)}to{opacity:1;transform:translate(-50%,0)}}
+
+#progress{position:absolute;top:0;left:0;height:8px;width:0;z-index:60;
+  background:linear-gradient(90deg,var(--pink),var(--yel),var(--cyan));transition:width .5s}
+#tag{position:absolute;top:24px;left:84px;z-index:50;font:700 19px 'Fredoka';letter-spacing:3px;color:var(--cyan)}
+#voiceChip{position:absolute;top:22px;right:84px;z-index:110;font:800 15px 'Nunito';color:var(--mut);
+  border:3px solid var(--line);border-radius:999px;padding:8px 18px;background:#1b0f36;cursor:pointer}
+body.lesson #voiceChip,body.preview #voiceChip{display:none}
+#starChip{position:absolute;top:70px;right:84px;z-index:70;display:none;align-items:center;gap:10px;
+  font:900 22px 'Nunito';color:var(--yel);background:#2d1b52;border:3px solid var(--line);border-radius:999px;
+  padding:6px 20px;box-shadow:0 4px 0 var(--shd)}
+body.lesson #starChip,body.preview #starChip{display:flex}
+#starChip.bump{animation:pulse .5s}
+#recChip{position:absolute;top:118px;right:84px;z-index:70;display:none;align-items:center;gap:10px;
+  font:900 16px 'Nunito';color:#fff;background:#ff5c7aE6;border:3px solid #fff;border-radius:999px;
+  padding:6px 18px;box-shadow:0 4px 0 var(--shd)}
+#recChip.on{display:flex}
+#recChip .rdot{width:12px;height:12px;border-radius:50%;background:#fff;animation:blink 1s infinite}
+#counter{position:absolute;bottom:18px;right:84px;z-index:50;font:700 22px 'Fredoka';color:#8d7fb8}
+#hints{position:absolute;bottom:18px;left:84px;z-index:50;font:800 14px 'Nunito';color:#8d7fb8}
+#hints b{color:var(--yel)}
+#confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:40}
+#confetti i{position:absolute;top:0;border-radius:3px;animation:confFall linear both}
+
+#mcTimer{position:absolute;top:96px;left:50%;transform:translateX(-50%);z-index:85;display:none;align-items:center;gap:16px;
+  background:#170d2eF2;border:4px solid var(--yel);border-radius:999px;padding:8px 38px;box-shadow:0 8px 0 var(--shd)}
+#mcTimer.on{display:flex}
+#mcTimerN{font:700 64px/1 'Fredoka';color:var(--yel)}
+#mcTimer small{font:800 24px 'Nunito';color:var(--ink)}
+
+#codeOv{position:absolute;inset:0;z-index:90;display:none;align-items:center;justify-content:center;pointer-events:none}
+#codeOv.on{display:flex}
+#codeOv .box{background:#170d2eF0;border:5px solid var(--yel);border-radius:30px;padding:30px 70px;text-align:center;animation:popIn .5s both;box-shadow:0 10px 0 var(--shd)}
+#codeOv .lbl{font:700 32px 'Fredoka';color:var(--yel);letter-spacing:4px}
+#codeOv .dig{font:700 150px/1.1 'Fredoka';color:#fff}
+
+/* ---- 10-SECOND INTRO BUMPER ---- */
+#introOverlay{position:absolute;inset:0;z-index:200;background:radial-gradient(ellipse at top,#2a1650 0%,#170d2e 70%);
+  display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s}
+#introOverlay.active{opacity:1;visibility:visible}
+.intro-box{display:flex;flex-direction:column;gap:28px;align-items:center;max-width:1320px;text-align:center;padding:0 60px}
+#introOverlay.active .free-chip{animation:bounceIn .8s cubic-bezier(.2,.7,.2,1) both,pulse 2s infinite .9s}
+#introOverlay.active h1{animation:riseIn .8s .3s both}
+#introOverlay.active .comment-box{animation:slideR .8s .6s both}
+#introOverlay.active .instructions{animation:flipIn .8s .9s both}
+#introOverlay.active .countdown-box{animation:popIn .8s 1.2s both}
+.free-chip{font:900 38px 'Nunito';color:#12082b;background:linear-gradient(90deg,var(--grn),var(--cyan));
+  padding:16px 44px;border-radius:999px;box-shadow:0 8px 0 var(--shd)}
+.comment-box{display:flex;align-items:center;gap:20px;font:800 40px 'Nunito';color:var(--ink);background:#241543;
+  padding:22px 46px;border-radius:24px;border:4px solid var(--cyan);box-shadow:0 7px 0 var(--shd)}
+.pin-icon{font-size:56px;animation:iconB 2s infinite}
+.instructions h3{font:700 48px 'Fredoka';margin-bottom:10px}
+.instructions .txt{font-size:34px;max-width:1060px}
+.countdown-box{font:800 34px 'Nunito';color:var(--mut);margin-top:8px}
+#introCount{font:700 80px 'Fredoka';color:var(--yel);display:inline-block;min-width:90px;text-shadow:0 0 30px #ffd93d66}
+
+.slide{position:absolute;inset:0;z-index:2;padding:64px 84px 64px;display:flex;flex-direction:column;
+  justify-content:center;align-items:stretch;gap:28px;
+  opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s;
+  overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#4b2f86 transparent;scroll-behavior:smooth}
+.slide::-webkit-scrollbar{width:10px}
+.slide::-webkit-scrollbar-thumb{background:#4b2f86;border-radius:999px}
+.slide.active{opacity:1;visibility:visible}
+.slide>.row[style*="flex:1"],.slide>.card[style*="flex:1"]{flex:0 0 auto !important}
+[data-step]{opacity:0;transform:translateY(30px);transition:all .8s cubic-bezier(.2,.7,.2,1)}
+[data-step].on{opacity:1;transform:none}
+.kicker{font:700 26px 'Fredoka';letter-spacing:4px;color:var(--pink)}
+.itemno{display:inline-block;background:linear-gradient(90deg,var(--pink),var(--pur));color:#fff;border-radius:14px;
+  padding:4px 18px;font-size:30px;letter-spacing:2px;box-shadow:0 4px 0 var(--shd);vertical-align:middle}
+h1{font:700 68px/1.15 'Fredoka';max-width:1000px}
+h2{font:700 64px/1.15 'Fredoka'}
+.hlc{background:linear-gradient(90deg,var(--cyan),var(--grn));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hly{background:linear-gradient(90deg,var(--yel),var(--org));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hlp{background:linear-gradient(90deg,var(--pur),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+.card{background:linear-gradient(160deg,var(--card2),var(--card));border:4px solid var(--line);border-radius:28px;
+  box-shadow:0 9px 0 var(--shd);padding:24px 34px}
+.card h3{font:700 42px 'Fredoka';margin-bottom:8px}
+.txt{color:var(--mut);font-size:40px;font-weight:800;line-height:1.35}
+.big{font-size:50px;font-weight:900;line-height:1.28;color:var(--ink)}
+.row{display:flex;gap:26px;align-items:stretch}
+.half{flex:1}
+.chain{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap}
+.chipq{display:inline-flex;align-items:center;gap:10px;border-radius:999px;padding:12px 30px;font:900 36px 'Nunito';
+  background:#1b0f36;border:4px solid var(--line);color:var(--ink);box-shadow:0 5px 0 var(--shd)}
+.chipq.cy{background:rgba(79,240,255,.14);border-color:var(--cyan);color:var(--cyan)}
+.chipq.yl{background:rgba(255,217,61,.14);border-color:var(--yel);color:var(--yel)}
+.chipq.gr{background:rgba(184,255,92,.14);border-color:var(--grn);color:var(--grn)}
+.chipq.pu{background:rgba(177,140,255,.14);border-color:var(--pur);color:var(--pur)}
+.chipq.pk{background:rgba(255,79,216,.14);border-color:var(--pink);color:var(--pink)}
+.obj{font:800 36px 'Nunito';padding:16px 28px}
+.heroframe{width:760px;height:600px;border-radius:30px;overflow:hidden;border:5px solid var(--line);
+  box-shadow:0 10px 0 var(--shd);background:#241543;position:relative;flex-shrink:0}
+.heroframe::before{content:'🕹️';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:150px;opacity:.25}
+.heroframe img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#s1{flex-direction:row;gap:44px;align-items:center;justify-content:center}
+#s1 .left{flex:1;display:flex;flex-direction:column;gap:22px;justify-content:center}
+
+/* ---- ARCADE VISUALS ---- */
+.fact{font:700 42px 'Fredoka';color:var(--ink);text-align:center;margin-top:12px}
+.flowrow{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.arr{font:700 40px 'Fredoka';color:var(--yel);animation:arrowB 1.4s ease-in-out infinite;white-space:nowrap}
+
+/* warm-up shrinking blocks */
+.blkcol{display:flex;flex-direction:column;align-items:center;gap:14px}
+.blk{display:flex;align-items:center;justify-content:center;border-radius:18px;font:700 40px 'Fredoka';color:#12082b;box-shadow:0 6px 0 var(--shd)}
+.blk.b1{width:150px;height:150px;background:linear-gradient(160deg,#8ff7ff,var(--cyan))}
+.blk.b2{width:92px;height:92px;background:linear-gradient(160deg,#d3b8ff,var(--pur));font-size:30px}
+.blk.b3{width:52px;height:52px;background:linear-gradient(160deg,#ff9dea,var(--pink));font-size:20px;color:#3a0b30}
+
+/* place-value seat chart */
+.pvchart{display:flex;gap:10px;justify-content:center;align-items:stretch}
+.pvcol{display:flex;flex-direction:column;align-items:center;gap:10px}
+.pvlab{font:700 21px 'Fredoka';color:var(--mut);letter-spacing:1px;text-align:center;max-width:120px}
+.pvbox{width:96px;height:112px;border-radius:16px;background:#1b0f36;border:4px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font:700 64px 'Fredoka';color:var(--ink);box-shadow:0 6px 0 var(--shd);opacity:0}
+.on .pvbox{animation:popIn .5s cubic-bezier(.2,.7,.2,1) both}
+.on .pvbox.dec{animation:popIn .5s cubic-bezier(.2,.7,.2,1) both, pulse 1.6s 1.4s infinite}
+.pvbox.thou{border-color:var(--grn);color:var(--grn);box-shadow:0 6px 0 var(--shd),0 0 22px rgba(184,255,92,.35)}
+.pvbox.dec{border-color:var(--pink);color:var(--pink);box-shadow:0 6px 0 var(--shd),0 0 22px rgba(255,79,216,.4)}
+.pvdot{font:700 64px 'Fredoka';color:var(--yel);align-self:flex-end;padding-bottom:24px}
+
+/* decider sorter (rule visual) */
+.sorter{display:flex;gap:26px;justify-content:center;align-items:stretch}
+.lane{display:flex;flex-direction:column;align-items:center;gap:16px;background:#1b0f36;border:4px solid var(--line);
+  border-radius:20px;padding:20px 30px;box-shadow:0 6px 0 var(--shd)}
+.llab{font:700 30px 'Fredoka';color:var(--cyan)}
+.llab.g{color:var(--grn)}
+.digits{display:flex;gap:12px}
+.digits i{font-style:normal;width:76px;height:88px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  font:700 48px 'Fredoka';background:#241543;border:4px solid var(--line);color:var(--ink);opacity:0}
+.digits.rest i{border-color:var(--cyan);color:var(--cyan)}
+.digits.raise i{border-color:var(--grn);color:var(--grn)}
+.on .digits i{animation:popIn .4s cubic-bezier(.2,.7,.2,1) both}
+.on .digits.rest i{animation:popIn .4s cubic-bezier(.2,.7,.2,1) both, restGlow 2.2s 1s infinite}
+.on .digits.raise i{animation:popIn .4s cubic-bezier(.2,.7,.2,1) both, raiseHop 2.2s 1.2s infinite}
+.gate{width:12px;border-radius:6px;background:linear-gradient(180deg,var(--pink),var(--pur));
+  box-shadow:0 0 18px rgba(255,79,216,.5);animation:pulse 1.6s infinite}
+
+/* digit walkthrough — LOOPING */
+.walk{display:flex;gap:8px;justify-content:center;align-items:center;font:700 96px 'Fredoka';color:var(--ink)}
+.walk .dg{position:relative;line-height:1}
+.walk .dot{color:var(--yel)}
+.walk .under::after{content:'';position:absolute;left:-4px;right:-4px;bottom:-12px;height:8px;border-radius:4px;
+  background:var(--grn);box-shadow:0 0 16px rgba(184,255,92,.6)}
+.walk .ring::before{content:'';position:absolute;inset:-14px -12px;border:5px solid var(--pink);border-radius:50%;
+  box-shadow:0 0 18px rgba(255,79,216,.45);animation:pulse 1.4s infinite}
+.flip{position:relative;display:inline-block}
+.flip .old{display:block}
+.flip .new{position:absolute;inset:0;color:var(--grn)}
+.on .flip .old{animation:flipOld 3.2s ease-in-out infinite}
+.on .flip .new{animation:flipNew 3.2s ease-in-out infinite}
+.on .walk .drop{animation:dropOut 3.2s ease-in-out infinite}
+.walk i.shk{font-style:normal;display:inline-block}
+.on .walk i.shk{animation:shakeLoop 3.2s ease-in-out infinite}
+.on .stayD{color:var(--grn);animation:stayHold 3.2s ease-in-out infinite}
+
+/* number line */
+.nline{position:relative;height:170px;max-width:1250px;margin:0 auto}
+.ntrack{position:absolute;left:20px;right:20px;top:86px;height:8px;background:#d7c9f7;border-radius:4px;box-shadow:0 3px 0 var(--shd)}
+.ntick{position:absolute;top:70px;width:6px;height:40px;background:#d7c9f7;transform:translateX(-50%);border-radius:3px}
+.ntick.mid{height:26px;top:77px;background:var(--yel)}
+.nlab{position:absolute;top:118px;transform:translateX(-50%);font:700 32px 'Fredoka';color:var(--mut)}
+.nlab.mid{color:var(--yel)}
+.nmark{position:absolute;top:14px;transform:translateX(-50%);font:700 36px 'Fredoka';color:var(--pink);opacity:0}
+.on .nmark{animation:markDrop .8s .7s both}
+.narrow{position:absolute;top:44px;transform:translateX(-50%);font:700 30px 'Fredoka';color:var(--grn);opacity:0}
+.on .narrow{animation:popIn .6s 1.6s both}
+
+/* ---- MC SLIDES (ENLARGED) ---- */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:26px;max-width:1560px;margin:0 auto;width:100%}
+.opt{font:900 48px 'Nunito';color:var(--ink);background:#1b0f36;border:5px solid var(--line);border-radius:24px;
+  padding:22px 30px;cursor:pointer;box-shadow:0 6px 0 var(--shd);transition:all .2s;text-align:left;
+  display:flex;align-items:center;gap:20px;opacity:1}
+.opt b{font:700 44px 'Fredoka';background:rgba(177,140,255,.2);border-radius:12px;padding:6px 18px;color:var(--pur)}
+.opt:hover{transform:translateY(-3px)}
+.opt.good{opacity:1;background:rgba(184,255,92,.14);border-color:var(--grn);color:var(--grn);
+  animation:winSpin .7s cubic-bezier(.2,.7,.2,1);box-shadow:0 0 0 8px #b8ff5c33,0 6px 0 var(--shd)}
+.opt.good b{background:var(--grn);color:#24430a}
+.opt.bad{opacity:.55;background:rgba(255,92,122,.12);border-color:var(--red);color:var(--red);pointer-events:none;animation:shake .4s}
+.opt.reveal{opacity:1;background:rgba(184,255,92,.14);border-color:var(--grn);color:var(--grn);
+  animation:winSpin .7s cubic-bezier(.2,.7,.2,1);box-shadow:0 0 0 8px #b8ff5c33,0 6px 0 var(--shd)}
+.opt.reveal b{background:var(--grn);color:#24430a}
+body.preview .opt{pointer-events:none}
+.fb{font:700 44px 'Fredoka';text-align:center;min-height:120px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.fb .why{display:block;font:800 34px/1.3 'Nunito';margin-top:6px;opacity:.95}
+.fb.g{color:var(--grn)}.fb.r{color:var(--red)}
+.qbig{font:700 60px/1.25 'Fredoka';text-align:center;max-width:1560px;margin:0 auto}
+
+.master{font:700 80px 'Fredoka';color:var(--yel);text-align:center}
+#overlay{position:absolute;inset:0;z-index:100;background:#170d2eF7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;text-align:center}
+#overlay .ttl{font:700 60px 'Fredoka';color:var(--cyan)}
+#overlay .sub{font:800 26px 'Nunito';color:var(--ink);max-width:1250px}
+.modeBtns{display:flex;gap:30px}
+.modeBtns button{font:700 32px 'Fredoka';border-radius:26px;border:5px solid var(--line);padding:24px 38px;cursor:pointer;
+  box-shadow:0 8px 0 var(--shd);transition:transform .15s;color:#12082b}
+.modeBtns button:hover{transform:translateY(-4px)}
+.modeBtns small{display:block;font:800 19px 'Nunito';margin-top:8px}
+#btnPreview{background:var(--yel)}
+#btnLesson{background:var(--cyan)}
+#passPanel{display:none;flex-direction:column;gap:20px;align-items:center}
+.pslots{display:flex;gap:16px}
+.pslot{width:82px;height:100px;border-radius:18px;border:5px solid var(--line);background:#1b0f36;
+  font:700 54px 'Fredoka';display:flex;align-items:center;justify-content:center;color:var(--cyan)}
+#passPanel.err .pslot{animation:shake .4s;border-color:var(--red)}
+#passMsg{font:800 24px 'Nunito';color:var(--yel);min-height:28px}
+#passBack{font:700 26px 'Fredoka';color:var(--ink);background:#2d1b52;border:4px solid var(--line);border-radius:16px;
+  padding:10px 38px;cursor:pointer;box-shadow:0 6px 0 var(--shd);transition:transform .15s}
+#passBack:hover{transform:translateY(-3px)}
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="fx"></div>
+<div id="confetti"></div>
+<div id="progress"></div>
+<div id="tag">🕹️ MATH 5 • TERM 2 • WEEK 2</div>
+<div id="voiceChip">🔊 loading voices…</div>
+<div id="starChip">⭐ <span id="starN">0</span> / 35</div>
+<div id="recChip"><span class="rdot"></span>⏺ PREVIEW • AUTO</div>
+<div id="mcTimer"><span id="mcTimerN">5</span><small>⏳ answer reveal in…</small></div>
+<div id="codeOv"><div class="box"><div class="lbl" id="codeLbl">PASSCODE DIGIT 1/5</div><div class="dig" id="codeDig">8</div></div></div>
+
+<!-- 10-SECOND INTRO BUMPER (preview only) -->
+<div id="introOverlay">
+  <div class="intro-box">
+    <div class="free-chip">🎁 FREE INTERACTIVE PRESENTATION</div>
+    <h1><span class="hly">Automated Assessment &amp; Interactive Assessment!</span></h1>
+    <div class="comment-box">
+      <span class="pin-icon">📌</span>
+      <span>Get them ALL in the <b style="color:var(--cyan)">PINNED COMMENTS</b>!</span>
+    </div>
+    <div class="instructions">
+      <h3 class="hlc">HOW TO UNLOCK LESSON MODE 🔓</h3>
+      <p class="txt">Watch this video and write down the <b style="color:var(--grn)">5 SECRET DIGITS</b> that pop up on screen — then type them to unlock the interactive lesson, answer the questions, and earn ⭐ stars!</p>
+    </div>
+    <div class="countdown-box"><span id="introCount">10</span> seconds until the arcade opens…</div>
+  </div>
+</div>
+
+<!-- 1 TITLE -->
+<section class="slide" id="s1">
+  <div class="left">
+    <div data-step="0" style="display:flex;flex-direction:column;gap:20px">
+      <div class="kicker" data-anim style="--an:slideL">WELCOME TO THE ROUNDING ARCADE!</div>
+      <h1 data-anim style="--an:riseIn;--d:.12s">Mission: <span class="hly">Round It Up!</span> 🕹️</h1>
+      <p class="txt" data-anim style="--an:riseIn;--d:.28s;font-size:38px">Round decimal numbers to the nearest thousandths — raise or rest!</p>
+    </div>
+    <div data-step="1" style="display:flex;flex-direction:column;gap:14px">
+      <div class="card obj" data-anim style="--an:popIn;--d:.1s">🪑 KNOW THE SEATS: tenths • hundredths • thousandths + the DECIDER!</div>
+      <div class="card obj" data-anim style="--an:popIn;--d:.3s">⬆️ RAISE THE SCORE when the decider is 5, 6, 7, 8, 9!</div>
+      <div class="card obj" data-anim style="--an:popIn;--d:.5s">🛑 GIVE IT A REST when the decider is 0-4 — then drop the rest!</div>
+    </div>
+  </div>
+  <div class="heroframe" data-step="0" data-anim style="--an:zoomIn;--d:.2s"><img src="arcade-hero.png" alt="" onerror="this.style.display='none'"></div>
+</section>
+
+<!-- 2 WARM-UP -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">WARM-UP, PLAYER ONE!</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Decimals Have <span class="hlc">Tiny Seats!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="chain">
+      <div class="blkcol" data-anim style="--an:bounceIn;--d:.2s"><span class="blk b1">0.1</span><span class="chipq cy">tenths</span></div>
+      <div class="blkcol" data-anim style="--an:bounceIn;--d:.45s"><span class="blk b2">0.01</span><span class="chipq pu">hundredths</span></div>
+      <div class="blkcol" data-anim style="--an:bounceIn;--d:.7s"><span class="blk b3">0.001</span><span class="chipq pk">thousandths</span></div>
+    </div>
+    <p class="txt" style="text-align:center;margin-top:14px">Each seat to the right is TEN times smaller — and the thousandths seat is our target!</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq yl">0.1 = 1 of 10</span><span class="chipq pu">0.01 = 1 of 100</span><span class="chipq pk">0.001 = 1 of 1000</span></div>
+    <p class="txt" style="text-align:center;margin-top:10px">To round to the nearest thousandth, we must know exactly who sits where — check the seats!</p>
+  </div>
+</section>
+
+<!-- 3 UNIT 1: SEATS (decider now visible + pulsing) -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 1 🪑</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Know the Seats — <span class="hlc">Meet the Decider!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="pvchart">
+      <div class="pvcol"><span class="pvlab">ONES</span><span class="pvbox" style="animation-delay:.3s">4</span></div>
+      <span class="pvdot">.</span>
+      <div class="pvcol"><span class="pvlab">TENTHS</span><span class="pvbox" style="animation-delay:.5s">6</span></div>
+      <div class="pvcol"><span class="pvlab">HUNDREDTHS</span><span class="pvbox" style="animation-delay:.7s">2</span></div>
+      <div class="pvcol"><span class="pvlab" style="color:var(--grn)">THOUSANDTHS</span><span class="pvbox thou" style="animation-delay:.9s">8</span></div>
+      <div class="pvcol"><span class="pvlab" style="color:var(--pink)">DECIDER (ten-thousandths)</span><span class="pvbox dec" style="animation-delay:1.1s">1</span></div>
+    </div>
+    <p class="fact">4.6281 → underline the <b style="color:var(--grn)">8</b>, circle the <b style="color:var(--pink)">1</b> — the decider!</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq gr">underline = target seat</span><span class="chipq pk">circle = decider next door</span><span class="chipq yl">never peek elsewhere!</span></div>
+  </div>
+</section>
+
+<!-- P1 SET -->
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🪑 <span class="itemno">Q1/5</span> • KNOW THE SEATS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">In 4.6281, which digit is in the THOUSANDTHS place?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 6</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 2</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 8</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 4</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="3">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🪑 <span class="itemno">Q2/5</span> • KNOW THE SEATS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">In 4.6281, which digit is the DECIDER?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 6</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 2</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 8</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 1</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🪑 <span class="itemno">Q3/5</span> • KNOW THE SEATS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">In 0.7053, which digit is in the HUNDREDTHS place?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 7</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 0</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 5</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 3</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🪑 <span class="itemno">Q4/5</span> • KNOW THE SEATS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">In 9.1468, which digit is in the THOUSANDTHS place?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 1</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 4</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 6</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 8</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🪑 <span class="itemno">Q5/5</span> • KNOW THE SEATS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">In 2.3506, the digit 5 sits in which place?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> tenths</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> hundredths</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> thousandths</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ten-thousandths</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- 9 UNIT 2: RULE (decider sorter) -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 2 🎰</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">The Golden Rule — <span class="hly">Raise or Rest!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="sorter">
+      <div class="lane">
+        <span class="llab">decider 0-4 → REST</span>
+        <div class="digits rest">
+          <i style="animation-delay:.3s">0</i><i style="animation-delay:.42s">1</i><i style="animation-delay:.54s">2</i><i style="animation-delay:.66s">3</i><i style="animation-delay:.78s">4</i>
+        </div>
+      </div>
+      <div class="gate"></div>
+      <div class="lane">
+        <span class="llab g">decider 5-9 → RAISE</span>
+        <div class="digits raise">
+          <i style="animation-delay:.95s">5</i><i style="animation-delay:1.07s">6</i><i style="animation-delay:1.19s">7</i><i style="animation-delay:1.31s">8</i><i style="animation-delay:1.43s">9</i>
+        </div>
+      </div>
+    </div>
+    <p class="fact">"5 or more, <b style="color:var(--grn)">raise the score</b>; 4 or less, <b style="color:var(--cyan)">give it a rest</b>!"</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq gr">raise = +1 to thousandths</span><span class="chipq cy">rest = keep it</span><span class="chipq pk">then DROP the right-side digits!</span></div>
+  </div>
+</section>
+
+<!-- P2 SET -->
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🎰 <span class="itemno">Q1/5</span> • THE DECIDER CALL</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Rounding 3.4276 — decider is 6. What do we do?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> RAISE (+1)</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> REST (stay)</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Drop the thousandths</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Add 10</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🎰 <span class="itemno">Q2/5</span> • THE DECIDER CALL</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Rounding 0.1834 — decider is 4. What do we do?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> RAISE (+1)</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> REST (stay)</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Raise the tenths</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Delete the thousandths</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🎰 <span class="itemno">Q3/5</span> • THE DECIDER CALL</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Rounding 7.2595 — decider is 5. What do we do?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> REST (stay)</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> RAISE (+1)</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Double the thousandths</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Subtract 1</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🎰 <span class="itemno">Q4/5</span> • THE DECIDER CALL</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Rounding 5.6042 — decider is 2. What do we do?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> REST (stay)</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> RAISE (+1)</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Keep the decider</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Raise the tenths</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🎰 <span class="itemno">Q5/5</span> • THE DECIDER CALL</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Rounding 1.9788 — decider is 8. What do we do?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> RAISE (+1)</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> REST (stay)</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Add 8</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Keep the 8</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- UNIT 3: RAISE (looping flip) -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 3 ⬆️</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Raise It! — <span class="hlc">5 or More!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="walk">
+      <span class="dg">2</span><span class="dot">.</span><span class="dg">3</span><span class="dg">4</span><span class="dg under flip"><i class="old">5</i><i class="new">6</i></span><span class="dg ring drop">6</span>
+    </div>
+    <p class="fact">decider 6 → <b style="color:var(--grn)">RAISE</b> → 2.346! (watch it replay!)</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="flowrow"><span class="chipq yl">2.3456</span><span class="arr">➜ decider 6 ≥ 5 ➜</span><span class="chipq gr">2.346 ✔</span></div>
+    <p class="txt" style="text-align:center;margin-top:8px">The thousandths flips up by one — and every digit to the right leaves the game!</p>
+  </div>
+</section>
+
+<!-- P3 SET -->
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⬆️ <span class="itemno">Q1/5</span> • RAISE IT (5-9)</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">2.3456 → <span style="color:var(--yel)">?</span> (nearest thousandth)</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 2.345</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 2.346</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 2.35</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 2.4</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⬆️ <span class="itemno">Q2/5</span> • RAISE IT (5-9)</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">0.5678 → <span style="color:var(--yel)">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 0.567</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 0.568</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 0.57</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 0.6</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⬆️ <span class="itemno">Q3/5</span> • RAISE IT (5-9)</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">8.1295 → <span style="color:var(--yel)">?</span> (watch the 9!)</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 8.129</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 8.130</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 8.190</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 8.2</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⬆️ <span class="itemno">Q4/5</span> • RAISE IT (5-9)</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">4.7859 → <span style="color:var(--yel)">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 4.785</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 4.786</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 4.79</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 4.8</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⬆️ <span class="itemno">Q5/5</span> • RAISE IT (5-9)</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">6.0455 → <span style="color:var(--yel)">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 6.046</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 6.045</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 6.05</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 6.006</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- UNIT 4: REST (looping shake + stay) -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 4 🛑</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Let It Rest! — <span class="hlp">4 or Less!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="walk">
+      <span class="dg">0</span><span class="dot">.</span><span class="dg">8</span><span class="dg">6</span><span class="dg under stayD">7</span><span class="dg ring drop"><i class="shk">4</i></span>
+    </div>
+    <p class="fact">decider 4 → <b style="color:var(--cyan)">REST</b> → 0.867! (watch it replay!)</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="flowrow"><span class="chipq pk">0.8674</span><span class="arr">➜ decider 4 ≤ 4 ➜</span><span class="chipq cy">0.867 ✔</span></div>
+    <p class="txt" style="text-align:center;margin-top:8px">The thousandths stays put — just drop the digits to the right and move on!</p>
+  </div>
+</section>
+
+<!-- P4 SET -->
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🛑 <span class="itemno">Q1/5</span> • LET IT REST (0-4)</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">0.8674 → <span style="color:var(--yel)">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 0.867</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 0.868</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 0.87</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 0.9</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🛑 <span class="itemno">Q2/5</span> • LET IT REST (0-4)</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">3.1412 → <span style="color:var(--yel)">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 3.142</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3.141</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 3.14</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 3.1</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🛑 <span class="itemno">Q3/5</span> • LET IT REST (0-4)</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">7.5283 → <span style="color:var(--yel)">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 7.528</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 7.529</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 7.53</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 7.5</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🛑 <span class="itemno">Q4/5</span> • LET IT REST (0-4)</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">1.2061 → <span style="color:var(--yel)">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 1.207</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 1.206</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 1.21</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 1.2</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🛑 <span class="itemno">Q5/5</span> • LET IT REST (0-4)</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">9.9844 → <span style="color:var(--yel)">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 9.984</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 9.985</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 9.98</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 9.99</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- UNIT 5: NUMBER LINE -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 5 📏</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">The Number Line — <span class="hlc">Which Side Wins?</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="nline">
+      <div class="ntrack"></div>
+      <i class="ntick" style="left:2%"></i><i class="ntick mid" style="left:50%"></i><i class="ntick" style="left:98%"></i>
+      <span class="nlab" style="left:2%">0.4240</span><span class="nlab mid" style="left:50%">0.4245</span><span class="nlab" style="left:98%">0.4250</span>
+      <span class="nmark" style="left:40.4%">▼ 0.4246</span>
+      <span class="narrow" style="left:70%">nearer 0.4250 →</span>
+    </div>
+    <p class="fact">past the middle → <b style="color:var(--grn)">raise</b> • before the middle → <b style="color:var(--cyan)">rest</b></p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq pk">0.4246 is past 0.4245</span><span class="chipq gr">so it rounds to 0.425</span><span class="chipq yl">line &amp; rhyme always agree!</span></div>
+  </div>
+</section>
+
+<!-- P5 SET -->
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 📏 <span class="itemno">Q1/5</span> • NEAREST THOUSANDTH</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">0.4246 sits between which two thousandths?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 0.424 &amp; 0.425</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 0.42 &amp; 0.43</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 0.4 &amp; 0.5</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 0.4246 &amp; 0.4247</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 📏 <span class="itemno">Q2/5</span> • NEAREST THOUSANDTH</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">0.4246 → <span style="color:var(--yel)">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 0.424</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 0.425</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 0.42</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 0.43</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 📏 <span class="itemno">Q3/5</span> • NEAREST THOUSANDTH</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">0.9999 → <span style="color:var(--yel)">?</span> (chain reaction!)</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 0.999</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 1.000</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 0.990</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 1.001</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 📏 <span class="itemno">Q4/5</span> • NEAREST THOUSANDTH</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">5.4321 → <span style="color:var(--yel)">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 5.432</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 5.433</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 5.43</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 5.4</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 📏 <span class="itemno">Q5/5</span> • NEAREST THOUSANDTH</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">2.7183 → <span style="color:var(--yel)">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 2.718</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 2.719</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 2.72</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 2.7</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- HAZARDS -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">ARCADE HAZARDS! ⚠️</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Don't Lose <span class="hly">a Life!</span> 👾</h2></div>
+  <div class="row" data-step="0">
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center" data-anim style="--an:flipIn"><h3>Hazard 1 • Wrong Seat</h3>
+      <p class="txt">The decider is the digit RIGHT AFTER the thousandths — the <b style="color:var(--pink)">ten-thousandths</b>. Never peek at any other digit!</p></div>
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center" data-anim style="--an:flipIn;--d:.25s"><h3>Hazard 2 • Forgetting to Drop</h3>
+      <p class="txt">After rounding, the right-side digits leave the game: 2.3456 → <b style="color:var(--grn)">2.346</b>, NOT 2.3466!</p></div>
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center" data-anim style="--an:flipIn;--d:.5s"><h3>Hazard 3 • Chain Reaction</h3>
+      <p class="txt">When a <b style="color:var(--yel)">9</b> raises, it becomes 10 — carry left! 8.1295 → <b style="color:var(--grn)">8.130</b> and 0.9999 → <b style="color:var(--grn)">1.000</b>!</p></div>
+  </div>
+</section>
+
+<!-- FINAL QUIZ (10) -->
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q1/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">In 6.8352, which digit is in the THOUSANDTHS place?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 8</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 5</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 2</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q2/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">0.2468 → <span style="color:var(--yel)">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 0.246</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 0.247</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 0.25</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 0.2</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q3/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">4.1734 → <span style="color:var(--yel)">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 4.173</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 4.174</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 4.17</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 4.2</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="3">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q4/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Rounding 9.6587 — which digit is the DECIDER?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 6</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 5</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 8</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 7</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q5/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">3.0997 → <span style="color:var(--yel)">?</span> (chain reaction!)</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 3.099</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3.100</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 3.900</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 3.010</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q6/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">The decider is exactly 5. What do we do?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> REST (stay)</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> RAISE (+1)</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Drop the thousandths</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Add 5</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q7/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">12.4055 → <span style="color:var(--yel)">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 12.405</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 12.406</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 12.41</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 12.46</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q8/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">0.0642 → <span style="color:var(--yel)">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 0.064</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 0.065</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 0.06</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 0.07</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q9/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Which decimal rounds to <span style="color:var(--yel)">0.750</span>?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 0.7496</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 0.7514</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 0.7446</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 0.7554</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q10/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">8.9995 → <span style="color:var(--yel)">?</span> (boss level!)</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 8.999</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 9.000</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 8.990</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 9.005</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- SUMMARY -->
+<section class="slide" style="align-items:center;justify-content:center;text-align:center">
+  <div data-step="0" style="display:flex;flex-direction:column;gap:26px;align-items:center">
+    <div class="kicker" data-anim style="--an:slideL">ARCADE COMPLETE 🔔</div>
+    <div class="chain" data-anim style="--an:riseIn;--d:.15s">
+      <span class="chipq cy">1 • underline thousandths</span><span class="chipq pk">2 • circle the decider</span><span class="chipq yl">3 • 5+ raise / 4− rest</span><span class="chipq gr">4 • drop the rest</span>
+    </div>
+    <div class="chain" data-anim style="--an:riseIn;--d:.3s">
+      <span class="chipq gr">2.3456 → 2.346</span><span class="chipq cy">0.8674 → 0.867</span><span class="chipq pk">0.9999 → 1.000</span>
+    </div>
+    <div class="master" data-anim style="--an:zoomIn;--d:.45s">🕹️ ROUNDING ARCADE CHAMPION!</div>
+    <p class="big" data-anim style="--an:riseIn;--d:.6s" id="starLine">Keep rounding — see you at the next level!</p>
+  </div>
+</section>
+
+<div id="hints"><b>→</b> Next &nbsp; <b>←</b> Back &nbsp; <b>F</b> Fullscreen &nbsp; <b>🖱️</b> click answers (Lesson)</div>
+<div id="counter">01 / 44</div>
+
+<div id="overlay">
+  <div class="ttl">🕹️ THE ROUNDING ARCADE</div>
+  <div class="sub">Math 5 • Term 2 • Week 2 — Round decimal numbers to the nearest thousandths: know the seats, read the decider, raise or rest!</div>
+  <div class="modeBtns" id="modeBtns">
+    <button id="btnPreview">🎬 PREVIEW MODE<small>opens YouTube video link (Watch for the 5 Digit Code)</small></button>
+    <button id="btnLesson">🎓 LESSON MODE<small>interactive + ⭐ big star on first-try correct • needs 5-digit passcode</small></button>
+  </div>
+  <div id="passPanel">
+    <div class="sub">Enter the 5-digit passcode you collected from the Preview video 👀</div>
+    <div class="pslots"><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div></div>
+    <div id="passMsg">Type digits • Enter = unlock</div>
+    <button id="passBack">← BACK</button>
+  </div>
+</div>
+</div>
+
+<script>
+/* ============================================================
+    YOUTUBE LINK SLOT — LEAVE EMPTY ("") WHILE YOU SCREEN-RECORD.
+    AFTER uploading, paste the new video URL and redistribute:
+    var YOUTUBE_LINK = "https://youtu.be/YourNewVideo";
+============================================================ */
+var YOUTUBE_LINK = "https://youtu.be/ZsVowlW3apc";
+
+var PASS=[8,3,5,2,7];
+
+/* WHY bank: [mcQuestionIndex][optionIndex] — 25 practice + 10 quiz = 35 */
+var WHY=[
+/* P1 seats */
+["6 is in the TENTHS seat — one seat left of thousandths.","2 is in the HUNDREDTHS seat.","8 is third after the point — the THOUSANDTHS digit!","4 is the ONES digit, left of the decimal point."],
+["6 is tenths.","2 is hundredths.","8 is thousandths — the decider sits AFTER it.","1 is ten-thousandths, right after the thousandths — the DECIDER!"],
+["7 is in tenths.","0 is second after the point — HUNDREDTHS!","5 is in thousandths.","3 is the decider (ten-thousandths)."],
+["1 is tenths.","4 is hundredths.","6 is third after the point — THOUSANDTHS!","8 is the decider."],
+["3 is tenths; the 5 sits after it.","5 is second after the point — HUNDREDTHS!","0 is in the thousandths seat.","6 is in ten-thousandths."],
+/* P2 decider call */
+["6 is 5 or more — RAISE THE SCORE: +1 to the thousandths!","Rest is only for deciders 0-4.","Never drop the thousandths — it is the target seat!","Rounding adds 1 to the thousandths, not 10 to the number."],
+["Raising needs a decider of 5 or more.","4 is 4 or less — LET IT REST, the thousandths stays!","The decider never changes the tenths seat.","Resting keeps the thousandths 3 — it does not delete it."],
+["5 is not 4 or less — exactly 5 rounds UP!","5 or more — RAISE THE SCORE, even exactly 5!","Doubling is not rounding.","Subtracting is the opposite of raising."],
+["2 is 4 or less — LET IT REST!","Raise needs a decider of 5 or more.","The decider itself drops later — it never stays in the answer.","Resting keeps the thousandths 4 exactly as it is."],
+["8 is 5 or more — RAISE THE SCORE!","Resting would ignore a big decider.","Raising adds 1 to the thousandths, not 8.","The 8 decides, then drops — it never stays in the answer."],
+/* P3 raise */
+["2.345 forgot to raise — decider 6 says raise!","5+1=6, drop the rest → 2.346!","2.35 rounded to hundredths, not thousandths.","2.4 rounded to tenths, not thousandths."],
+["0.567 kept the 7 — but decider 8 raises it.","7+1=8, drop the rest → 0.568!","0.57 is hundredths rounding.","0.6 is tenths rounding."],
+["8.129 ignored the decider 5.","9+1=10 → carry left: 8.130 — chain reaction!","8.190 shuffled the digits.","8.2 is tenths rounding."],
+["4.785 rested — but decider 9 raises!","5+1=6, drop the rest → 4.786!","4.79 is hundredths rounding.","4.8 is tenths rounding."],
+["Decider 5 raises the 5 to 6 → 6.046!","6.045 rested — but 5 or more must raise.","6.05 is hundredths rounding.","6.006 shuffled the seats."],
+/* P4 rest */
+["Decider 4 rests — 0.867 keeps the 7!","0.868 raised — but 4 says rest.","0.87 is hundredths rounding.","0.9 is tenths rounding."],
+["3.142 raised — but decider 2 says rest!","Rest and drop → 3.141!","3.14 is hundredths rounding.","3.1 is tenths rounding."],
+["Decider 3 rests — 7.528!","7.529 raised wrongly.","7.53 is hundredths rounding.","7.5 is tenths rounding."],
+["1.207 raised — but decider 1 says rest!","Rest and drop → 1.206!","1.21 is hundredths rounding.","1.2 is tenths rounding."],
+["Decider 4 rests — 9.984!","9.985 raised wrongly.","9.98 is hundredths rounding.","9.99 is hundredths with a wrong raise."],
+/* P5 number line / mixed */
+["The thousandths neighbors of 0.4246 are 0.424 and 0.425 — correct!","0.42 and 0.43 are hundredths neighbors.","0.4 and 0.5 are tenths neighbors.","0.4247 is a ten-thousandths step, not a thousandths bound."],
+["0.424 is before the midpoint — but 0.4246 is past it.","Past the midpoint 0.4245 → 0.425!","0.42 is hundredths rounding.","0.43 skips a thousandth step."],
+["0.999 rested — but decider 9 raises with a carry!","9+1 carries all the way: 1.000!","0.990 dropped digits wrongly.","1.001 overshot the chain carry."],
+["Decider 1 rests — 5.432!","5.433 raised wrongly.","5.43 is hundredths rounding.","5.4 is tenths rounding."],
+["Decider 3 rests — 2.718!","2.719 raised wrongly.","2.72 is hundredths rounding.","2.7 is tenths rounding."],
+/* QUIZ 1-10 */
+["8 is in tenths.","3 is in hundredths.","5 is third after the point — THOUSANDTHS!","2 is the decider (ten-thousandths)."],
+["0.246 rested — but decider 8 raises!","6+1=7, drop the rest → 0.247!","0.25 is hundredths rounding.","0.2 is tenths rounding."],
+["Decider 4 rests — 4.173!","4.174 raised wrongly.","4.17 is hundredths rounding.","4.2 is tenths rounding."],
+["6 is tenths.","5 is hundredths.","8 is thousandths — the target, not the decider.","7 is ten-thousandths — the DECIDER!"],
+["3.099 rested — but decider 7 raises with a carry!","9+1 carries through: 3.100!","3.900 shuffled the digits.","3.010 shuffled the seats."],
+["Rest is only for deciders 0-4.","5 or more — RAISE! Exactly 5 rounds up!","The thousandths digit is the keeper, never dropped.","Rounding adds 1 to the seat, not 5."],
+["12.405 rested — but decider 5 raises!","5+1=6, drop the rest → 12.406!","12.41 is hundredths rounding.","12.46 shuffled the digits."],
+["Decider 2 rests — 0.064!","0.065 raised wrongly.","0.06 is hundredths rounding.","0.07 is hundredths with a wrong raise."],
+["0.7496: decider 6 raises the 9 → carry → 0.750!","0.7514 rests → 0.751.","0.7446 raises → 0.745.","0.7554 rests → 0.755."],
+["8.999 rested — but decider 5 raises with a full carry!","9+1 carries through every seat: 9.000!","8.990 dropped digits wrongly.","9.005 kept a digit that must drop."]
+];
+
+/* MC narrations: "QUESTION ||| ANSWER" — 35 entries in slide order. */
+var NARR=[
+/* 0 title */
+["Welcome to Grade 5 Math, Term 2, Week 2 — welcome to THE ROUNDING ARCADE! This week's mission: round decimal numbers to the nearest thousandths!",
+ "Our goals: know the decimal seats — tenths, hundredths, thousandths; meet the decider digit; and round to the nearest thousandth with the golden rounding rhyme. Insert coin — let's play!"],
+/* 1 warm-up */
+["Warm-up, player one! Decimals have place values: one tenth is one slice of ten; one hundredth is one slice of a hundred; and one thousandth is one tiny slice of a thousand!",
+ "Each seat to the right is ten times smaller. To round to the nearest thousandth, we must know exactly who sits where — so let's check the seats!"],
+/* 2 unit 1 */
+["Unit one: know the seats! In 4.6281 — the 6 sits in tenths, the 2 in hundredths, the 8 in THOUSANDTHS... and the 1 in ten-thousandths is our DECIDER — the digit that decides whether we raise or rest!",
+ "When rounding to thousandths, always underline the thousandths digit and circle the decider right next door. Never peek at any other digit!"],
+/* 3-7 practice 1 */
+["Practice: in 4.6281, which digit is in the THOUSANDTHS place?|||Count the seats: 6 tenths, 2 hundredths, 8 THOUSANDTHS — the answer is EIGHT!"],
+["Practice: in 4.6281, which digit is the DECIDER?|||The decider sits right after the thousandths — the ten-thousandths digit: ONE!"],
+["Practice: in 0.7053, which digit is in the HUNDREDTHS place?|||7 tenths, 0 HUNDREDTHS — the answer is ZERO!"],
+["Practice: in 9.1468, which digit is in the THOUSANDTHS place?|||1 tenths, 4 hundredths, 6 THOUSANDTHS — the answer is SIX!"],
+["Practice: in 2.3506, the digit 5 sits in which place?|||3 tenths, 5 HUNDREDTHS — the 5 is in the HUNDREDTHS place!"],
+/* 8 unit 2 */
+["Unit two: the golden rule! Meet the decider sorter: digits 0, 1, 2, 3, 4 rest in the cyan lane — the thousandths stays put. Digits 5, 6, 7, 8, 9 hop up in the green lane — RAISE the score, add 1 to the thousandths!",
+ "Five or more, raise the score; four or less, give it a rest! Then drop every digit to the right of the thousandths place."],
+/* 9-13 practice 2 */
+["Practice: rounding 3.4276 to thousandths — the decider is 6. What do we do?|||Six is 5 or more — RAISE THE SCORE! Add 1 to the thousandths digit!"],
+["Practice: rounding 0.1834 — the decider is 4. What do we do?|||Four is 4 or less — LET IT REST! The thousandths digit stays!"],
+["Practice: rounding 7.2595 — the decider is 5. What do we do?|||Five is 5 or more — RAISE THE SCORE! Even exactly 5 rounds up!"],
+["Practice: rounding 5.6042 — the decider is 2. What do we do?|||Two is 4 or less — LET IT REST!"],
+["Practice: rounding 1.9788 — the decider is 8. What do we do?|||Eight is 5 or more — RAISE THE SCORE!"],
+/* 14 unit 3 */
+["Unit three: raise it! Round 2.3456. Underline the thousandths 5, circle the decider 6. Six is 5 or more — so the 5 flips up to 6, and the digits after it drop away! Watch — the animation replays so you never miss it!",
+ "2.3456 rounds to 2.346! Raise the score, drop the rest — level cleared!"],
+/* 15-19 practice 3 */
+["Practice: round 2.3456 to the nearest thousandth.|||The decider 6 raises the 5 to 6 — TWO POINT THREE FOUR SIX!"],
+["Practice: round 0.5678 to the nearest thousandth.|||The decider 8 raises the 7 to 8 — ZERO POINT FIVE SIX EIGHT!"],
+["Practice: round 8.1295 to the nearest thousandth.|||The decider 5 raises the 9 — nine plus one is ten, so carry: EIGHT POINT ONE THREE ZERO!"],
+["Practice: round 4.7859 to the nearest thousandth.|||The decider 9 raises the 5 to 6 — FOUR POINT SEVEN EIGHT SIX!"],
+["Practice: round 6.0455 to the nearest thousandth.|||The decider 5 raises the 5 to 6 — SIX POINT ZERO FOUR SIX!"],
+/* 20 unit 4 */
+["Unit four: let it rest! Round 0.8674. Underline the thousandths 7, circle the decider 4. Four is 4 or less — the 7 shakes its head and stays put, while the decider drops away! And it replays, so watch again!",
+ "0.8674 rounds to 0.867! No change to the thousandths — just drop the rest and move on!"],
+/* 21-25 practice 4 */
+["Practice: round 0.8674 to the nearest thousandth.|||The decider 4 lets it rest — ZERO POINT EIGHT SIX SEVEN!"],
+["Practice: round 3.1412 to the nearest thousandth.|||The decider 2 lets it rest — THREE POINT ONE FOUR ONE!"],
+["Practice: round 7.5283 to the nearest thousandth.|||The decider 3 lets it rest — SEVEN POINT FIVE TWO EIGHT!"],
+["Practice: round 1.2061 to the nearest thousandth.|||The decider 1 lets it rest — ONE POINT TWO ZERO SIX!"],
+["Practice: round 9.9844 to the nearest thousandth.|||The decider 4 lets it rest — NINE POINT NINE EIGHT FOUR!"],
+/* 26 unit 5 */
+["Unit five: the number line check! 0.4246 lives between 0.424 and 0.425. The midpoint is 0.4245 — and 0.4246 is past the middle, so it is NEARER to 0.425. The number line agrees with the rhyme!",
+ "Use the line whenever you doubt: past the middle, raise; before the middle, rest. Either way — you round to the nearest thousandth!"],
+/* 27-31 practice 5 */
+["Practice: 0.4246 sits between which two thousandths?|||Between ZERO POINT FOUR TWO FOUR and ZERO POINT FOUR TWO FIVE!"],
+["Practice: round 0.4246 to the nearest thousandth.|||It is past the midpoint 0.4245 — so ZERO POINT FOUR TWO FIVE!"],
+["Practice: round 0.9999 to the nearest thousandth.|||The decider 9 raises the 9 — chain reaction! — to ONE POINT ZERO ZERO ZERO!"],
+["Practice: round 5.4321 to the nearest thousandth.|||The decider 1 lets it rest — FIVE POINT FOUR THREE TWO!"],
+["Practice: round 2.7183 to the nearest thousandth.|||The decider 3 lets it rest — TWO POINT SEVEN ONE EIGHT!"],
+/* 32 hazards */
+["Arcade hazards, don't lose a life! Hazard one: wrong seat — the decider is the digit RIGHT AFTER the thousandths, the ten-thousandths; never peek elsewhere! Hazard two: forgetting to drop — after rounding, the digits to the right leave the game: 2.3456 becomes 2.346, not 2.3466! Hazard three: the chain reaction — when a 9 rounds up it becomes 10, so carry left: 8.1295 becomes 8.130, and 0.9999 becomes 1.000!"],
+/* 33-42 final quiz */
+["Quiz one: in 6.8352, which digit is in the thousandths place?|||8 tenths, 3 hundredths, 5 THOUSANDTHS — the answer is FIVE!"],
+["Quiz two: round 0.2468 to the nearest thousandth.|||The decider 8 raises the 6 to 7 — ZERO POINT TWO FOUR SEVEN!"],
+["Quiz three: round 4.1734 to the nearest thousandth.|||The decider 4 lets it rest — FOUR POINT ONE SEVEN THREE!"],
+["Quiz four: rounding 9.6587 to thousandths — which digit is the decider?|||The ten-thousandths digit: SEVEN!"],
+["Quiz five: round 3.0997 to the nearest thousandth.|||The decider 7 raises the 9 — chain carry — THREE POINT ONE ZERO ZERO!"],
+["Quiz six: the decider is exactly 5. What do we do?|||Five or more — RAISE THE SCORE! Exactly 5 rounds up!"],
+["Quiz seven: round 12.4055 to the nearest thousandth.|||The decider 5 raises the 5 to 6 — TWELVE POINT FOUR ZERO SIX!"],
+["Quiz eight: round 0.0642 to the nearest thousandth.|||The decider 2 lets it rest — ZERO POINT ZERO SIX FOUR!"],
+["Quiz nine: which decimal rounds to 0.750?|||0.7496! The decider 6 raises the 9 — carry — to ZERO POINT SEVEN FIVE ZERO!"],
+["Quiz ten: round 8.9995 to the nearest thousandth.|||The decider 5 raises the 9 — full chain carry — NINE POINT ZERO ZERO ZERO!"],
+/* 43 summary */
+["Arcade complete! Know the seats, circle the decider, then: five or more, raise the score; four or less, give it a rest — and drop the digits to the right. That is rounding to the nearest thousandth!",
+ "%STARS% You are a certified ROUNDING ARCADE CHAMPION! Keep rounding — see you at the next level!"]
+];
+
+var slides=[].slice.call(document.querySelectorAll('.slide'));
+var mcList=[].slice.call(document.querySelectorAll('.slide.mc'));
+shuffleChoicesOnce();
+
+var si=0,step=-1,started=false,mode=null,muted=false;
+var starCount=0,firstWrong=false,answered=false;
+var mcState=slides.map(function(){return {answered:false,firstWrong:false,wrongs:{}};});
+var synth=window.speechSynthesis||null,voices=[],voiceIdx=-1;
+var chip=document.getElementById('voiceChip');
+var recChip=document.getElementById('recChip'),starChip=document.getElementById('starChip');
+var stageEl=document.getElementById('stage');
+
+function getWhy(sl,i){
+  var mi=mcList.indexOf(sl);
+  var w=WHY[mi];
+  if(w&&w[i])return w[i];
+  return (i===+sl.getAttribute('data-ans'))?'This choice follows the rounding rule.':'This choice breaks the rounding rule — check the seat, the decider, or the drop.';
+}
+function setFB(sl,type,html){
+  var fb=sl.querySelector('.fb'); if(!fb)return;
+  fb.innerHTML=html;
+  fb.classList.remove('g','r');
+  if(type==='g')fb.classList.add('g');
+  if(type==='r')fb.classList.add('r');
+}
+
+var stepStart=[],T=0;slides.forEach(function(s,i){stepStart.push(T);T+=NARR[i].length;});
+var digitAt={};[.15,.37,.57,.76,.93].forEach(function(p,k){digitAt[Math.min(T-1,Math.round(T*p))]=PASS[k];});
+var shownDigits={};
+
+var passOpen=false,passBuf=[];
+var modeBtns=document.getElementById('modeBtns'),passPanel=document.getElementById('passPanel');
+document.getElementById('btnPreview').onclick=function(e){e.stopPropagation();startPreview();};
+document.getElementById('btnLesson').onclick=function(e){e.stopPropagation();openPass();};
+document.getElementById('passBack').onclick=function(e){e.stopPropagation();closePass();};
+function openPass(){passOpen=true;modeBtns.style.display='none';passPanel.style.display='flex';passBuf=[];renderPass();
+  document.getElementById('passMsg').textContent='Type digits • Enter = unlock';}
+function closePass(){passOpen=false;passPanel.style.display='none';modeBtns.style.display='flex';}
+function renderPass(){var sl=passPanel.querySelectorAll('.pslot');
+  sl.forEach(function(s,i){s.textContent=passBuf[i]!==undefined?passBuf[i]:'';});}
+function tryPass(){var ok=passBuf.length===5&&passBuf.every(function(d,i){return d===PASS[i];});
+  if(ok){startLesson();}else{passPanel.classList.add('err');
+    document.getElementById('passMsg').textContent='❌ Wrong code! Watch the Preview video to collect the 5 digits.';
+    setTimeout(function(){passPanel.classList.remove('err');},600);passBuf=[];renderPass();}}
+function startPreview(){
+  if(YOUTUBE_LINK && YOUTUBE_LINK.trim()){window.open(YOUTUBE_LINK.trim(),'_blank');return;}
+  mode='preview';started=true;document.body.classList.add('preview');
+  recChip.classList.add('on');document.getElementById('overlay').style.display='none';
+  showIntroSlide();
+}
+/* 10-second animated bumper before the auto-lesson starts */
+function showIntroSlide(){
+  var intro=document.getElementById('introOverlay');
+  intro.classList.add('active');
+  var countEl=document.getElementById('introCount');
+  var timeLeft=10;
+  countEl.textContent=timeLeft;
+  tone(660,0,.2,'triangle',.3);tone(880,.2,.2,'triangle',.3);
+  var timer=setInterval(function(){
+    timeLeft--;
+    countEl.textContent=timeLeft;
+    if(timeLeft>0)tone(880,0,.08,'square',.15);
+    if(timeLeft<=0){
+      clearInterval(timer);
+      intro.classList.remove('active');
+      goTo(0);
+    }
+  },1000);
+}
+function startLesson(){mode='lesson';started=true;passOpen=false;document.body.classList.add('lesson');
+  document.getElementById('overlay').style.display='none';goTo(0);}
+
+var recTimer=null;
+function clearRec(){if(recTimer){clearTimeout(recTimer);recTimer=null;}}
+function scheduleNext(ms){clearRec();recTimer=setTimeout(function(){recTimer=null;if(mode==='preview'&&started)next();},ms);}
+
+var mcTimerInt=null,mcCounting=false;
+var mcTimerEl=document.getElementById('mcTimer'),mcTimerN=document.getElementById('mcTimerN');
+function clearMcTimer(){if(mcTimerInt){clearInterval(mcTimerInt);mcTimerInt=null;}
+  mcTimerEl.classList.remove('on');mcCounting=false;}
+function startMCCountdown(){mcCounting=true;var n=5;
+  mcTimerN.textContent=n;mcTimerEl.classList.add('on');tone(980,0,.09,'square',.12);
+  mcTimerInt=setInterval(function(){n--;
+    if(n<=0){clearInterval(mcTimerInt);mcTimerInt=null;mcTimerEl.classList.remove('on');mcCounting=false;
+      revealMC();speakAnswer();}
+    else{mcTimerN.textContent=n;tone(980,0,.09,'square',.12);}
+  },1000);}
+function autoAfter(){if(mode!=='preview'||!started)return;if(si>=slides.length-1)return;
+  if(slides[si].classList.contains('mc')){if(!answered&&!mcCounting)startMCCountdown();}
+  else scheduleNext(2000);}
+
+function speakAnswer(){
+  var full=NARR[si][step]||'';
+  var parts=full.split('|||');
+  var ans=parts[1]||'';
+  if(mode!=='preview'||!ans||!synth||muted){scheduleNext(2600);return;}
+  synth.cancel();
+  var u=new SpeechSynthesisUtterance(ans);
+  var v=pickVoice();if(v){u.voice=v;u.lang=v.lang;}
+  u.rate=1.0;u.pitch=1.0;u.volume=1;
+  u.onend=u.onerror=function(){scheduleNext(2200);};
+  synth.speak(u);
+}
+
+var AC=null;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}
+  if(AC&&AC.state==='suspended')AC.resume();return AC;}
+function tone(f,t0,dur,type,vol,slide){if(muted)return;var c=ac();if(!c)return;
+  var t=c.currentTime+t0,o=c.createOscillator(),g=c.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(f,t);
+  if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+dur);
+  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol||.2,t+.02);
+  g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+.05);}
+function sPop(){tone(520,0,.12,'triangle',.22,900);}
+function sWhoosh(){if(muted)return;var c=ac();if(!c)return;
+  var dur=.35,buf=c.createBuffer(1,c.sampleRate*dur,c.sampleRate),d=buf.getChannelData(0);
+  for(var i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);
+  var src=c.createBufferSource();src.buffer=buf;var f=c.createBiquadFilter();f.type='bandpass';
+  f.frequency.setValueAtTime(300,c.currentTime);f.frequency.exponentialRampToValueAtTime(2400,c.currentTime+dur);
+  var g=c.createGain();g.gain.value=.15;src.connect(f);f.connect(g);g.connect(c.destination);src.start();}
+function sCorrect(){tone(660,0,.14,'triangle',.3);tone(880,.13,.14,'triangle',.3);tone(1100,.26,.4,'triangle',.3);}
+function sWrong(){tone(170,0,.25,'sawtooth',.18,120);}
+function sCode(){tone(784,0,.15,'triangle',.3);tone(1175,.16,.3,'triangle',.3);}
+function sFanfare(){[523,659,784,1047].forEach(function(f,i){tone(f,i*.12,.28,'triangle',.3);});tone(1319,.55,.7,'triangle',.3);}
+
+/* Star counter only increments when the flying star LANDS on the score chip */
+function starBurst(fromEl){
+  var sr=stageEl.getBoundingClientRect();
+  var sc=sr.width/1920;
+  var fr=fromEl.getBoundingClientRect();
+  var fx0=(fr.left+fr.width/2-sr.left)/sc;
+  var fy0=(fr.top+fr.height/2-sr.top)/sc;
+  var cr=starChip.getBoundingClientRect();
+  var tx=(cr.left+cr.width/2-sr.left)/sc, ty=(cr.top+cr.height/2-sr.top)/sc;
+  var s=document.createElement('span');
+  s.textContent='⭐';
+  s.style.cssText='position:absolute;z-index:95;pointer-events:none;left:'+fx0+'px;top:'+fy0+'px;'+
+    'font-size:72px;transform:translate(-50%,-50%) scale(0);text-shadow:0 0 30px #ffd93d,0 0 70px #ff4fd8;';
+  stageEl.appendChild(s);
+  var a1=s.animate([
+    {transform:'translate(-50%,-50%) scale(0) rotate(0deg)',opacity:1},
+    {transform:'translate(-50%,-50%) scale(2.5) rotate(540deg)',opacity:1,offset:.55},
+    {transform:'translate(-50%,-50%) scale(2.0) rotate(720deg)',opacity:1}
+  ],{duration:800,easing:'cubic-bezier(.2,.7,.2,1)'});
+  a1.onfinish=function(){
+    var dx=tx-fx0, dy=ty-fy0;
+    var a2=s.animate([
+      {transform:'translate(-50%,-50%) scale(2.0) rotate(720deg)',opacity:1},
+      {transform:'translate(calc(-50% + '+dx+'px), calc(-50% + '+dy+'px)) scale(.35) rotate(1080deg)',opacity:.95}
+    ],{duration:800,easing:'cubic-bezier(.4,0,.7,1)'});
+    a2.onfinish=function(){s.remove();
+      starCount++;document.getElementById('starN').textContent=starCount;
+      starChip.classList.remove('bump');void starChip.offsetWidth;starChip.classList.add('bump');
+      tone(1318,0,.18,'triangle',.28);};
+  };
+}
+
+function refreshVoices(){if(!synth)return;voices=synth.getVoices();label();}
+if(synth){refreshVoices();synth.onvoiceschanged=refreshVoices;}
+function pickVoice(){
+  if(!voices.length)return null;
+  var en=voices.filter(function(v){return v.lang.toLowerCase().indexOf('en')===0;});
+  if(voiceIdx>=0&&en.length)return en[voiceIdx%en.length];
+  var ph=voices.filter(function(v){return /en[-_]ph/i.test(v.lang);});
+  if(ph.length){var m=ph.filter(function(v){return /james|male/i.test(v.name);})[0];return m||ph[0];}
+  var ph2=voices.filter(function(v){return /philippines|filipino/i.test(v.name);})[0]; if(ph2)return ph2;
+  var nat=en.filter(function(v){return /natural|online|neural/i.test(v.name);});
+  var male=['james','guy','davis','ryan','daniel','david','mark','alex','george','arthur','fred','eric','brian','matthew','male'];
+  for(var i=0;i<male.length;i++){var f=nat.filter(function(v){return v.name.toLowerCase().indexOf(male[i])>-1;})[0]
+    ||en.filter(function(v){return v.name.toLowerCase().indexOf(male[i])>-1;})[0]; if(f)return f;}
+  return nat[0]||en[0]||voices[0];}
+function label(){var v=pickVoice();var ph=v&&(/en[-_]ph/i.test(v.lang)||/philippines|filipino/i.test(v.name));
+  chip.textContent=(muted?'🔇 Muted':(ph?'🇵🇭 ':'🔊 '))+(v?v.name.replace('Microsoft','MS').replace('Online (Natural)','Natural'):'no voice');}
+function testVoice(){if(mode==='lesson')return;
+  var en=voices.filter(function(v){return v.lang.toLowerCase().indexOf('en')===0;});
+  if(en.length){voiceIdx=(voiceIdx+1)%en.length;}
+  label();
+  if(muted||!synth)return;
+  synth.cancel();
+  var u=new SpeechSynthesisUtterance('Kumusta! This is your lesson voice. Press V again to audition other voices!');
+  var v=pickVoice();if(v){u.voice=v;u.lang=v.lang;} u.rate=1.0;u.pitch=1.0;
+  synth.speak(u);}
+chip.addEventListener('click',function(e){e.stopPropagation();testVoice();});
+
+function speak(t){
+  if(mode==='lesson')return;
+  if(!synth){autoAfter();return;}
+  synth.cancel();
+  if(muted){autoAfter();return;}
+  if(slides[si]&&slides[si].classList.contains('mc')){t=t.split('|||')[0];}
+  var u=new SpeechSynthesisUtterance(t.replace('%STARS%','Play Lesson Mode to earn stars!')),v=pickVoice();
+  if(v){u.voice=v;u.lang=v.lang;} u.rate=1.0;u.pitch=1.0;u.volume=1;
+  u.onend=u.onerror=function(){autoAfter();};
+  synth.speak(u);
+}
+
+var codeOv=document.getElementById('codeOv');
+function showCode(k,d){document.getElementById('codeLbl').textContent='PASSCODE DIGIT '+(k+1)+'/5 — WRITE IT DOWN!';
+  document.getElementById('codeDig').textContent=d;codeOv.classList.add('on');sCode();
+  setTimeout(function(){codeOv.classList.remove('on');},3000);}
+
+function shuffleChoicesOnce(){
+  document.querySelectorAll('.slide.mc .opts').forEach(function(box){
+    var btns=[].slice.call(box.children);
+    for(var i=btns.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=btns[i];btns[i]=btns[j];btns[j]=t;}
+    btns.forEach(function(btn,idx){var b=btn.querySelector('b');if(b)b.textContent=String.fromCharCode(65+idx);box.appendChild(btn);});
+  });
+}
+function getMCState(sl){return mcState[slides.indexOf(sl)];}
+
+function resetMC(sl){
+  var st=getMCState(sl);
+  answered=!!st.answered; firstWrong=!!st.firstWrong;
+  sl.querySelectorAll('.opt').forEach(function(o){
+    o.classList.remove('good','bad','reveal'); o.disabled=false;
+    if(st.wrongs[+o.getAttribute('data-i')])o.classList.add('bad');
+  });
+  if(st.answered){
+    var a=+sl.getAttribute('data-ans');
+    var correct=sl.querySelector('.opt[data-i="'+a+'"]');
+    if(correct)correct.classList.add('good');
+    setFB(sl,'g','✔ Correct!'+(st.firstWrong?' (no star — missed first try)':' +1 ⭐')+
+      '<span class="why">'+getWhy(sl,a)+'</span>');
+  }else if(Object.keys(st.wrongs).length>0){
+    setFB(sl,'r','Continue — choose the correct answer to proceed!<span class="why">Read each choice carefully.</span>');
+  }else{
+    setFB(sl,'','');
+  }
+}
+function revealMC(){
+  var sl=slides[si]; if(answered)return;
+  answered=true;
+  var st=getMCState(sl); if(st)st.answered=true;
+  var a=+sl.getAttribute('data-ans');
+  var o=sl.querySelector('.opt[data-i="'+a+'"]');
+  if(o){o.classList.add('reveal');
+    starBurst(o); sCorrect();}
+  if(o){setFB(sl,'g','✔ Answer: '+o.textContent.replace(/^[A-D]/,'').trim()+
+    '<span class="why">'+getWhy(sl,a)+'</span>');}
+}
+function clickOpt(btn){
+  if(mode!=='lesson'||answered)return;
+  var sl=btn.closest('.slide'); var st=getMCState(sl);
+  var a=+sl.getAttribute('data-ans'); var i=+btn.getAttribute('data-i');
+  var why=getWhy(sl,i);
+  if(i===a){
+    answered=true; st.answered=true; st.firstWrong=firstWrong;
+    btn.classList.add('good');
+    if(!firstWrong){
+      starBurst(btn);
+      setFB(sl,'g','✔ Correct! +1 ⭐<span class="why">'+why+'</span>');
+      sCorrect();
+    }else{
+      setFB(sl,'g','✔ Correct! (no star — missed first try)<span class="why">'+why+'</span>');
+      sCorrect();
+    }
+  }else{
+    firstWrong=true; st.firstWrong=true; st.wrongs[i]=true;
+    btn.classList.add('bad');
+    setFB(sl,'r','✘ Not quite — try again!<span class="why">'+why+'</span>');
+    sWrong();
+  }
+}
+document.addEventListener('click',function(e){var b=e.target.closest('.opt');if(b){clickOpt(b);return;}
+  if(mode==='lesson'&&started)next();});
+
+function confetti(){var host=document.getElementById('confetti');if(!host)return;host.innerHTML='';
+  var cols=['#4ff0ff','#ffd93d','#b8ff5c','#b18cff','#ff4fd8','#ffffff'];
+  for(var i=0;i<90;i++){var s=document.createElement('i');
+    s.style.left=(Math.random()*100)+'%';s.style.background=cols[i%cols.length];
+    s.style.width=(8+Math.random()*10)+'px';s.style.height=(10+Math.random()*12)+'px';
+    s.style.animationDuration=(2.4+Math.random()*2)+'s';s.style.animationDelay=(Math.random()*.9)+'s';
+    host.appendChild(s);}
+  setTimeout(function(){host.innerHTML='';},5500);}
+
+function toggleFS(){
+  if(!document.fullscreenElement){if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen();}
+  else if(document.exitFullscreen){document.exitFullscreen();}
+}
+
+function updateHud(){
+  document.getElementById('counter').textContent=('0'+(si+1)).slice(-2)+' / '+slides.length;
+  document.getElementById('progress').style.width=((si+(step+1)/NARR[si].length)/slides.length*100)+'%';}
+function setStep(s){step=s;clearRec();clearMcTimer();
+  var els=slides[si].querySelectorAll('[data-step]'),newly=[];
+  for(var i=0;i<els.length;i++){var on=+els[i].getAttribute('data-step')<=s;
+    els[i].classList.toggle('on',on);
+    if(on&&+els[i].getAttribute('data-step')===s)newly.push(els[i]);}
+  newly.slice(0,5).forEach(function(el,idx){setTimeout(sPop,180*idx+120);});
+  if(slides[si].classList.contains('mc')&&s===0)resetMC(slides[si]);
+  var g=stepStart[si]+s;
+  if(mode==='preview'&&digitAt[g]!==undefined&&!shownDigits[g]){shownDigits[g]=1;showCode(PASS.indexOf(digitAt[g]),digitAt[g]);}
+  if(si===slides.length-1&&s===0){
+    var sl2=document.getElementById('starLine');
+    if(sl2)sl2.textContent=(mode==='lesson'?('You earned '+starCount+' of 35 stars! ⭐ '):'Play Lesson Mode to earn stars! ')+'Keep rounding — see you at the next level!';
+    if(mode==='lesson'){confetti();sFanfare();}
+  }
+  speak(NARR[si][s]||'');updateHud();}
+function goTo(i){clearRec();clearMcTimer();slides[si].classList.remove('active');si=i;slides[si].classList.add('active');
+  slides[si].scrollTop=0;sWhoosh();setStep(0);}
+function next(){
+  if(!started)return;
+  if(mode==='lesson'&&slides[si].classList.contains('mc')){
+    var st=getMCState(slides[si]);
+    if(!st||!st.answered){
+      setFB(slides[si],'r','Answer correctly first to continue! ⭐<span class="why">Underline, circle the decider, then raise or rest.</span>');
+      sWrong();return;
+    }
+  }
+  if(step<NARR[si].length-1)setStep(step+1); else if(si<slides.length-1)goTo(si+1);}
+function prev(){clearRec();clearMcTimer();if(si>0)goTo(si-1);}
+
+document.addEventListener('keydown',function(e){var k=e.key;
+  if(k==='f'||k==='F'){e.preventDefault();toggleFS();return;}
+  if(!started){
+    if(k==='v'||k==='V'){e.preventDefault();testVoice();return;}
+    if(k==='m'||k==='M'){muted=!muted;if(muted)synth&&synth.cancel();label();return;}
+    if(passOpen){
+      if(/^[0-9]$/.test(k)&&passBuf.length<5){passBuf.push(+k);renderPass();sPop();}
+      else if(k==='Backspace'){passBuf.pop();renderPass();}
+      else if(k==='Enter'){tryPass();}
+      else if(k==='Escape'){closePass();}
+      e.preventDefault();return;}
+    if(k==='p'||k==='P')startPreview();
+    if(k==='l'||k==='L')openPass();
+    return;}
+  if(mode==='lesson'){
+    if(k==='m'||k==='M'||k==='v'||k==='V'){e.preventDefault();return;}
+    if(k==='ArrowRight'||k===' '||k==='Enter'||k==='PageDown'){e.preventDefault();next();}
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){e.preventDefault();prev();}
+    return;}
+  if(k==='m'||k==='M'){muted=!muted;if(muted)synth&&synth.cancel();label();return;}
+  if(k==='v'||k==='V'){testVoice();return;}});
+
+var fx=document.getElementById('fx'),sym=['🕹️','⭐','✦','5','9','4','0','.','↑','→','≈','★'];
+for(var i=0;i<14;i++){var s=document.createElement('span');s.textContent=sym[i%sym.length];
+  s.style.left=(Math.random()*94)+'%';s.style.top=(Math.random()*86)+'%';
+  s.style.fontSize=(28+Math.random()*48)+'px';s.style.color=(i%3?'#4ff0ff':'#ff4fd8');
+  s.animationDelay=(Math.random()*6)+'s';fx.appendChild(s);}
+function fit(){var sc=Math.min(innerWidth/1920,innerHeight/1080);
+  stageEl.style.transform='translate(-50%,-50%) scale('+sc+')';}
+addEventListener('resize',fit);fit();label();
+</script>
+</body>
+</html>

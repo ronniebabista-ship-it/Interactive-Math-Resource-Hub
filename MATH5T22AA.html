@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔢 Decimal Rounding Quiz!</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  :root {
+    --q-font-scale: 1;
+    --choice-font-scale: 1;
+  }
+  
+  body {
+    font-family: 'Comic Sans MS', 'Chalkboard', 'Trebuchet MS', cursive;
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background 1s ease;
+  }
+  
+  .bg1 { background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); background-size: 400% 400%; animation: gradient 15s ease infinite; }
+  .bg2 { background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fad0c4, #a18cd1); background-size: 400% 400%; animation: gradient 15s ease infinite; }
+  .bg3 { background: linear-gradient(-45deg, #ffecd2, #fcb69f, #ff9a9e, #fecfef); background-size: 400% 400%; animation: gradient 15s ease infinite; }
+  .bg4 { background: linear-gradient(-45deg, #a8edea, #fed6e3, #d299c2, #fef9d7); background-size: 400% 400%; animation: gradient 15s ease infinite; }
+  .bg5 { background: linear-gradient(-45deg, #84fab0, #8fd3f4, #a6c1ee, #fbc2eb); background-size: 400% 400%; animation: gradient 15s ease infinite; }
+  
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 15px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .screen {
+    display: none;
+    background: rgba(255, 255, 255, 0.97);
+    border-radius: 25px;
+    padding: 25px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 820px;
+    animation: slideIn 0.5s ease;
+  }
+  
+  .screen.active { display: block; }
+  
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(30px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  
+  h1 {
+    color: #e91e63;
+    text-align: center;
+    font-size: 2.3em;
+    margin-bottom: 15px;
+    text-shadow: 3px 3px 0px #ffd700;
+    animation: bounce 2s infinite;
+  }
+  
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  
+  label {
+    display: block;
+    font-size: 1.2em;
+    color: #555;
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+  
+  input[type="number"] {
+    padding: 12px;
+    font-size: 1.4em;
+    border: 3px solid #2196f3;
+    border-radius: 12px;
+    width: 130px;
+    text-align: center;
+    font-family: inherit;
+    margin: 8px;
+  }
+  
+  .btn {
+    background: linear-gradient(45deg, #ff6b6b, #feca57);
+    color: white;
+    border: none;
+    padding: 16px 45px;
+    font-size: 1.3em;
+    border-radius: 50px;
+    cursor: pointer;
+    margin: 8px;
+    font-family: inherit;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s;
+    text-transform: uppercase;
+  }
+  
+  .btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  }
+  
+  .btn-secondary {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.1em;
+    border-radius: 50px;
+    cursor: pointer;
+    margin: 8px;
+    font-family: inherit;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: all 0.3s;
+  }
+  
+  .btn-secondary:hover { transform: translateY(-2px) scale(1.04); }
+  
+  .btn-close { background: linear-gradient(45deg, #f44336, #e91e63); }
+  .btn-replay { background: linear-gradient(45deg, #4caf50, #2e7d32); }
+  .btn-skip { background: linear-gradient(45deg, #ff9800, #f57c00); }
+  
+  .music-toggle {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    background: white;
+    border-radius: 50%;
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8em;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 1000;
+    transition: all 0.3s;
+  }
+  
+  .music-toggle:hover { transform: scale(1.1); }
+  
+  .font-panel-toggle {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background: white;
+    border-radius: 50%;
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6em;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 1000;
+    transition: all 0.3s;
+    border: 3px solid #667eea;
+  }
+  
+  .font-panel-toggle:hover { transform: scale(1.1); }
+  
+  .font-panel {
+    position: fixed;
+    top: 80px;
+    left: 15px;
+    background: white;
+    border-radius: 18px;
+    padding: 18px 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    z-index: 999;
+    border: 3px solid #667eea;
+    min-width: 240px;
+    transition: all 0.3s ease;
+  }
+  
+  .font-panel.hidden {
+    opacity: 0;
+    transform: scale(0.5);
+    pointer-events: none;
+  }
+  
+  .font-panel-title {
+    font-size: 1em;
+    font-weight: bold;
+    color: #667eea;
+    margin-bottom: 12px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .slider-row { margin: 10px 0; }
+  
+  .slider-row label {
+    font-size: 0.85em;
+    color: #333;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .slider-row label .size-val {
+    background: #667eea;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.9em;
+    min-width: 40px;
+    text-align: center;
+  }
+  
+  .slider-row input[type="range"] {
+    width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    background: #e0e0e0;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  .slider-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  }
+  
+  .reset-font-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 6px;
+    font-size: 0.85em;
+    background: #f0f0f0;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #555;
+    transition: all 0.2s;
+  }
+  
+  .reset-font-btn:hover {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+  }
+  
+  .fixed-timer {
+    position: fixed;
+    top: 80px;
+    right: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 18px;
+    padding: 12px 22px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    z-index: 1000;
+    text-align: center;
+    min-width: 110px;
+    border: 3px solid #ffd700;
+  }
+  
+  .fixed-timer-label {
+    font-size: 0.75em;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 3px;
+    opacity: 0.9;
+  }
+  
+  .fixed-timer-value {
+    font-size: 2.8em;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    line-height: 1;
+  }
+  
+  .fixed-timer.warning {
+    background: linear-gradient(135deg, #f44336 0%, #e91e63 100%);
+    animation: pulse 0.5s infinite;
+  }
+  
+  .fixed-timer.exchange-mode {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    color: #333;
+  }
+  
+  .fixed-timer.exchange-mode.warning {
+    background: linear-gradient(135deg, #f44336 0%, #ff6b6b 100%);
+    color: white;
+  }
+  
+  .fixed-timer.hidden { display: none; }
+  
+  .question-box {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 18px 20px;
+    border-radius: 20px;
+    margin: 10px 0;
+    text-align: left;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+    line-height: 1.35;
+    border: 5px solid #ffd700;
+  }
+  
+  #questionText {
+    font-size: calc(1.55em * var(--q-font-scale));
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    letter-spacing: 0.5px;
+    word-spacing: 2px;
+    line-height: 1.35;
+  }
+  
+  #questionText .q-number {
+    color: #ffd700;
+    font-weight: 900;
+    margin-right: 4px;
+  }
+  
+  #questionText .ask-line {
+    display: block;
+    color: #fff59d;
+    font-size: 0.85em;
+    margin-top: 10px;
+    font-style: italic;
+    font-weight: bold;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  
+  .write-hint {
+    background: #fff3cd;
+    border: 3px dashed #ffc107;
+    color: #856404;
+    padding: 12px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 1.15em;
+    margin: 10px 0;
+    font-weight: bold;
+  }
+  
+  .next-hint {
+    background: #e1f5fe;
+    border: 2px solid #03a9f4;
+    color: #01579b;
+    padding: 8px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 0.9em;
+    margin: 8px 0;
+    font-weight: bold;
+  }
+  
+  .next-hint kbd {
+    background: #01579b;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 1.05em;
+    margin: 0 3px;
+    box-shadow: 0 2px 0 #003c6c;
+  }
+  
+  .choices-label {
+    text-align: center;
+    font-size: 1.05em;
+    color: #555;
+    font-weight: bold;
+    margin: 8px 0 6px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 6px 0 10px 0;
+  }
+  
+  .choice-display {
+    background: linear-gradient(135deg, #fff 0%, #f0f4ff 100%);
+    border: 4px solid #2196f3;
+    color: #1565c0;
+    padding: 14px 18px;
+    font-size: calc(1.4em * var(--choice-font-scale));
+    font-weight: bold;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 3px 8px rgba(33,150,243,0.2);
+    font-family: inherit;
+    cursor: default;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    line-height: 1.2;
+  }
+  
+  .choice-letter {
+    background: #2196f3;
+    color: white;
+    width: 1.8em;
+    height: 1.8em;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1em;
+    flex-shrink: 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    font-weight: 900;
+  }
+  
+  .choice-text { 
+    flex: 1; 
+    font-size: 1em;
+    text-align: center;
+  }
+  
+  .motivation {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    color: #3e2723;
+    padding: 30px 25px;
+    border-radius: 20px;
+    text-align: center;
+    margin: 12px 0;
+    font-weight: bold;
+    animation: fadeIn 0.5s;
+    border: 5px solid #ff8a65;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    font-family: 'Arial Black', 'Impact', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    line-height: 1.3;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .motivation::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+    animation: shine 4s infinite;
+  }
+  
+  @keyframes shine {
+    0% { transform: translateX(-100%) translateY(-100%); }
+    100% { transform: translateX(100%) translateY(100%); }
+  }
+  
+  .motivation-main {
+    font-size: 1.9em;
+    margin-bottom: 15px;
+    position: relative;
+    z-index: 1;
+    color: #3e2723;
+    text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
+    letter-spacing: 2px;
+  }
+  
+  .motivation-sub {
+    font-size: 1.1em;
+    color: #ffffff;
+    font-family: 'Comic Sans MS', cursive;
+    text-transform: none;
+    letter-spacing: 1px;
+    font-weight: bold;
+    background: #d84315;
+    display: inline-block;
+    padding: 10px 28px;
+    border-radius: 30px;
+    position: relative;
+    z-index: 1;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.85) rotate(-2deg); }
+    to { opacity: 1; transform: scale(1) rotate(0); }
+  }
+  
+  .progress-bar {
+    width: 100%;
+    height: 22px;
+    background: #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 10px 0;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    transition: width 0.5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 0.85em;
+  }
+  
+  .exchange-screen { text-align: center; }
+  
+  .exchange-icon {
+    font-size: 5em;
+    margin: 15px 0;
+    animation: rotate 3s linear infinite;
+  }
+  
+  @keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  .answer-item {
+    margin: 10px 0;
+    padding: 12px 15px;
+    background: #f5f5f5;
+    border-radius: 10px;
+    font-size: 1em;
+    border-left: 5px solid #2196f3;
+  }
+  
+  .answer-item .item-num {
+    display: inline-block;
+    background: #2196f3;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 50%;
+    font-weight: bold;
+    margin-right: 8px;
+    min-width: 30px;
+    text-align: center;
+  }
+  
+  .answer-item .answer-highlight {
+    background: #ffd700;
+    color: #333;
+    padding: 1px 8px;
+    border-radius: 6px;
+    font-weight: bold;
+  }
+  
+  .answer-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    animation: overlayFade 0.4s ease;
+  }
+  
+  .answer-overlay.active { display: flex; }
+  
+  @keyframes overlayFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .overlay-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 35px;
+    padding: 40px 60px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.5), 0 0 0 8px #ffd700;
+    min-width: 300px;
+    max-width: 90vw;
+    position: relative;
+    animation: cardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  @keyframes cardPop {
+    from { opacity: 0; transform: scale(0.7); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  
+  .overlay-item-num {
+    font-size: 1.8em;
+    font-weight: 900;
+    color: #fff59d;
+    margin-bottom: 8px;
+    text-shadow: 3px 3px 0px rgba(0,0,0,0.3);
+    letter-spacing: 2px;
+  }
+  
+  .overlay-item-num .num-big {
+    display: inline-block;
+    background: #ffd700;
+    color: #333;
+    padding: 4px 25px;
+    border-radius: 30px;
+    font-size: 1.1em;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+  
+  .overlay-letter {
+    font-size: 9em;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1;
+    margin: 8px 0;
+    text-shadow: 5px 5px 0px rgba(0,0,0,0.3), 0 0 30px rgba(255,215,0,0.5);
+    font-family: 'Arial Black', 'Impact', sans-serif;
+    animation: letterPulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes letterPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  
+  .overlay-answer {
+    font-size: 2.2em;
+    font-weight: bold;
+    color: #ffd700;
+    background: rgba(0,0,0,0.25);
+    padding: 10px 35px;
+    border-radius: 18px;
+    display: inline-block;
+    margin-top: 8px;
+    border: 3px solid rgba(255,255,255,0.3);
+    letter-spacing: 2px;
+    max-width: 90%;
+    line-height: 1.3;
+  }
+  
+  .overlay-progress {
+    color: white;
+    font-size: 1em;
+    margin-top: 15px;
+    opacity: 0.85;
+    font-weight: bold;
+  }
+  
+  .overlay-countdown {
+    position: absolute;
+    bottom: -55px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    color: #e91e63;
+    padding: 8px 25px;
+    border-radius: 30px;
+    font-size: 1.2em;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    white-space: nowrap;
+  }
+  
+  .overlay-countdown .cd-num {
+    font-size: 1.4em;
+    color: #f44336;
+    margin: 0 5px;
+  }
+  
+  .overlay-tts-indicator {
+    position: absolute;
+    top: 18px;
+    right: 22px;
+    font-size: 1.4em;
+    animation: ttsPulse 1s infinite;
+  }
+  
+  @keyframes ttsPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.6; }
+  }
+  
+  .overlay-controls {
+    margin-top: 80px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .answer-controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  
+  .final-score {
+    font-size: 1.6em;
+    color: #e91e63;
+    text-align: center;
+    margin: 15px 0;
+    font-weight: bold;
+  }
+  
+  .stars {
+    font-size: 2.8em;
+    text-align: center;
+    margin: 15px 0;
+  }
+  
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    animation: fall linear;
+    z-index: 999;
+  }
+  
+  @keyframes fall {
+    to { transform: translateY(100vh) rotate(720deg); }
+  }
+  
+  .setup-info {
+    text-align: center;
+    font-size: 1.05em;
+    color: #555;
+    margin: 10px 0;
+    padding: 12px;
+    background: #e3f2fd;
+    border-radius: 10px;
+    line-height: 1.5;
+  }
+  
+  .concept-box {
+    background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+    border: 3px solid #f57f17;
+    border-radius: 12px;
+    padding: 12px 15px;
+    margin: 10px 0;
+    text-align: left;
+  }
+  
+  .concept-box-title {
+    font-weight: bold;
+    color: #e65100;
+    font-size: 1.05em;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  
+  .concept-item {
+    background: white;
+    border: 2px solid #f57f17;
+    border-radius: 10px;
+    padding: 6px 12px;
+    margin: 5px 0;
+    font-size: 0.88em;
+    color: #333;
+    font-weight: bold;
+  }
+  
+  .music-indicator {
+    position: fixed;
+    top: 145px;
+    right: 15px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 12px;
+    padding: 6px 12px;
+    font-size: 0.8em;
+    font-weight: bold;
+    color: #667eea;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    z-index: 1000;
+    text-align: center;
+    border: 2px solid #667eea;
+    min-width: 130px;
+    transition: all 0.5s ease;
+  }
+  
+  .music-indicator .tune-name {
+    display: block;
+    font-size: 0.85em;
+    color: #999;
+    margin-top: 2px;
+  }
+  
+  .music-indicator.relaxing {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    border-color: #88c9bf;
+    color: #2e7d6f;
+  }
+  
+  .settings-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin: 15px 0;
+  }
+  
+  .setting-box {
+    background: #f8f9fa;
+    border: 3px solid #e0e0e0;
+    border-radius: 15px;
+    padding: 15px 22px;
+    text-align: center;
+    min-width: 180px;
+    transition: all 0.3s;
+  }
+  
+  .setting-box:hover {
+    border-color: #2196f3;
+    box-shadow: 0 5px 15px rgba(33,150,243,0.2);
+  }
+  
+  .setting-box label {
+    font-size: 1em;
+    margin-bottom: 6px;
+  }
+  
+  .setting-box .setting-icon {
+    font-size: 1.7em;
+    margin-bottom: 6px;
+  }
+  
+  .items-hint {
+    text-align: center;
+    color: #888;
+    font-size: 0.85em;
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  @media (max-width: 480px) {
+    .overlay-letter { font-size: 6em; }
+    .overlay-answer { font-size: 1.5em; padding: 8px 20px; }
+    .overlay-card { padding: 30px 20px; }
+  }
+</style>
+</head>
+<body class="bg1">
+
+<div class="music-toggle" id="musicToggle" onclick="toggleMusic()" title="Toggle Music">🔊</div>
+
+<div class="font-panel-toggle" id="fontPanelToggle" onclick="toggleFontPanel()" title="Adjust Font Size">🔤</div>
+
+<div class="font-panel hidden" id="fontPanel">
+  <div class="font-panel-title">🔤 Font Size</div>
+  <div class="slider-row">
+    <label>
+      <span>📖 Question</span>
+      <span class="size-val" id="qSizeVal">100%</span>
+    </label>
+    <input type="range" id="qFontSlider" min="60" max="160" value="100" step="5" oninput="updateFontSizes()">
+  </div>
+  <div class="slider-row">
+    <label>
+      <span>📋 Choices</span>
+      <span class="size-val" id="choiceSizeVal">100%</span>
+    </label>
+    <input type="range" id="choiceFontSlider" min="60" max="160" value="100" step="5" oninput="updateFontSizes()">
+  </div>
+  <button class="reset-font-btn" onclick="resetFontSizes()">↺ Reset to Default</button>
+</div>
+
+<div class="music-indicator" id="musicIndicator">
+  🎵 Item <span id="currentItemNum">1</span>
+  <span class="tune-name" id="tuneName">Bright C Major</span>
+</div>
+
+<div class="fixed-timer hidden" id="fixedTimer">
+  <div class="fixed-timer-label" id="timerLabel">Time Left</div>
+  <div class="fixed-timer-value" id="fixedTimerValue">30</div>
+</div>
+
+<div class="container">
+  <div class="screen active" id="setupScreen">
+    <h1>🔢 Decimal Rounding Quiz!</h1>
+    <div class="setup-info">
+      📝 <b>How to play:</b><br>
+      Get your paper and pencil ready!<br>
+      Practice rounding decimal numbers to the nearest thousandths!
+    </div>
+    
+    <div class="concept-box">
+      <div class="concept-box-title">💡 Rounding Rules:</div>
+      <div class="concept-item">🔹 The <b>thousandths</b> place is the 3rd digit after the decimal.</div>
+      <div class="concept-item">🔹 The <b>ten-thousandths</b> place is the 4th digit after the decimal.</div>
+      <div class="concept-item">🔹 <b>5 or more?</b> Raise the score! (Round up the 3rd digit)</div>
+      <div class="concept-item">🔹 <b>4 or less?</b> Let it rest! (Keep the 3rd digit the same)</div>
+      <div class="concept-item">🔹 <b>Example:</b> 3.141<b>5</b>9 → Look at 5 → Round up → 3.142</div>
+    </div>
+    
+    <div class="settings-row">
+      <div class="setting-box">
+        <div class="setting-icon">⏱️</div>
+        <label for="timePerQuestion">Seconds per question</label>
+        <input type="number" id="timePerQuestion" min="10" max="120" value="30">
+      </div>
+      
+      <div class="setting-box">
+        <div class="setting-icon">📋</div>
+        <label for="totalItems">Number of items</label>
+        <input type="number" id="totalItems" min="1" max="20" value="10">
+        <div class="items-hint">Choose 1 to 20 items</div>
+      </div>
+    </div>
+    
+    <div style="text-align: center;">
+      <button class="btn" onclick="startQuiz()">🚀 Start Quiz!</button>
+    </div>
+  </div>
+
+  <div class="screen" id="motivationScreen">
+    <div class="motivation" id="motivationText"></div>
+    <div style="text-align: center; color: #888; margin-top: 15px; font-size: 1.05em;">
+      Next question in <span id="motivationCountdown" style="font-weight: bold; color: #e91e63; font-size: 1.3em;">8</span>...
+    </div>
+    <div style="text-align: center; margin-top: 12px;">
+      <button class="btn-secondary" onclick="skipMotivation()">⏭️ Skip</button>
+    </div>
+  </div>
+
+  <div class="screen" id="quizScreen">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressBar">0%</div>
+    </div>
+    
+    <div class="question-box">
+      <div id="questionText"></div>
+    </div>
+    
+    <div class="choices-label">📋 Choose the correct answer:</div>
+    <div class="choices" id="choicesContainer"></div>
+    
+    <div class="write-hint">
+      ✏️ Write the correct <b>letter (A, B, C, or D)</b> on your paper!
+    </div>
+    
+    <div class="next-hint">
+      ⌨️ Press <kbd>→</kbd> to go to the next question
+    </div>
+  </div>
+
+  <div class="screen exchange-screen" id="exchangeScreen">
+    <h1>🔄 Time to Exchange!</h1>
+    <div class="exchange-icon">📝📝</div>
+    <div style="font-size: 1.4em; color: #555; margin: 15px 0;">
+      Exchange your paper with your seatmate!<br>
+      <span style="color: #e91e63;">Get ready to check answers together!</span>
+    </div>
+    <div style="margin-top: 15px;">
+      <button class="btn-secondary btn-skip" onclick="skipExchange()">⏭️ Skip to Answer Key</button>
+    </div>
+  </div>
+
+  <div class="screen" id="answerScreen">
+    <h1>🎉 Answer Key</h1>
+    <div class="final-score" id="finalScore">Check your papers!</div>
+    <div class="stars" id="stars"></div>
+    
+    <div class="answer-controls">
+      <button class="btn-secondary btn-close" id="closeOneByOneBtn" onclick="showAllAnswers()">✖ Close (Show All)</button>
+      <button class="btn-secondary btn-replay" id="replayOneByOneBtn" onclick="startOneByOne()" style="display:none;">▶ Show One-by-One</button>
+    </div>
+    
+    <div id="answerList" style="display:none;"></div>
+  </div>
+</div>
+
+<div class="answer-overlay" id="answerOverlay">
+  <div class="overlay-card">
+    <div class="overlay-tts-indicator">🔊</div>
+    <div class="overlay-item-num">
+      ITEM <span class="num-big" id="overlayItemNum">1</span>
+    </div>
+    <div class="overlay-letter" id="overlayLetter">A</div>
+    <div class="overlay-answer" id="overlayAnswer">4.568</div>
+    <div class="overlay-progress" id="overlayProgress">1 of 20</div>
+    <div class="overlay-countdown">
+      Next in <span class="cd-num" id="answerCdNum">8</span> seconds
+    </div>
+  </div>
+  <div class="overlay-controls">
+    <button class="btn-secondary btn-close" onclick="showAllAnswers()">✖ Close (Show All)</button>
+  </div>
+</div>
+
+<script>
+// 20 ENGAGING DECIMAL ROUNDING ITEMS (Nearest Thousandths)
+const questions = [
+  { 
+    text: "A tiny insect is measured to be 4.5678 cm long.",
+    visual: "",
+    ask: "Round the length to the nearest thousandths.",
+    choices: ["4.567 cm", "4.568 cm", "4.570 cm", "4.600 cm"],
+    answer: "B",
+    rule: "Look at the 4th digit (8). Since 8 ≥ 5, round up: 4.5678 → 4.568"
+  },
+  { 
+    text: "A science experiment uses 0.1234 grams of a chemical.",
+    visual: "",
+    ask: "Round the weight to the nearest thousandths.",
+    choices: ["0.123 g", "0.124 g", "0.130 g", "0.100 g"],
+    answer: "A",
+    rule: "Look at the 4th digit (4). Since 4 ≤ 4, keep it the same: 0.1234 → 0.123"
+  },
+  { 
+    text: "A sprinter finishes a race in 7.8995 seconds.",
+    visual: "",
+    ask: "Round the time to the nearest thousandths.",
+    choices: ["7.899 s", "7.900 s", "7.890 s", "8.000 s"],
+    answer: "B",
+    rule: "Look at the 4th digit (5). Since 5 ≥ 5, round up: 7.8995 → 7.900"
+  },
+  { 
+    text: "A water bottle holds exactly 2.3451 liters.",
+    visual: "",
+    ask: "Round the volume to the nearest thousandths.",
+    choices: ["2.345 L", "2.346 L", "2.350 L", "2.300 L"],
+    answer: "A",
+    rule: "Look at the 4th digit (1). Since 1 ≤ 4, keep it the same: 2.3451 → 2.345"
+  },
+  { 
+    text: "A computer microchip is 9.0006 millimeters thick.",
+    visual: "",
+    ask: "Round the thickness to the nearest thousandths.",
+    choices: ["9.000 mm", "9.001 mm", "9.010 mm", "9.100 mm"],
+    answer: "B",
+    rule: "Look at the 4th digit (6). Since 6 ≥ 5, round up: 9.0006 → 9.001"
+  },
+  { 
+    text: "The mathematical constant Pi (π) is approximately 3.14159.",
+    visual: "",
+    ask: "Round Pi to the nearest thousandths.",
+    choices: ["3.141", "3.142", "3.150", "3.200"],
+    answer: "B",
+    rule: "Look at the 4th digit (5). Since 5 ≥ 5, round up: 3.14159 → 3.142"
+  },
+  { 
+    text: "A rare gold nugget weighs 6.7894 grams.",
+    visual: "",
+    ask: "Round the weight to the nearest thousandths.",
+    choices: ["6.789 g", "6.790 g", "6.800 g", "6.780 g"],
+    answer: "A",
+    rule: "Look at the 4th digit (4). Since 4 ≤ 4, keep it the same: 6.7894 → 6.789"
+  },
+  { 
+    text: "A digital kitchen scale reads 1.5555 kg.",
+    visual: "",
+    ask: "Round the weight to the nearest thousandths.",
+    choices: ["1.555 kg", "1.556 kg", "1.560 kg", "1.600 kg"],
+    answer: "B",
+    rule: "Look at the 4th digit (5). Since 5 ≥ 5, round up: 1.5555 → 1.556"
+  },
+  { 
+    text: "A piece of ribbon is 8.2349 meters long.",
+    visual: "",
+    ask: "Round the length to the nearest thousandths.",
+    choices: ["8.234 m", "8.235 m", "8.240 m", "8.300 m"],
+    answer: "B",
+    rule: "Look at the 4th digit (9). Since 9 ≥ 5, round up: 8.2349 → 8.235"
+  },
+  { 
+    text: "A precise medicine dose is 0.9999 mL.",
+    visual: "",
+    ask: "Round the dose to the nearest thousandths.",
+    choices: ["0.999 mL", "1.000 mL", "0.990 mL", "1.100 mL"],
+    answer: "B",
+    rule: "Look at the 4th digit (9). Since 9 ≥ 5, round up: 0.9999 → 1.000"
+  },
+  { 
+    text: "A newly hatched baby bird weighs 5.6782 grams.",
+    visual: "",
+    ask: "Round the weight to the nearest thousandths.",
+    choices: ["5.678 g", "5.679 g", "5.680 g", "5.700 g"],
+    answer: "A",
+    rule: "Look at the 4th digit (2). Since 2 ≤ 4, keep it the same: 5.6782 → 5.678"
+  },
+  { 
+    text: "A digital photo file size is 4.1235 MB.",
+    visual: "",
+    ask: "Round the file size to the nearest thousandths.",
+    choices: ["4.123 MB", "4.124 MB", "4.130 MB", "4.200 MB"],
+    answer: "B",
+    rule: "Look at the 4th digit (5). Since 5 ≥ 5, round up: 4.1235 → 4.124"
+  },
+  { 
+    text: "A rare plant grew 2.9876 cm in a single week.",
+    visual: "",
+    ask: "Round the growth to the nearest thousandths.",
+    choices: ["2.987 cm", "2.988 cm", "2.990 cm", "3.000 cm"],
+    answer: "B",
+    rule: "Look at the 4th digit (6). Since 6 ≥ 5, round up: 2.9876 → 2.988"
+  },
+  { 
+    text: "A single drop of water is measured at 7.0045 mL.",
+    visual: "",
+    ask: "Round the volume to the nearest thousandths.",
+    choices: ["7.004 mL", "7.005 mL", "7.010 mL", "7.100 mL"],
+    answer: "B",
+    rule: "Look at the 4th digit (5). Since 5 ≥ 5, round up: 7.0045 → 7.005"
+  },
+  { 
+    text: "A marathon runner's pace was 3.4567 minutes per kilometer.",
+    visual: "",
+    ask: "Round the pace to the nearest thousandths.",
+    choices: ["3.456 min", "3.457 min", "3.460 min", "3.500 min"],
+    answer: "B",
+    rule: "Look at the 4th digit (7). Since 7 ≥ 5, round up: 3.4567 → 3.457"
+  },
+  { 
+    text: "A brilliant diamond weighs 0.8763 carats.",
+    visual: "",
+    ask: "Round the weight to the nearest thousandths.",
+    choices: ["0.876 carats", "0.877 carats", "0.880 carats", "0.900 carats"],
+    answer: "A",
+    rule: "Look at the 4th digit (3). Since 3 ≤ 4, keep it the same: 0.8763 → 0.876"
+  },
+  { 
+    text: "A garden snail moved 6.5432 cm in one minute.",
+    visual: "",
+    ask: "Round the distance to the nearest thousandths.",
+    choices: ["6.543 cm", "6.544 cm", "6.550 cm", "6.600 cm"],
+    answer: "A",
+    rule: "Look at the 4th digit (2). Since 2 ≤ 4, keep it the same: 6.5432 → 6.543"
+  },
+  { 
+    text: "A special battery outputs 9.1119 volts of power.",
+    visual: "",
+    ask: "Round the voltage to the nearest thousandths.",
+    choices: ["9.111 V", "9.112 V", "9.120 V", "9.200 V"],
+    answer: "B",
+    rule: "Look at the 4th digit (9). Since 9 ≥ 5, round up: 9.1119 → 9.112"
+  },
+  { 
+    text: "A baking recipe calls for 1.2344 cups of sugar.",
+    visual: "",
+    ask: "Round the amount to the nearest thousandths.",
+    choices: ["1.234 cups", "1.235 cups", "1.240 cups", "1.300 cups"],
+    answer: "A",
+    rule: "Look at the 4th digit (4). Since 4 ≤ 4, keep it the same: 1.2344 → 1.234"
+  },
+  { 
+    text: "A commemorative coin is 8.8885 mm thick.",
+    visual: "",
+    ask: "Round the thickness to the nearest thousandths.",
+    choices: ["8.888 mm", "8.889 mm", "8.890 mm", "8.900 mm"],
+    answer: "B",
+    rule: "Look at the 4th digit (5). Since 5 ≥ 5, round up: 8.8885 → 8.889"
+  }
+];
+
+// 20 ROUNDING-THEMED MOTIVATIONS
+const motivations = [
+  { main: "LOOK AT THE NEXT DIGIT! 👀", sub: "The 4th digit holds the secret!" },
+  { main: "5 OR MORE, RAISE THE SCORE! ⬆️", sub: "Round up the thousandths place!" },
+  { main: "4 OR LESS, LET IT REST! ⬇️", sub: "Keep the thousandths place the same!" },
+  { main: "THOUSANDTHS = 3RD PLACE! 🔢", sub: "Count three spots right of the decimal!" },
+  { main: "TEN-THOUSANDTHS = 4TH PLACE! 🔍", sub: "This is the digit we check!" },
+  { main: "ROUNDING IS LIKE ESTIMATING! 🎯", sub: "Making numbers easier to use!" },
+  { main: "DON'T FORGET THE ZEROS! 0️9", sub: "9.000 is not the same as 9!" },
+  { main: "HALFWAY THERE! 🎯", sub: "You're rounding like a pro!" },
+  { main: "DECIMALS ARE EVERYWHERE! 🌍", sub: "Money, science, and sports!" },
+  { main: "CHECK YOUR WORK! ✅", sub: "Did you look at the right digit?" },
+  { main: "SCIENCE NEEDS PRECISION! 🔬", sub: "Rounding helps us report data!" },
+  { main: "MONEY MATH! 💰", sub: "We round decimals in finance too!" },
+  { main: "ALMOST AT THE FINISH! 🏁", sub: "Just a few more to go!" },
+  { main: "LAST FEW QUESTIONS! 🎉", sub: "Finish strong!" },
+  { main: "ROUNDING MASTER! 🏆", sub: "You know the rules by heart!" },
+  { main: "DECIMAL EXPERT! 🌟", sub: "Nothing can trick you now!" },
+  { main: "KEEP THAT DECIMAL POINT! . ", sub: "Don't lose it when rounding!" },
+  { main: "REAL WORLD MATH! 📏", sub: "Measurements are rarely perfect!" },
+  { main: "YOU'RE ON FIRE! 🔥", sub: "Nothing can stop you now!" },
+  { main: "FINAL QUESTION! 🌟", sub: "Show them what you've learned!" }
+];
+
+const musicThemes = [
+  { name: "Bright C Major", base: [523, 659, 784, 1047], tempo: 0.25, wave: "triangle" },
+  { name: "Warm G Major", base: [392, 494, 587, 784], tempo: 0.3, wave: "sine" },
+  { name: "Playful D Major", base: [587, 740, 880, 1175], tempo: 0.22, wave: "square" },
+  { name: "Strong F Major", base: [349, 440, 523, 698], tempo: 0.32, wave: "triangle" },
+  { name: "Mysterious A Minor", base: [440, 523, 659, 880], tempo: 0.28, wave: "sawtooth" },
+  { name: "Cheerful E Major", base: [659, 831, 988, 1319], tempo: 0.24, wave: "sine" },
+  { name: "Jazzy Bb Major", base: [466, 587, 698, 932], tempo: 0.3, wave: "triangle" },
+  { name: "Wise D Minor", base: [293, 349, 440, 587], tempo: 0.4, wave: "sine" },
+  { name: "Epic C Major", base: [262, 330, 392, 523, 659, 784], tempo: 0.18, wave: "triangle" },
+  { name: "Victory Fanfare", base: [523, 659, 784, 1047, 1319, 1568], tempo: 0.15, wave: "square" }
+];
+
+const introSounds = [
+  [{ f: 523, t: 0 }, { f: 659, t: 0.1 }, { f: 784, t: 0.2 }, { f: 1047, t: 0.3 }],
+  [{ f: 392, t: 0 }, { f: 494, t: 0.1 }, { f: 587, t: 0.2 }, { f: 784, t: 0.3 }],
+  [{ f: 587, t: 0 }, { f: 740, t: 0.08 }, { f: 587, t: 0.16 }, { f: 880, t: 0.24 }],
+  [{ f: 349, t: 0 }, { f: 440, t: 0.15 }, { f: 523, t: 0.3 }, { f: 698, t: 0.45 }],
+  [{ f: 440, t: 0 }, { f: 523, t: 0.12 }, { f: 659, t: 0.24 }, { f: 880, t: 0.36 }],
+  [{ f: 659, t: 0 }, { f: 831, t: 0.1 }, { f: 988, t: 0.2 }, { f: 1319, t: 0.3 }],
+  [{ f: 466, t: 0 }, { f: 587, t: 0.08 }, { f: 698, t: 0.16 }, { f: 932, t: 0.24 }],
+  [{ f: 293, t: 0 }, { f: 349, t: 0.2 }, { f: 440, t: 0.4 }, { f: 587, t: 0.6 }],
+  [{ f: 262, t: 0 }, { f: 330, t: 0.08 }, { f: 392, t: 0.16 }, { f: 523, t: 0.24 }, { f: 659, t: 0.32 }, { f: 784, t: 0.4 }],
+  [{ f: 523, t: 0 }, { f: 659, t: 0.08 }, { f: 784, t: 0.16 }, { f: 1047, t: 0.24 }, { f: 1319, t: 0.32 }, { f: 1568, t: 0.4 }]
+];
+
+const relaxingMelody = [
+  { freq: 392.00, dur: 0.8 },
+  { freq: 440.00, dur: 0.8 },
+  { freq: 493.88, dur: 0.8 },
+  { freq: 523.25, dur: 1.0 },
+  { freq: 493.88, dur: 0.8 },
+  { freq: 440.00, dur: 0.8 },
+  { freq: 392.00, dur: 0.8 },
+  { freq: 329.63, dur: 1.0 }
+];
+
+let currentQuestion = 0;
+let timePerQuestion = 30;
+let totalItems = 10;
+let timerInterval;
+let motivationInterval;
+let musicPlaying = false;
+let audioCtx;
+let musicTimeout;
+let bgIndex = 0;
+let quizActive = false;
+let isRelaxingMode = false;
+let relaxingTimeout = null;
+let exchangeInterval = null;
+
+let answerMode = 'onebyone';
+let currentAnswerIndex = 0;
+let answerCountdownInterval = null;
+let answerCountdown = 8;
+
+let shuffledQuestions = [];
+
+const bgClasses = ['bg1', 'bg2', 'bg3', 'bg4', 'bg5'];
+
+function toggleFontPanel() {
+  document.getElementById('fontPanel').classList.toggle('hidden');
+}
+
+function updateFontSizes() {
+  const qVal = parseInt(document.getElementById('qFontSlider').value);
+  const cVal = parseInt(document.getElementById('choiceFontSlider').value);
+  document.documentElement.style.setProperty('--q-font-scale', qVal / 100);
+  document.documentElement.style.setProperty('--choice-font-scale', cVal / 100);
+  document.getElementById('qSizeVal').textContent = qVal + '%';
+  document.getElementById('choiceSizeVal').textContent = cVal + '%';
+}
+
+function resetFontSizes() {
+  document.getElementById('qFontSlider').value = 100;
+  document.getElementById('choiceFontSlider').value = 100;
+  updateFontSizes();
+}
+
+function shuffleArray(arr) {
+  const shuffled = [...arr];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+function prepareShuffledQuestions() {
+  shuffledQuestions = questions.map(q => {
+    const letters = ['A', 'B', 'C', 'D'];
+    const correctIdx = letters.indexOf(q.answer);
+    const correctChoice = q.choices[correctIdx];
+    const shuffledChoices = shuffleArray(q.choices);
+    const newCorrectIdx = shuffledChoices.indexOf(correctChoice);
+    const newAnswerLetter = letters[newCorrectIdx];
+    return { ...q, choices: shuffledChoices, answer: newAnswerLetter };
+  });
+}
+
+function changeBackground() {
+  document.body.className = bgClasses[bgIndex];
+  bgIndex = (bgIndex + 1) % bgClasses.length;
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight') {
+    if (document.getElementById('motivationScreen').classList.contains('active')) {
+      e.preventDefault();
+      skipMotivation();
+    } else if (document.getElementById('exchangeScreen').classList.contains('active')) {
+      e.preventDefault();
+      skipExchange();
+    } else if (quizActive) {
+      e.preventDefault();
+      advanceToNext();
+    }
+  }
+});
+
+function skipMotivation() {
+  if (!document.getElementById('motivationScreen').classList.contains('active')) return;
+  clearInterval(motivationInterval);
+  showQuestion();
+}
+
+function skipExchange() {
+  if (!document.getElementById('exchangeScreen').classList.contains('active')) return;
+  if (exchangeInterval) clearInterval(exchangeInterval);
+  showAnswers();
+}
+
+function advanceToNext() {
+  if (!quizActive) return;
+  clearInterval(timerInterval);
+  quizActive = false;
+  if (currentQuestion < totalItems - 1) {
+    currentQuestion++;
+    showMotivation();
+  } else {
+    startExchange();
+  }
+}
+
+function toggleMusic() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch(e) { return; }
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  
+  if (!musicPlaying) {
+    musicPlaying = true;
+    document.getElementById('musicToggle').textContent = '🔊';
+    if (isRelaxingMode) playRelaxingMusic();
+    else playCurrentThemeMusic();
+  } else {
+    musicPlaying = false;
+    document.getElementById('musicToggle').textContent = '🔇';
+    if (musicTimeout) { clearTimeout(musicTimeout); musicTimeout = null; }
+    if (relaxingTimeout) { clearTimeout(relaxingTimeout); relaxingTimeout = null; }
+  }
+}
+
+function updateMusicIndicator() {
+  const indicator = document.getElementById('musicIndicator');
+  if (isRelaxingMode) {
+    indicator.classList.add('relaxing');
+    document.getElementById('currentItemNum').textContent = '🌿';
+    document.getElementById('tuneName').textContent = 'Relaxing Mode';
+  } else {
+    indicator.classList.remove('relaxing');
+    document.getElementById('currentItemNum').textContent = currentQuestion + 1;
+    const theme = musicThemes[currentQuestion % musicThemes.length];
+    document.getElementById('tuneName').textContent = theme.name;
+  }
+}
+
+function playCurrentThemeMusic() {
+  if (!musicPlaying || !audioCtx || isRelaxingMode) return;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  if (musicTimeout) { clearTimeout(musicTimeout); musicTimeout = null; }
+  const theme = musicThemes[currentQuestion % musicThemes.length];
+  const now = audioCtx.currentTime;
+  let time = now;
+  const pattern = [...theme.base, ...theme.base].reverse().slice(0, 8);
+  pattern.forEach((freq, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = theme.wave;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0, time);
+    gain.gain.linearRampToValueAtTime(0.07, time + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.01, time + theme.tempo);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(time); osc.stop(time + theme.tempo + 0.05);
+    time += theme.tempo;
+  });
+  const bassFreq = theme.base[0] / 2;
+  let bassTime = now;
+  for (let i = 0; i < 4; i++) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine'; osc.frequency.value = bassFreq;
+    gain.gain.setValueAtTime(0.05, bassTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, bassTime + theme.tempo * 2);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(bassTime); osc.stop(bassTime + theme.tempo * 2 + 0.05);
+    bassTime += theme.tempo * 2;
+  }
+  if (theme.base.length >= 2) {
+    const harmFreq = theme.base[1];
+    let harmTime = now + theme.tempo;
+    for (let i = 0; i < 3; i++) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine'; osc.frequency.value = harmFreq;
+      gain.gain.setValueAtTime(0.03, harmTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, harmTime + theme.tempo * 2);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(harmTime); osc.stop(harmTime + theme.tempo * 2 + 0.05);
+      harmTime += theme.tempo * 2.5;
+    }
+  }
+  const totalDuration = theme.tempo * 8 * 1000;
+  musicTimeout = setTimeout(() => {
+    if (musicPlaying && !isRelaxingMode) playCurrentThemeMusic();
+  }, totalDuration);
+}
+
+function playIntroSound(questionNum) {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch(e) { return; }
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const now = audioCtx.currentTime;
+  const intro = introSounds[questionNum % introSounds.length];
+  const theme = musicThemes[questionNum % musicThemes.length];
+  intro.forEach(note => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = theme.wave; osc.frequency.value = note.f;
+    gain.gain.setValueAtTime(0, now + note.t);
+    gain.gain.linearRampToValueAtTime(0.18, now + note.t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + note.t + 0.25);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(now + note.t); osc.stop(now + note.t + 0.3);
+  });
+}
+
+function playRelaxingMusic() {
+  if (!musicPlaying || !audioCtx || !isRelaxingMode) return;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const now = audioCtx.currentTime;
+  let time = now;
+  relaxingMelody.forEach(note => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine'; osc.frequency.value = note.freq;
+    gain.gain.setValueAtTime(0, time);
+    gain.gain.linearRampToValueAtTime(0.05, time + 0.15);
+    gain.gain.setValueAtTime(0.05, time + note.dur - 0.2);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + note.dur);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(time); osc.stop(time + note.dur + 0.05);
+    time += note.dur;
+  });
+  const droneFreq = 196.00;
+  const totalDur = relaxingMelody.reduce((sum, n) => sum + n.dur, 0);
+  const droneOsc = audioCtx.createOscillator();
+  const droneGain = audioCtx.createGain();
+  droneOsc.type = 'sine'; droneOsc.frequency.value = droneFreq;
+  droneGain.gain.setValueAtTime(0, now);
+  droneGain.gain.linearRampToValueAtTime(0.025, now + 0.5);
+  droneGain.gain.setValueAtTime(0.025, now + totalDur - 0.5);
+  droneGain.gain.exponentialRampToValueAtTime(0.001, now + totalDur);
+  droneOsc.connect(droneGain); droneGain.connect(audioCtx.destination);
+  droneOsc.start(now); droneOsc.stop(now + totalDur + 0.1);
+  let harmTime = now + 0.4;
+  for (let i = 0; i < 4; i++) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine'; osc.frequency.value = relaxingMelody[i * 2].freq * 2;
+    gain.gain.setValueAtTime(0, harmTime);
+    gain.gain.linearRampToValueAtTime(0.02, harmTime + 0.2);
+    gain.gain.exponentialRampToValueAtTime(0.001, harmTime + 1.5);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(harmTime); osc.stop(harmTime + 1.6);
+    harmTime += 1.6;
+  }
+  relaxingTimeout = setTimeout(() => {
+    if (musicPlaying && isRelaxingMode) playRelaxingMusic();
+  }, totalDur * 1000);
+}
+
+function stopAllMusicLoops() {
+  if (musicTimeout) { clearTimeout(musicTimeout); musicTimeout = null; }
+  if (relaxingTimeout) { clearTimeout(relaxingTimeout); relaxingTimeout = null; }
+}
+
+function playTransitionSound() {
+  if (!audioCtx) return;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const now = audioCtx.currentTime;
+  [659, 784, 988].forEach((f, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'triangle'; osc.frequency.value = f;
+    gain.gain.setValueAtTime(0.12, now + i * 0.08);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.2);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(now + i * 0.08); osc.stop(now + i * 0.08 + 0.25);
+  });
+}
+
+function playTickSound() {
+  if (!audioCtx) return;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sine'; osc.frequency.value = 880;
+  gain.gain.setValueAtTime(0.12, now);
+  gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(now); osc.stop(now + 0.1);
+}
+
+function playUrgentTick() {
+  if (!audioCtx) return;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'square'; osc.frequency.value = 1200;
+  gain.gain.setValueAtTime(0.1, now);
+  gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(now); osc.stop(now + 0.12);
+}
+
+function playFinishSound() {
+  if (!audioCtx) return;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const now = audioCtx.currentTime;
+  [523, 659, 784, 1047].forEach((f, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine'; osc.frequency.value = f;
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(now); osc.stop(now + 1.6);
+  });
+}
+
+function speakAnswer(itemNum, letter) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  
+  const phrase = `Number ${itemNum}, ${letter}`;
+  
+  const u1 = new SpeechSynthesisUtterance(phrase);
+  u1.rate = 0.9; u1.pitch = 1.1; u1.volume = 1.0; u1.lang = 'en-US';
+  
+  const u2 = new SpeechSynthesisUtterance(phrase);
+  u2.rate = 0.9; u2.pitch = 1.1; u2.volume = 1.0; u2.lang = 'en-US';
+  
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length > 0) {
+    const preferred = voices.find(v => v.lang.startsWith('en') && v.name.includes('Female'))
+                   || voices.find(v => v.lang.startsWith('en-US'))
+                   || voices.find(v => v.lang.startsWith('en'));
+    if (preferred) { u1.voice = preferred; u2.voice = preferred; }
+  }
+  
+  u1.onend = () => {
+    setTimeout(() => {
+      if (answerMode === 'onebyone') window.speechSynthesis.speak(u2);
+    }, 1000);
+  };
+  
+  window.speechSynthesis.speak(u1);
+}
+
+function showFixedTimer(mode = 'quiz') {
+  const timer = document.getElementById('fixedTimer');
+  timer.classList.remove('hidden', 'warning', 'exchange-mode');
+  if (mode === 'exchange') {
+    timer.classList.add('exchange-mode');
+    document.getElementById('timerLabel').textContent = 'Exchange';
+  } else {
+    document.getElementById('timerLabel').textContent = 'Time Left';
+  }
+}
+
+function updateFixedTimer(seconds) {
+  document.getElementById('fixedTimerValue').textContent = seconds;
+}
+
+function hideFixedTimer() {
+  document.getElementById('fixedTimer').classList.add('hidden');
+}
+
+function setFixedTimerWarning(warning) {
+  const timer = document.getElementById('fixedTimer');
+  if (warning) timer.classList.add('warning');
+  else timer.classList.remove('warning');
+}
+
+function startQuiz() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch(e) {}
+  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  
+  timePerQuestion = parseInt(document.getElementById('timePerQuestion').value) || 30;
+  totalItems = parseInt(document.getElementById('totalItems').value) || 10;
+  if (totalItems < 1) totalItems = 1;
+  if (totalItems > questions.length) totalItems = questions.length;
+  document.getElementById('totalItems').max = questions.length;
+  
+  prepareShuffledQuestions();
+  
+  isRelaxingMode = false;
+  currentQuestion = 0;
+  document.getElementById('setupScreen').classList.remove('active');
+  
+  if (!musicPlaying) {
+    musicPlaying = true;
+    document.getElementById('musicToggle').textContent = '🔊';
+  }
+  updateMusicIndicator();
+  playCurrentThemeMusic();
+  showMotivation();
+}
+
+function showMotivation() {
+  changeBackground();
+  document.getElementById('quizScreen').classList.remove('active');
+  document.getElementById('exchangeScreen').classList.remove('active');
+  hideFixedTimer();
+  quizActive = false;
+  
+  if (isRelaxingMode) {
+    isRelaxingMode = false;
+    stopAllMusicLoops();
+    if (musicPlaying) playCurrentThemeMusic();
+    updateMusicIndicator();
+  }
+  
+  const screen = document.getElementById('motivationScreen');
+  const text = document.getElementById('motivationText');
+  const mot = motivations[currentQuestion % motivations.length];
+  text.innerHTML = `<div class="motivation-main">${mot.main}</div><div class="motivation-sub">${mot.sub}</div>`;
+  screen.classList.add('active');
+  
+  playTransitionSound();
+  let countdown = 8;
+  document.getElementById('motivationCountdown').textContent = countdown;
+  clearInterval(motivationInterval);
+  motivationInterval = setInterval(() => {
+    countdown--;
+    document.getElementById('motivationCountdown').textContent = countdown;
+    if (countdown <= 0) {
+      clearInterval(motivationInterval);
+      showQuestion();
+    }
+  }, 1000);
+}
+
+function showQuestion() {
+  document.getElementById('motivationScreen').classList.remove('active');
+  document.getElementById('quizScreen').classList.add('active');
+  quizActive = true;
+  
+  const q = shuffledQuestions[currentQuestion];
+  const letters = ['A', 'B', 'C', 'D'];
+  
+  let html = `<span class="q-number">${currentQuestion + 1}.</span> ${q.text}`;
+  html += `<span class="ask-line">${q.ask}</span>`;
+  
+  document.getElementById('questionText').innerHTML = html;
+  
+  const choicesContainer = document.getElementById('choicesContainer');
+  choicesContainer.innerHTML = '';
+  q.choices.forEach((choice, i) => {
+    const div = document.createElement('div');
+    div.className = 'choice-display';
+    div.innerHTML = `<span class="choice-letter">${letters[i]}</span><span class="choice-text">${choice}</span>`;
+    choicesContainer.appendChild(div);
+  });
+  
+  updateProgress();
+  updateMusicIndicator();
+  startTimer();
+  playIntroSound(currentQuestion);
+  if (musicPlaying && !isRelaxingMode) playCurrentThemeMusic();
+}
+
+function updateProgress() {
+  const percent = ((currentQuestion) / totalItems) * 100;
+  document.getElementById('progressBar').style.width = percent + '%';
+  document.getElementById('progressBar').textContent = Math.round(percent) + '%';
+}
+
+function startTimer() {
+  let timeLeft = timePerQuestion;
+  showFixedTimer('quiz');
+  updateFixedTimer(timeLeft);
+  setFixedTimerWarning(false);
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateFixedTimer(timeLeft);
+    if (timeLeft <= 10 && timeLeft > 0) {
+      setFixedTimerWarning(true);
+      playUrgentTick();
+    } else if (timeLeft > 10 && timeLeft <= timePerQuestion / 2) {
+      playTickSound();
+    }
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      quizActive = false;
+      if (currentQuestion < totalItems - 1) {
+        currentQuestion++;
+        showMotivation();
+      } else {
+        startExchange();
+      }
+    }
+  }, 1000);
+}
+
+function startExchange() {
+  document.getElementById('quizScreen').classList.remove('active');
+  document.getElementById('exchangeScreen').classList.add('active');
+  changeBackground();
+  playFinishSound();
+  isRelaxingMode = true;
+  stopAllMusicLoops();
+  if (musicPlaying) playRelaxingMusic();
+  updateMusicIndicator();
+  let timeLeft = 30;
+  showFixedTimer('exchange');
+  updateFixedTimer(timeLeft);
+  setFixedTimerWarning(false);
+  clearInterval(exchangeInterval);
+  exchangeInterval = setInterval(() => {
+    timeLeft--;
+    updateFixedTimer(timeLeft);
+    if (timeLeft <= 10) {
+      playUrgentTick();
+      setFixedTimerWarning(true);
+    }
+    if (timeLeft <= 0) {
+      clearInterval(exchangeInterval);
+      showAnswers();
+    }
+  }, 1000);
+}
+
+function showAnswers() {
+  document.getElementById('exchangeScreen').classList.remove('active');
+  document.getElementById('answerScreen').classList.add('active');
+  hideFixedTimer();
+  changeBackground();
+  updateMusicIndicator();
+  document.getElementById('finalScore').innerHTML = '📝 Check your papers with your seatmate!';
+  document.getElementById('stars').textContent = '🌟🌟🌟🌟🌟';
+  playFinishSound();
+  createConfetti();
+  startOneByOne();
+}
+
+function startOneByOne() {
+  answerMode = 'onebyone';
+  currentAnswerIndex = 0;
+  document.getElementById('closeOneByOneBtn').style.display = 'inline-block';
+  document.getElementById('replayOneByOneBtn').style.display = 'none';
+  document.getElementById('answerList').style.display = 'none';
+  document.getElementById('answerOverlay').classList.add('active');
+  renderOneByOneAnswer();
+  startAnswerCountdown();
+}
+
+function renderOneByOneAnswer() {
+  const q = shuffledQuestions[currentAnswerIndex];
+  const letters = ['A', 'B', 'C', 'D'];
+  const correctIndex = letters.indexOf(q.answer);
+  const correctChoice = q.choices[correctIndex];
+  
+  document.getElementById('overlayItemNum').textContent = currentAnswerIndex + 1;
+  document.getElementById('overlayLetter').textContent = q.answer;
+  document.getElementById('overlayAnswer').textContent = correctChoice;
+  document.getElementById('overlayProgress').textContent = `${currentAnswerIndex + 1} of ${totalItems}`;
+  
+  const card = document.querySelector('.overlay-card');
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = 'cardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+  
+  speakAnswer(currentAnswerIndex + 1, q.answer);
+}
+
+function startAnswerCountdown() {
+  clearInterval(answerCountdownInterval);
+  answerCountdown = 8;
+  const cdEl = document.getElementById('answerCdNum');
+  if (cdEl) cdEl.textContent = answerCountdown;
+  answerCountdownInterval = setInterval(() => {
+    answerCountdown--;
+    const el = document.getElementById('answerCdNum');
+    if (el) el.textContent = answerCountdown;
+    if (answerCountdown <= 0) {
+      currentAnswerIndex = (currentAnswerIndex + 1) % totalItems;
+      renderOneByOneAnswer();
+      answerCountdown = 8;
+    }
+  }, 1000);
+}
+
+function showAllAnswers() {
+  answerMode = 'all';
+  clearInterval(answerCountdownInterval);
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  
+  document.getElementById('answerOverlay').classList.remove('active');
+  document.getElementById('closeOneByOneBtn').style.display = 'none';
+  document.getElementById('replayOneByOneBtn').style.display = 'inline-block';
+  document.getElementById('answerList').style.display = 'block';
+  
+  const answerList = document.getElementById('answerList');
+  answerList.innerHTML = '';
+  for (let i = 0; i < totalItems; i++) {
+    const q = shuffledQuestions[i];
+    const div = document.createElement('div');
+    div.className = 'answer-item';
+    const letters = ['A', 'B', 'C', 'D'];
+    const correctIndex = letters.indexOf(q.answer);
+    const correctChoice = q.choices[correctIndex];
+    
+    div.innerHTML = `
+      <span class="item-num">${i + 1}</span>
+      <b>${q.text}</b><br>
+      <span style="color: #555; font-size: 0.9em; font-style: italic;">${q.ask}</span><br>
+      <span style="color: #2e7d32; font-weight: bold; font-size: 1.05em;">✓ ${q.answer}) <span class="answer-highlight">${correctChoice}</span></span>
+      <span style="color: #666; font-size: 0.85em; margin-left: 8px;">(${q.rule})</span>
+    `;
+    answerList.appendChild(div);
+  }
+}
+
+function createConfetti() {
+  const colors = ['#f00', '#0f0', '#00f', '#ff0', '#f0f', '#0ff', '#ff8800', '#88ff00'];
+  for (let i = 0; i < 80; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti';
+    confetti.style.left = Math.random() * 100 + 'vw';
+    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+    confetti.style.width = (Math.random() * 10 + 5) + 'px';
+    confetti.style.height = confetti.style.width;
+    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+    document.body.appendChild(confetti);
+    setTimeout(() => confetti.remove(), 5000);
+  }
+}
+
+function restartQuiz() {
+  currentQuestion = 0;
+  isRelaxingMode = false;
+  stopAllMusicLoops();
+  clearInterval(answerCountdownInterval);
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  document.getElementById('answerOverlay').classList.remove('active');
+  document.getElementById('answerScreen').classList.remove('active');
+  document.getElementById('setupScreen').classList.add('active');
+  document.getElementById('musicIndicator').classList.remove('relaxing');
+  hideFixedTimer();
+  changeBackground();
+}
+
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+}
+
+document.getElementById('musicToggle').textContent = '🔊';
+</script>
+
+</body>
+</html>
