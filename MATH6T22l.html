@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math 6 T2 W2 — Solve It, Sulit! | The Sari-Sari Solution Shop</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#2b1d16; --mut:#8a6f5c; --card:#fffaf2; --card2:#ffefd6; --line:#e8cfa8; --bg:#fdf3e3;
+  --cyan:#1d6fdc; --yel:#f2b705; --org:#e4572e; --grn:#2e9e4f; --pur:#7b4fc9; --pink:#d7263d; --red:#c1121f;
+  --shd:#eadbc4;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#e7d3b3;overflow:hidden;font-family:'Nunito',sans-serif}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform:translate(-50%,-50%);
+  background-image:repeating-linear-gradient(45deg,rgba(228,87,46,.04) 0 26px,transparent 26px 52px),
+    repeating-linear-gradient(-45deg,rgba(29,111,220,.04) 0 26px,transparent 26px 52px),
+    linear-gradient(180deg,#fff8ec,#fbeeda);
+  background-size:auto,auto,100% 100%;
+  color:var(--ink);overflow:hidden}
+#fx{position:absolute;inset:0;z-index:1;pointer-events:none}
+#fx span{position:absolute;font-family:'Fredoka';font-weight:700;opacity:.13;animation:float 9s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-30px) rotate(6deg)}}
+
+[data-anim]{opacity:0}
+.on[data-anim],.on [data-anim]{animation:var(--an,popIn) .8s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d,0s)}
+@keyframes popIn{0%{opacity:0;transform:scale(.4)}70%{opacity:1;transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+@keyframes riseIn{from{opacity:0;transform:translateY(60px)}to{opacity:1;transform:none}}
+@keyframes slideL{from{opacity:0;transform:translateX(-80px)}to{opacity:1;transform:none}}
+@keyframes slideR{from{opacity:0;transform:translateX(80px)}to{opacity:1;transform:none}}
+@keyframes zoomIn{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:scale(1)}}
+@keyframes flipIn{from{opacity:0;transform:perspective(900px) rotateY(65deg)}to{opacity:1;transform:none}}
+@keyframes bounceIn{0%{opacity:0;transform:translateY(70px) scale(.85)}60%{opacity:1;transform:translateY(-14px) scale(1.05)}100%{opacity:1;transform:none}}
+@keyframes iconB{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes confFall{0%{transform:translateY(-60px) rotate(0)}100%{transform:translateY(1150px) rotate(720deg);opacity:0}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-14px)}40%{transform:translateX(12px)}60%{transform:translateX(-9px)}80%{transform:translateX(6px)}}
+@keyframes winSpin{0%{transform:scale(1) rotate(0deg)}35%{transform:scale(1.16) rotate(-4deg)}65%{transform:scale(1.08) rotate(4deg)}100%{transform:scale(1) rotate(0deg)}}
+@keyframes arrowB{0%,100%{transform:translateX(0);opacity:1}50%{transform:translateX(14px);opacity:.6}}
+@keyframes sway{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+
+#progress{position:absolute;top:0;left:0;height:8px;width:0;z-index:60;
+  background:linear-gradient(90deg,var(--pink),var(--yel),var(--grn));transition:width .5s}
+#tag{position:absolute;top:24px;left:84px;z-index:50;font:700 19px 'Fredoka';letter-spacing:3px;color:var(--cyan)}
+#voiceChip{position:absolute;top:22px;right:84px;z-index:110;font:800 15px 'Nunito';color:var(--mut);
+  border:3px solid var(--line);border-radius:999px;padding:8px 18px;background:#fff;cursor:pointer}
+body.lesson #voiceChip,body.preview #voiceChip{display:none}
+#starChip{position:absolute;top:70px;right:84px;z-index:70;display:none;align-items:center;gap:10px;
+  font:900 22px 'Nunito';color:#b07f00;background:#fff;border:3px solid var(--line);border-radius:999px;
+  padding:6px 20px;box-shadow:0 4px 0 var(--shd)}
+body.lesson #starChip,body.preview #starChip{display:flex}
+#starChip.bump{animation:pulse .5s}
+#recChip{position:absolute;top:118px;right:84px;z-index:70;display:none;align-items:center;gap:10px;
+  font:900 16px 'Nunito';color:#fff;background:#d7263dE6;border:3px solid #fff;border-radius:999px;
+  padding:6px 18px;box-shadow:0 4px 0 var(--shd)}
+#recChip.on{display:flex}
+#recChip .rdot{width:12px;height:12px;border-radius:50%;background:#fff;animation:blink 1s infinite}
+#counter{position:absolute;bottom:18px;right:84px;z-index:50;font:700 22px 'Fredoka';color:#b39a76}
+#hints{position:absolute;bottom:18px;left:84px;z-index:50;font:800 14px 'Nunito';color:#b39a76}
+#hints b{color:#b07f00}
+#confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:40}
+#confetti i{position:absolute;top:0;border-radius:3px;animation:confFall linear both}
+
+#mcTimer{position:absolute;top:96px;left:50%;transform:translateX(-50%);z-index:85;display:none;align-items:center;gap:16px;
+  background:#ffffffF2;border:4px solid var(--yel);border-radius:999px;padding:8px 38px;box-shadow:0 8px 0 var(--shd)}
+#mcTimer.on{display:flex}
+#mcTimerN{font:700 64px/1 'Fredoka';color:#b07f00}
+#mcTimer small{font:800 24px 'Nunito';color:var(--ink)}
+
+#codeOv{position:absolute;inset:0;z-index:90;display:none;align-items:center;justify-content:center;pointer-events:none}
+#codeOv.on{display:flex}
+#codeOv .box{background:#ffffffF5;border:5px solid var(--yel);border-radius:30px;padding:30px 70px;text-align:center;animation:popIn .5s both;box-shadow:0 10px 0 var(--shd)}
+#codeOv .lbl{font:700 32px 'Fredoka';color:#b07f00;letter-spacing:4px}
+#codeOv .dig{font:700 150px/1.1 'Fredoka';color:var(--ink)}
+
+/* ---- 10-SECOND INTRO BUMPER ---- */
+#introOverlay{position:absolute;inset:0;z-index:200;background:radial-gradient(ellipse at top,#fff8ec 0%,#fbeeda 70%);
+  display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s}
+#introOverlay.active{opacity:1;visibility:visible}
+.intro-box{display:flex;flex-direction:column;gap:28px;align-items:center;max-width:1320px;text-align:center;padding:0 60px}
+#introOverlay.active .free-chip{animation:bounceIn .8s cubic-bezier(.2,.7,.2,1) both,pulse 2s infinite .9s}
+#introOverlay.active h1{animation:riseIn .8s .3s both}
+#introOverlay.active .comment-box{animation:slideR .8s .6s both}
+#introOverlay.active .instructions{animation:flipIn .8s .9s both}
+#introOverlay.active .countdown-box{animation:popIn .8s 1.2s both}
+.free-chip{font:900 38px 'Nunito';color:#fff;background:linear-gradient(90deg,var(--grn),var(--cyan));
+  padding:16px 44px;border-radius:999px;box-shadow:0 8px 0 var(--shd)}
+.comment-box{display:flex;align-items:center;gap:20px;font:800 40px 'Nunito';color:var(--ink);background:#fff;
+  padding:22px 46px;border-radius:24px;border:4px solid var(--cyan);box-shadow:0 7px 0 var(--shd)}
+.pin-icon{font-size:56px;animation:iconB 2s infinite}
+.instructions h3{font:700 48px 'Fredoka';margin-bottom:10px}
+.instructions .txt{font-size:34px;max-width:1060px}
+.countdown-box{font:800 34px 'Nunito';color:var(--mut);margin-top:8px}
+#introCount{font:700 80px 'Fredoka';color:#b07f00;display:inline-block;min-width:90px}
+
+.slide{position:absolute;inset:0;z-index:2;padding:64px 84px 64px;display:flex;flex-direction:column;
+  justify-content:center;align-items:stretch;gap:28px;
+  opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s;
+  overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#e8cfa8 transparent;scroll-behavior:smooth}
+.slide::-webkit-scrollbar{width:10px}
+.slide::-webkit-scrollbar-thumb{background:#e8cfa8;border-radius:999px}
+.slide.active{opacity:1;visibility:visible}
+.slide>.row[style*="flex:1"],.slide>.card[style*="flex:1"]{flex:0 0 auto !important}
+[data-step]{opacity:0;transform:translateY(30px);transition:all .8s cubic-bezier(.2,.7,.2,1)}
+[data-step].on{opacity:1;transform:none}
+.kicker{font:700 26px 'Fredoka';letter-spacing:4px;color:var(--pink)}
+.itemno{display:inline-block;background:linear-gradient(90deg,var(--pink),var(--org));color:#fff;border-radius:14px;
+  padding:4px 18px;font-size:30px;letter-spacing:2px;box-shadow:0 4px 0 var(--shd);vertical-align:middle}
+h1{font:700 68px/1.15 'Fredoka';max-width:1000px}
+h2{font:700 64px/1.15 'Fredoka'}
+.hlc{background:linear-gradient(90deg,#1d6fdc,#2e9e4f);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hly{background:linear-gradient(90deg,#f2b705,#e4572e);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hlp{background:linear-gradient(90deg,#7b4fc9,#d7263d);-webkit-background-clip:text;background-clip:text;color:transparent}
+.card{background:linear-gradient(160deg,var(--card),var(--card2));border:4px solid var(--line);border-radius:28px;
+  box-shadow:0 9px 0 var(--shd);padding:24px 34px}
+.card h3{font:700 42px 'Fredoka';margin-bottom:8px}
+.txt{color:var(--mut);font-size:40px;font-weight:800;line-height:1.35}
+.big{font-size:50px;font-weight:900;line-height:1.28;color:var(--ink)}
+.row{display:flex;gap:26px;align-items:stretch}
+.half{flex:1}
+.chain{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap}
+.chipq{display:inline-flex;align-items:center;gap:10px;border-radius:999px;padding:12px 30px;font:900 36px 'Nunito';
+  background:#fff;border:4px solid var(--line);color:var(--ink);box-shadow:0 5px 0 var(--shd)}
+.chipq.cy{background:rgba(29,111,220,.10);border-color:var(--cyan);color:#155bb5}
+.chipq.yl{background:rgba(242,183,5,.16);border-color:var(--yel);color:#b07f00}
+.chipq.gr{background:rgba(46,158,79,.12);border-color:var(--grn);color:#22763b}
+.chipq.pu{background:rgba(123,79,201,.12);border-color:var(--pur);color:#5f37a8}
+.chipq.pk{background:rgba(215,38,61,.10);border-color:var(--pink);color:#b01e30}
+.obj{font:800 36px 'Nunito';padding:16px 28px}
+#s1{flex-direction:row;gap:44px;align-items:center;justify-content:center}
+#s1 .left{flex:1;display:flex;flex-direction:column;gap:22px;justify-content:center}
+
+/* ---- PINOY SHOP VISUALS (pure CSS/emoji — no PNG) ---- */
+.fact{font:700 42px 'Fredoka';color:var(--ink);text-align:center;margin-top:12px}
+.flowrow{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.arr{font:700 40px 'Fredoka';color:#b07f00;animation:arrowB 1.4s ease-in-out infinite;white-space:nowrap}
+
+.banderitas{display:flex;gap:12px;justify-content:center}
+.banderitas i{width:36px;height:46px;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top center;animation:sway 2.4s ease-in-out infinite}
+.banderitas i:nth-child(5n+1){background:var(--pink)}
+.banderitas i:nth-child(5n+2){background:var(--yel)}
+.banderitas i:nth-child(5n+3){background:var(--cyan)}
+.banderitas i:nth-child(5n+4){background:var(--grn)}
+.banderitas i:nth-child(5n+5){background:var(--pur)}
+.banderitas i:nth-child(2n){animation-delay:.6s}
+.banderitas i:nth-child(3n){animation-delay:1.1s}
+
+.store{width:100%;max-width:740px;margin:0 auto;background:#fffaf2;border:6px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 10px 0 var(--shd)}
+.awning{height:60px;background:repeating-linear-gradient(90deg,#d7263d 0 46px,#fffaf2 46px 92px);border-bottom:6px solid var(--line)}
+.signboard{background:var(--yel);text-align:center;font:700 38px 'Fredoka';color:#5a3a00;padding:8px}
+.shelf{display:flex;justify-content:center;gap:14px;padding:14px;border-top:4px dashed var(--line);font-size:44px}
+.shelf span{animation:iconB 2.2s infinite}
+.shelf span:nth-child(2){animation-delay:.3s}.shelf span:nth-child(3){animation-delay:.6s}
+.shelf span:nth-child(4){animation-delay:.9s}.shelf span:nth-child(5){animation-delay:1.2s}
+
+.rrows{display:flex;flex-direction:column;gap:14px;align-items:center}
+.rrow{display:flex;gap:6px;align-items:center}
+.rlab2{font:700 28px 'Fredoka';color:var(--mut);width:170px;text-align:right;margin-right:12px}
+.emo{font-size:38px;opacity:0}
+.on .emo{animation:popIn .35s cubic-bezier(.2,.7,.2,1) both}
+
+/* proportion cards — static, no cross bars */
+.crossbox{position:relative;width:560px;height:230px;margin:0 auto}
+.rcard{position:absolute;top:74px;font:700 44px 'Fredoka';background:#fff;border:4px solid var(--line);border-radius:16px;padding:8px 24px;box-shadow:0 6px 0 var(--shd);color:var(--ink)}
+.rcard.l{left:10px}.rcard.r{right:10px}
+.eqm{position:absolute;left:50%;top:70px;transform:translateX(-50%);font:700 54px 'Fredoka';color:var(--grn)}
+.cp{position:absolute;bottom:0;font:700 30px 'Fredoka';color:var(--pur)}
+.cp.l{left:30px}.cp.r{right:30px}
+
+/* 4-step solver — static, fully readable */
+.steps4{display:flex;gap:16px;justify-content:center}
+.st4{background:#fff;border:4px solid var(--line);border-radius:16px;padding:14px 20px;font:700 26px 'Fredoka';color:var(--ink);box-shadow:0 6px 0 var(--shd);opacity:1}
+
+/* static price tags — everything written at once */
+.ptag{background:#fff;border:4px solid var(--line);border-radius:14px;padding:16px 26px;font:700 36px 'Fredoka';box-shadow:0 6px 0 var(--shd);color:var(--ink)}
+.ptag b{color:var(--red)}
+
+.hl{background:rgba(242,183,5,.35);border-radius:6px;padding:0 6px}
+/* strategy chips — static, fully readable */
+.strat{background:#fff;border:4px solid var(--line);border-radius:16px;padding:14px 24px;font:700 30px 'Fredoka';color:var(--ink);box-shadow:0 6px 0 var(--shd);opacity:1}
+
+/* ---- MC SLIDES (ENLARGED, FULLY OPAQUE ANSWER STATES) ---- */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:26px;max-width:1560px;margin:0 auto;width:100%}
+.opt{font:900 48px 'Nunito';color:var(--ink);background:#fff;border:5px solid var(--line);border-radius:24px;
+  padding:22px 30px;cursor:pointer;box-shadow:0 6px 0 var(--shd);transition:all .2s;text-align:left;
+  display:flex;align-items:center;gap:20px;opacity:1}
+.opt b{font:700 44px 'Fredoka';background:rgba(123,79,201,.12);border-radius:12px;padding:6px 18px;color:#5f37a8}
+.opt:hover{transform:translateY(-3px)}
+.opt.good{opacity:1;background:#e2f6e8;border-color:var(--grn);color:#1d6f39;
+  animation:winSpin .7s cubic-bezier(.2,.7,.2,1);box-shadow:0 0 0 8px #2e9e4f33,0 6px 0 var(--shd)}
+.opt.good b{background:var(--grn);color:#fff}
+.opt.bad{opacity:1;background:#fdecec;border-color:var(--red);color:#c1121f;pointer-events:none;animation:shake .4s}
+.opt.bad b{background:var(--red);color:#fff}
+.opt.reveal{opacity:1;background:#e2f6e8;border-color:var(--grn);color:#1d6f39;
+  animation:winSpin .7s cubic-bezier(.2,.7,.2,1);box-shadow:0 0 0 8px #2e9e4f33,0 6px 0 var(--shd)}
+.opt.reveal b{background:var(--grn);color:#fff}
+body.preview .opt{pointer-events:none}
+.fb{font:700 44px 'Fredoka';text-align:center;min-height:120px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.fb .why{display:block;font:800 34px/1.3 'Nunito';margin-top:6px;opacity:.95}
+.fb.g{color:var(--grn)}.fb.r{color:var(--red)}
+.qbig{font:700 60px/1.25 'Fredoka';text-align:center;max-width:1560px;margin:0 auto}
+
+.master{font:700 78px 'Fredoka';color:#b07f00;text-align:center}
+#overlay{position:absolute;inset:0;z-index:100;background:#fdf3e3F7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;text-align:center}
+#overlay .ttl{font:700 60px 'Fredoka';color:var(--cyan)}
+#overlay .sub{font:800 26px 'Nunito';color:var(--ink);max-width:1250px}
+.modeBtns{display:flex;gap:30px}
+.modeBtns button{font:700 32px 'Fredoka';border-radius:26px;border:5px solid var(--line);padding:24px 38px;cursor:pointer;
+  box-shadow:0 8px 0 var(--shd);transition:transform .15s;color:#fff}
+.modeBtns button:hover{transform:translateY(-4px)}
+.modeBtns small{display:block;font:800 19px 'Nunito';margin-top:8px}
+#btnPreview{background:var(--yel);color:#5a3a00}
+#btnLesson{background:var(--cyan)}
+#passPanel{display:none;flex-direction:column;gap:20px;align-items:center}
+.pslots{display:flex;gap:16px}
+.pslot{width:82px;height:100px;border-radius:18px;border:5px solid var(--line);background:#fff;
+  font:700 54px 'Fredoka';display:flex;align-items:center;justify-content:center;color:var(--cyan)}
+#passPanel.err .pslot{animation:shake .4s;border-color:var(--red)}
+#passMsg{font:800 24px 'Nunito';color:#b07f00;min-height:28px}
+#passBack{font:700 26px 'Fredoka';color:var(--ink);background:#ffefd6;border:4px solid var(--line);border-radius:16px;
+  padding:10px 38px;cursor:pointer;box-shadow:0 6px 0 var(--shd);transition:transform .15s}
+#passBack:hover{transform:translateY(-3px)}
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="fx"></div>
+<div id="confetti"></div>
+<div id="progress"></div>
+<div id="tag">🇵 MATH 6 • TERM 2 • WEEK 2</div>
+<div id="voiceChip">🔊 loading voices…</div>
+<div id="starChip">⭐ <span id="starN">0</span> / 35</div>
+<div id="recChip"><span class="rdot"></span>⏺ PREVIEW • AUTO</div>
+<div id="mcTimer"><span id="mcTimerN">5</span><small>⏳ answer reveal in…</small></div>
+<div id="codeOv"><div class="box"><div class="lbl" id="codeLbl">PASSCODE DIGIT 1/5</div><div class="dig" id="codeDig">6</div></div></div>
+
+<!-- 10-SECOND INTRO BUMPER (preview only) -->
+<div id="introOverlay">
+  <div class="intro-box">
+    <div class="free-chip">🎁 FREE INTERACTIVE PRESENTATION</div>
+    <h1><span class="hly">Automated Assessment &amp; Interactive Assessment!</span></h1>
+    <div class="comment-box">
+      <span class="pin-icon">📌</span>
+      <span>Get them ALL in the <b style="color:var(--cyan)">PINNED COMMENTS</b>!</span>
+    </div>
+    <div class="instructions">
+      <h3 class="hlc">HOW TO UNLOCK LESSON MODE 🔓</h3>
+      <p class="txt">Watch this video and write down the <b style="color:var(--grn)">5 SECRET DIGITS</b> that pop up on screen — then type them to unlock the interactive lesson, answer the questions, and earn ⭐ stars!</p>
+    </div>
+    <div class="countdown-box"><span id="introCount">10</span> seconds until the shop opens…</div>
+  </div>
+</div>
+
+<!-- 1 TITLE -->
+<section class="slide" id="s1">
+  <div class="left">
+    <div data-step="0" style="display:flex;flex-direction:column;gap:20px">
+      <div class="kicker" data-anim style="--an:slideL">MABUHAY, KA-SHOP! WELCOME TO THE SARI-SARI SOLUTION SHOP!</div>
+      <h1 data-anim style="--an:riseIn;--d:.12s">Mission: <span class="hly">Solve It, Sulit!</span> 🇵🇭</h1>
+      <p class="txt" data-anim style="--an:riseIn;--d:.28s;font-size:38px">Solve problems involving ratio and proportion — from the palengke to the fiesta!</p>
+    </div>
+    <div data-step="1" style="display:flex;flex-direction:column;gap:14px">
+      <div class="card obj" data-anim style="--an:popIn;--d:.1s">🥭 WRITE &amp; SIMPLIFY ratios from real Pinoy situations!</div>
+      <div class="card obj" data-anim style="--an:popIn;--d:.3s">⚖️ SPOT true proportions with cross-products!</div>
+      <div class="card obj" data-anim style="--an:popIn;--d:.5s">🏷️ SOLVE by cross-multiplying or unit rate — then CHECK!</div>
+    </div>
+  </div>
+  <div data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="banderitas" style="margin-bottom:14px"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="store">
+      <div class="awning"></div>
+      <div class="signboard">ALING NENA'S STORE</div>
+      <div class="shelf"><span>🥫</span><span>🍪</span><span>🥤</span><span>🍚</span><span>🧂</span></div>
+      <div class="shelf"><span>🥭</span><span>🍌</span><span>🍞</span><span>🥚</span><span>🐟</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 WARM-UP -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">WARM-UP, KA-SHOP!</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">12 Mangoes, 18 Bananas — <span class="hlc">What's the Ratio?</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="rrows">
+      <div class="rrow"><span class="rlab2">🥭 mangoes</span>
+        <span class="emo" style="animation-delay:.10s">🥭</span><span class="emo" style="animation-delay:.16s">🥭</span><span class="emo" style="animation-delay:.22s">🥭</span><span class="emo" style="animation-delay:.28s">🥭</span><span class="emo" style="animation-delay:.34s">🥭</span><span class="emo" style="animation-delay:.40s">🥭</span><span class="emo" style="animation-delay:.46s">🥭</span><span class="emo" style="animation-delay:.52s">🥭</span><span class="emo" style="animation-delay:.58s">🥭</span><span class="emo" style="animation-delay:.64s">🥭</span><span class="emo" style="animation-delay:.70s">🥭</span><span class="emo" style="animation-delay:.76s">🥭</span>
+      </div>
+      <div class="rrow"><span class="rlab2">🍌 bananas</span>
+        <span class="emo" style="animation-delay:.10s">🍌</span><span class="emo" style="animation-delay:.15s">🍌</span><span class="emo" style="animation-delay:.20s">🍌</span><span class="emo" style="animation-delay:.25s">🍌</span><span class="emo" style="animation-delay:.30s">🍌</span><span class="emo" style="animation-delay:.35s">🍌</span><span class="emo" style="animation-delay:.40s">🍌</span><span class="emo" style="animation-delay:.45s">🍌</span><span class="emo" style="animation-delay:.50s">🍌</span><span class="emo" style="animation-delay:.55s">🍌</span><span class="emo" style="animation-delay:.60s">🍌</span><span class="emo" style="animation-delay:.65s">🍌</span><span class="emo" style="animation-delay:.70s">🍌</span><span class="emo" style="animation-delay:.75s">🍌</span><span class="emo" style="animation-delay:.80s">🍌</span><span class="emo" style="animation-delay:.85s">🍌</span><span class="emo" style="animation-delay:.90s">🍌</span><span class="emo" style="animation-delay:.95s">🍌</span>
+      </div>
+    </div>
+    <p class="fact">mangoes : bananas = 12 : 18 → divide both by 6 → <b style="color:var(--grn)">2 : 3!</b></p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq yl">ratio = compare by DIVISION</span><span class="chipq cy">not by subtraction!</span><span class="chipq gr">always simplify — sulit!</span></div>
+  </div>
+</section>
+
+<!-- 3 UNIT 1 -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 1 🥭</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Ratio Language — <span class="hlc">Three Ways to Say It!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="chain">
+      <span class="chipq pk" data-anim style="--an:bounceIn;--d:.2s">12 : 18</span>
+      <span class="chipq yl" data-anim style="--an:bounceIn;--d:.45s">12 to 18</span>
+      <span class="chipq cy" data-anim style="--an:bounceIn;--d:.7s">12⁄18</span>
+      <span class="arr">➜ ÷6 ➜</span>
+      <span class="chipq gr" data-anim style="--an:bounceIn;--d:.95s">2 : 3</span>
+    </div>
+    <p class="fact">ORDER matters: "mangoes to bananas" puts mangoes FIRST — flip it and the ratio changes!</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq yl">divide both terms by the GCF</span><span class="chipq gr">12 &amp; 18 share 6 → 2 : 3</span><span class="chipq pu">serve ratios in simplest form!</span></div>
+  </div>
+</section>
+
+<!-- P1 SET -->
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🥭 <span class="itemno">Q1/5</span> • SIMPLIFY THE RATIO</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Aling Nena has 12 cans of sardines and 18 cans of corned beef. Ratio sardines : corned beef in simplest form?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 2 : 3</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3 : 2</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 6 : 9</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 12 : 18</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🥭 <span class="itemno">Q2/5</span> • SIMPLIFY THE RATIO</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">The canteen has 15 chairs and 5 tables. Ratio chairs : tables in simplest form?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 1 : 3</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3 : 1</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 5 : 15</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 15 : 5</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="3">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🥭 <span class="itemno">Q3/5</span> • SIMPLIFY THE RATIO</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Which is NOT a way to write "4 to 6"?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 4 : 6</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 4⁄6</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 4 to 6</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 6 : 4</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🥭 <span class="itemno">Q4/5</span> • SIMPLIFY THE RATIO</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A choir has 20 members; 8 are boys. Ratio boys : girls in simplest form?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 2 : 3</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3 : 2</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 8 : 20</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 2 : 5</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🥭 <span class="itemno">Q5/5</span> • SIMPLIFY THE RATIO</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Simplify the ratio 24 : 36.</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 4 : 6</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 2 : 3</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 6 : 9</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 8 : 12</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- 9 UNIT 2 (no cross bars — clean static cards) -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 2 ⚖️</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Proportion Check — <span class="hly">Cross-Products!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="crossbox">
+      <span class="rcard l" data-anim style="--an:popIn;--d:.3s">2 : 3</span>
+      <span class="eqm" data-anim style="--an:popIn;--d:.55s">=</span>
+      <span class="rcard r" data-anim style="--an:popIn;--d:.8s">4 : 6</span>
+      <span class="cp l" data-anim style="--an:popIn;--d:1.05s">2 × 6 = 12</span>
+      <span class="cp r" data-anim style="--an:popIn;--d:1.2s">3 × 4 = 12</span>
+    </div>
+    <p class="fact">cross-products EQUAL → <b style="color:var(--grn)">true proportion!</b> multiply DIAGONALLY, never straight across!</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq pk">a : b = c : d</span><span class="chipq yl">→ a×d and b×c</span><span class="chipq gr">equal? proportion!</span></div>
+  </div>
+</section>
+
+<!-- P2 SET -->
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⚖️ <span class="itemno">Q1/5</span> • TRUE OR NOT?</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Is 3 : 4 = 9 : 12 a proportion?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> Yes — cross-products are both 36</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> No — cross-products differ</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Only if written as fractions</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Cannot be checked</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⚖️ <span class="itemno">Q2/5</span> • TRUE OR NOT?</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Which pair of ratios forms a proportion?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 3 : 8 and 6 : 12</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 2 : 5 and 4 : 10</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 5 : 6 and 10 : 14</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 7 : 9 and 14 : 16</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⚖️ <span class="itemno">Q3/5</span> • TRUE OR NOT?</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">In 5 : 8 = 10 : n, which equation matches the cross-products?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 8n = 50</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 5n = 80</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 10n = 40</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 5n = 8</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⚖️ <span class="itemno">Q4/5</span> • TRUE OR NOT?</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Which proportion is TRUE?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 6 : 10 = 12 : 20</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 6 : 10 = 20 : 12</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 6 : 10 = 12 : 10</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 10 : 6 = 12 : 20</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⚖️ <span class="itemno">Q5/5</span> • TRUE OR NOT?</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Solve: 1 : 4 = 5 : n</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 9</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 20</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 25</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 1</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- UNIT 3 (steps static & fully readable) -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 3 ✂️</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">The 4-Step Solver — <span class="hlc">Bibingka Edition!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="steps4">
+      <span class="st4" data-anim style="--an:bounceIn;--d:.2s">1 • READ</span>
+      <span class="st4" data-anim style="--an:bounceIn;--d:.45s">2 • SET UP</span>
+      <span class="st4" data-anim style="--an:bounceIn;--d:.7s">3 • CROSS-SOLVE</span>
+      <span class="st4" data-anim style="--an:bounceIn;--d:.95s">4 • CHECK</span>
+    </div>
+    <div class="flowrow" style="margin-top:16px"><span class="chipq yl">3 pans : 12 eggs</span><span class="arr">➜ 3⁄12 = 5⁄n ➜</span><span class="chipq pk">3n = 60</span><span class="chipq gr">n = 20 eggs!</span></div>
+    <p class="fact">check: 3⁄12 and 5⁄20 both simplify to 1⁄4 ✔ <b style="color:var(--grn)">four steps, every time!</b></p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq cy">match the units in the same order</span><span class="chipq yl">cross-multiply diagonally</span><span class="chipq gr">substitute back to check!</span></div>
+  </div>
+</section>
+
+<!-- P3 SET -->
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ✂️ <span class="itemno">Q1/5</span> • CROSS-SOLVE</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">3 pans of bibingka need 12 eggs. How many eggs for 5 pans?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 15</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 20</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 24</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 60</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ✂️ <span class="itemno">Q2/5</span> • CROSS-SOLVE</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">2 kilos of rice feed 10 people. How many kilos feed 25 people?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 5</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 6</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 10</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 12</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ✂️ <span class="itemno">Q3/5</span> • CROSS-SOLVE</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Solve: 4 : 7 = 16 : n</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 23</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 28</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 32</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 112</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ✂️ <span class="itemno">Q4/5</span> • CROSS-SOLVE</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">5 star lanterns (parol) need 15 bulbs. How many bulbs for 8 lanterns?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 40</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 13</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 24</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 120</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ✂️ <span class="itemno">Q5/5</span> • CROSS-SOLVE</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Solve: n : 6 = 10 : 12</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 6</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 5</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 12</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 72</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- UNIT 4 (all three tags written at once — no flipping) -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 4 🏷️</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Unit-Rate Superpower — <span class="hly">Presyo Bawat Piraso!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="flowrow">
+      <span class="ptag" data-anim style="--an:bounceIn;--d:.3s">4 pandesal = <b>₱32</b></span>
+      <span class="arr">➜ ÷4 ➜</span>
+      <span class="ptag" data-anim style="--an:bounceIn;--d:.7s">1 pandesal = <b>₱8</b></span>
+      <span class="arr">➜ ×7 ➜</span>
+      <span class="ptag" data-anim style="--an:bounceIn;--d:1.1s">7 pandesal = <b>₱56</b></span>
+    </div>
+    <p class="fact">find the price of ONE first — then multiply! <b style="color:var(--grn)">per piece, per kilo, per km!</b></p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq yl">unit rate = divide total by count</span><span class="chipq cy">then scale up or down</span><span class="chipq pk">the palengke superpower!</span></div>
+  </div>
+</section>
+
+<!-- P4 SET -->
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🏷️ <span class="itemno">Q1/5</span> • PER-PIECE POWER</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">5 notebooks cost ₱75. How much do 8 notebooks cost?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱95</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱120</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱100</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱150</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🏷️ <span class="itemno">Q2/5</span> • PER-PIECE POWER</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A jeepney travels 14 km on 2 liters of diesel. How far on 5 liters?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 28 km</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 70 km</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 35 km</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 10 km</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🏷️ <span class="itemno">Q3/5</span> • PER-PIECE POWER</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">3 kilos of mangoes cost ₱240. How much is one kilo?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱60</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱90</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱80</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱720</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🏷️ <span class="itemno">Q4/5</span> • PER-PIECE POWER</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">12 eggs cost ₱96. How much do 15 eggs cost?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱108</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱120</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱96</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱150</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🏷️ <span class="itemno">Q5/5</span> • PER-PIECE POWER</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">4 meters of ribbon make 10 banderitas. How many banderitas from 14 meters?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 28</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 40</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 35</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 56</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- UNIT 5 (strategy chips static) -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 5 🎉</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Fiesta Word Problems — <span class="hlc">Pick Your Strategy!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="banderitas" style="margin-bottom:14px"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <p class="big" style="text-align:center">Recipe: <span class="hl">2 cups coconut milk</span> for every <span class="hl">3 cups rice flour</span>. Using 9 cups rice flour → n = <b style="color:var(--grn)">6 cups!</b></p>
+    <div class="chain" style="margin-top:14px">
+      <span class="strat" data-anim style="--an:bounceIn;--d:.3s">✂️ cross-multiply</span>
+      <span class="strat" data-anim style="--an:bounceIn;--d:.55s">🏷️ unit rate</span>
+    </div>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq cy">map: 1 cm : 5 km → 8 cm = 40 km</span><span class="chipq gr">both roads lead to the fiesta!</span></div>
+  </div>
+</section>
+
+<!-- P5 SET -->
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🎉 <span class="itemno">Q1/5</span> • WORD WORKOUT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A recipe mixes 2 cups coconut milk with 3 cups rice flour. Using 9 cups rice flour, how many cups of coconut milk?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 4</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 6</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 12</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 13</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🎉 <span class="itemno">Q2/5</span> • WORD WORKOUT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A map scale is 1 cm : 5 km. What real distance is 8 cm on the map?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 13 km</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 40 km</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 45 km</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 80 km</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🎉 <span class="itemno">Q3/5</span> • WORD WORKOUT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Boys : girls in a dance rehearsal is 3 : 5. If there are 15 boys, how many girls?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 9</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 45</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 25</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 20</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🎉 <span class="itemno">Q4/5</span> • WORD WORKOUT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">₱560 is shared by Ana and Bea in the ratio 3 : 5. How much does Bea receive?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱210</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱350</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱280</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱190</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🎉 <span class="itemno">Q5/5</span> • WORD WORKOUT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">9 itlog na maalat cost ₱108. How much do 14 eggs cost?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱156</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱180</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱168</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱144</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- HAZARDS -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SHOP HAZARDS! ⚠️</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Ayusin Muna, <span class="hly">Ka-Shop!</span> 🕳️</h2></div>
+  <div class="row" data-step="0">
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center" data-anim style="--an:flipIn"><h3>Hazard 1 • Wrong Order</h3>
+      <p class="txt">Boys : girls is NOT girls : boys! Match the <b style="color:var(--pink)">exact order</b> of the question or the whole proportion flips.</p></div>
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center" data-anim style="--an:flipIn;--d:.25s"><h3>Hazard 2 • Adding Trap</h3>
+      <p class="txt">2 : 3 does NOT become 4 : 5 by adding 2! Ratios grow by <b style="color:var(--grn)">MULTIPLYING both terms</b> — 2 : 3 = 4 : 6.</p></div>
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center" data-anim style="--an:flipIn;--d:.5s"><h3>Hazard 3 • Straight-Across</h3>
+      <p class="txt">Cross-products are <b style="color:var(--org)">DIAGONAL</b>: in a⁄b = c⁄d multiply a×d and b×c — never the tops together!</p></div>
+  </div>
+</section>
+
+<!-- FINAL QUIZ (10) -->
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q1/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Simplify 18 : 24.</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 6 : 8</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3 : 4</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 4 : 3</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 9 : 12</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q2/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Solve: 7 : 9 = 21 : n</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 23</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 27</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 63</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q3/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Which pair of ratios forms a proportion?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 5 : 8 and 8 : 5</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 5 : 8 and 10 : 16</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 5 : 8 and 10 : 18</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 5 : 8 and 15 : 20</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q4/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">3 bottles of calamansi juice cost ₱45. How much do 7 bottles cost?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱95</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱115</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱105</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱135</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q5/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Red : blue flags is 2 : 7. If there are 28 blue flags, how many red flags?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 14</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 4</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 8</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 98</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q6/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Solve: 6 : 11 = 30 : n</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 36</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 66</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 55</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 110</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q7/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A tricycle fare is ₱36 for 4 km. At the same rate, how much is 7 km?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱43</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱63</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱56</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱70</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q8/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Simplify the ratio ₱50 to ₱200.</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 4 : 1</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 1 : 4</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 5 : 20</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 50 : 200</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q9/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">8 weavers make 12 banig mats in a day. At the same rate, how many mats do 12 weavers make?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 16</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 20</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 18</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 24</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q10/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">60 mangoes are shared between two classes in the ratio 2 : 3. How many does the bigger class get?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 24</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 30</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 36</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 40</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- SUMMARY -->
+<section class="slide" style="align-items:center;justify-content:center;text-align:center">
+  <div data-step="0" style="display:flex;flex-direction:column;gap:26px;align-items:center">
+    <div class="kicker" data-anim style="--an:slideL">SHOP COMPLETE 🔔</div>
+    <div class="chain" data-anim style="--an:riseIn;--d:.15s">
+      <span class="chipq cy">ratio = compare by division</span><span class="chipq yl">proportion = equal ratios</span><span class="chipq pk">cross-multiply diagonally</span><span class="chipq gr">unit rate = per one!</span>
+    </div>
+    <div class="chain" data-anim style="--an:riseIn;--d:.3s">
+      <span class="chipq gr">12 : 18 = 2 : 3</span><span class="chipq cy">3⁄12 = 5⁄20 ✔</span><span class="chipq yl">4 pandesal ₱32 → ₱8 each</span>
+    </div>
+    <div class="master" data-anim style="--an:zoomIn;--d:.45s">🏪 SARI-SARI SOLUTION SUPERSTAR!</div>
+    <p class="big" data-anim style="--an:riseIn;--d:.6s" id="starLine">Kayang-kaya mo ang ratio and proportion — see you at the next mission!</p>
+  </div>
+</section>
+
+<div id="hints"><b>→</b> Next &nbsp; <b>←</b> Back &nbsp; <b>F</b> Fullscreen &nbsp; <b>🖱️</b> click answers (Lesson)</div>
+<div id="counter">01 / 44</div>
+
+<div id="overlay">
+  <div class="ttl">🏪 THE SARI-SARI SOLUTION SHOP</div>
+  <div class="sub">Math 6 • Term 2 • Week 2 — Solve problems involving ratio and proportion, from the palengke to the fiesta!</div>
+  <div class="modeBtns" id="modeBtns">
+    <button id="btnPreview">🎬 PREVIEW MODE<small>opens YouTube video link (Watch for the 5 Digit Code)</small></button>
+    <button id="btnLesson">🎓 LESSON MODE<small>interactive + ⭐ big star on first-try correct • needs 5-digit passcode</small></button>
+  </div>
+  <div id="passPanel">
+    <div class="sub">Enter the 5-digit passcode you collected from the Preview video 👀</div>
+    <div class="pslots"><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div></div>
+    <div id="passMsg">Type digits • Enter = unlock</div>
+    <button id="passBack">← BACK</button>
+  </div>
+</div>
+</div>
+
+<script>
+/* ============================================================
+    YOUTUBE LINK SLOT — LEAVE EMPTY ("") WHILE YOU SCREEN-RECORD.
+    AFTER uploading, paste the new video URL and redistribute:
+    var YOUTUBE_LINK = "https://youtu.be/YourNewVideo";
+============================================================ */
+var YOUTUBE_LINK = "https://youtu.be/EbIlWm-9n7M";
+
+var PASS=[6,4,8,2,5];
+
+/* WHY bank: [mcQuestionIndex][optionIndex] — 25 practice + 10 quiz = 35 */
+var WHY=[
+/* P1 */
+["12÷6=2 and 18÷6=3 — simplest form 2 : 3!","3 : 2 flips the order — sardines come first.","6 : 9 is equal but not simplest — divide by 3 more.","12 : 18 is the raw ratio — simplify it!"],
+["1 : 3 flips chairs and tables.","15÷5=3 — chairs to tables is 3 : 1!","5 : 15 is tables to chairs, unsimplified.","15 : 5 is raw — divide both by 5."],
+["4 : 6 is the colon form — correct.","4⁄6 is the fraction form — correct.","'4 to 6' is the word form — correct.","6 : 4 flips the order — a different ratio!"],
+["8 boys and 12 girls → divide by 4 → 2 : 3!","3 : 2 is girls to boys.","8 : 20 compares boys to ALL members.","2 : 5 mixes boys with total parts."],
+["4 : 6 equals 2 : 3 but is not simplest.","24÷12=2 and 36÷12=3 — simplest form 2 : 3!","6 : 9 still divides by 3.","8 : 12 still divides by 4."],
+/* P2 */
+["Cross-multiply: 3×12=36 and 4×9=36 — equal, so YES!","The cross-products are both 36 — they match.","Any ratio pair can be tested with cross-products.","Cross-products always decide: 36 = 36."],
+["3×12=36 but 8×6=48 — not equal.","2×10=20 and 5×4=20 — proportion!","5×14=70 but 6×10=60 — not equal.","7×16=112 but 9×14=126 — not equal."],
+["8n=50 pairs the wrong terms.","Cross: 5×n = 8×10 → 5n = 80!","10n=40 multiplies straight across.","5n=8 forgets the 10."],
+["6×20=120 and 10×12=120 — TRUE!","20 : 12 flips the second ratio.","12 : 10 gives cross-products 60 vs 120.","10 : 6 flips the first ratio."],
+["9 adds 4 instead of cross-multiplying.","1×n = 4×5 → n = 20!","25 multiplies 5×5.","1 divides instead of multiplying."],
+/* P3 */
+["15 adds 12 instead of proportioning.","3⁄12 = 5⁄n → 3n = 60 → n = 20 eggs!","24 doubles 12 without scaling the pans.","60 is the cross-product, not n."],
+["2⁄10 = n⁄25 → 10n = 50 → n = 5 kilos!","6 rounds up wrongly.","10 inverts people-per-kilo.","12 adds 10 instead of scaling."],
+["23 adds terms — cross-multiply instead!","4n = 112 → n = 28!","32 doubles 16 without the ratio.","112 is the cross-product, not n."],
+["40 multiplies 5×8 — wrong pair.","13 adds 8+5 — ratios multiply.","5⁄15 = 8⁄n → 5n = 120 → n = 24 bulbs!","120 is the cross-product, not n."],
+["6 copies the middle term.","12n = 60 → n = 5!","12 is just the denominator.","72 multiplies 6×12."],
+/* P4 */
+["95 adds 20 instead of scaling.","₱15 each: 8×15 = ₱120!","100 guesses a round number.","150 would be 10 notebooks, not 8."],
+["28 doubles 14 km without doubling liters.","70 multiplies 14×5 skipping the unit rate.","7 km per liter: 5×7 = 35 km!","10 adds liters and km together."],
+["60 divides by 4 instead of 3.","90 subtracts wrongly.","240÷3 = ₱80 per kilo!","720 multiplies instead of dividing."],
+["108 adds 12 instead of scaling.","₱8 each: 15×8 = ₱120!","96 keeps the old total.","150 ignores the unit rate of ₱8."],
+["28 would be 4 meters doubled wrongly.","40 multiplies 10×4 — wrong pair.","10÷4 = 2.5 per meter: 14×2.5 = 35!","56 multiplies 14×4 — wrong rate."],
+/* P5 */
+["4 subtracts instead of proportioning.","2⁄3 = n⁄9 → 3n = 18 → n = 6 cups!","12 doubles 9 without the ratio.","13 adds 9+4 — cross-multiply instead."],
+["13 adds 8+5 — use the scale factor.","1 cm : 5 km → 8×5 = 40 km!","45 multiplies 9×5 — wrong count.","80 doubles 40 with no reason."],
+["9 subtracts 15−6 — ratios multiply.","45 multiplies 15×3 — wrong direction.","3⁄5 = 15⁄n → 3n = 75 → n = 25 girls!","20 adds 5 instead of scaling."],
+["210 is Ana's 3 parts, not Bea's.","560÷8 = 70 per part: Bea's 5 parts = ₱350!","280 splits equally — ignores the ratio.","190 guesses half minus — use parts."],
+["156 adds 48 — use the unit rate.","180 rounds up wrongly.","₱12 each: 14×12 = ₱168!","144 uses ₱10 — the unit rate is ₱12."],
+/* QUIZ */
+["6 : 8 equals but is not simplest.","18÷6=3 and 24÷6=4 — simplest 3 : 4!","4 : 3 flips the order.","9 : 12 equals but is not simplest."],
+["23 adds 14 — cross-multiply instead.","3 divides 21 by 7 — wrong pair.","7n = 189 → n = 27!","63 multiplies 21×3 — wrong pair."],
+["8 : 5 flips — cross-products 25 vs 64.","5×16=80 and 8×10=80 — proportion!","5×18=90 vs 8×10=80 — not equal.","5×20=100 vs 8×15=120 — not equal."],
+["95 adds 50 — use the unit rate.","115 adds 70 — scale properly.","₱15 per bottle: 7×15 = ₱105!","135 triples ₱45 — that's 9 bottles."],
+["14 halves 28 — that ignores the ratio 2 : 7.","4 halves twice — too small.","2⁄7 = n⁄28 → 7n = 56 → n = 8!","98 multiplies 2×49 — wrong cross pair."],
+["36 adds 6+30 — cross-multiply instead.","66 multiplies 6×11 — wrong pair.","6n = 330 → n = 55!","110 doubles 55 with no reason."],
+["43 adds 27 — use the unit rate.","₱9 per km: 7×9 = ₱63!","56 multiplies 4×14 — wrong rate.","70 adds 34 — scale by ₱9 per km."],
+["4 : 1 flips the peso order.","50÷50=1 and 200÷50=4 — simplest 1 : 4!","5 : 20 equals but is not simplest.","50 : 200 is raw — simplify it!"],
+["16 adds 8 weavers — the rate is 1.5 mats each.","20 rounds up wrongly.","12÷8 = 1.5 mats each: 12×1.5 = 18!","24 doubles 12 but 8→12 is not doubling."],
+["24 is the smaller class's 2 parts.","30 splits equally — ignores the ratio.","60÷5 = 12 per part: 3 parts = 36!","40 adds 10 — use parts of 12."]
+];
+
+/* MC narrations: "QUESTION ||| ANSWER" — 35 entries in slide order. */
+var NARR=[
+/* 0 title */
+["Mabuhay! Welcome to Grade 6 Math, Term 2, Week 2 — welcome to THE SARI-SARI SOLUTION SHOP! This week's mission: solve problems involving ratio and proportion, the Filipino way!",
+ "Our goals: write and simplify ratios from real Pinoy situations; spot true proportions with cross-products; solve for the missing term by cross-multiplying or by unit rate; and answer word problems from the palengke, the fiesta, and the sari-sari store. Simulan na tayo!"],
+/* 1 warm-up */
+["Warm-up, ka-shop! Look at Aling Nena's shelf: 12 mangoes and 18 bananas. The ratio of mangoes to bananas is 12 to 18 — because a ratio compares two quantities by division, not by subtraction!",
+ "And 12 to 18 simplifies: divide both by 6 and you get 2 to 3. For every 2 mangoes there are 3 bananas. Same comparison, simplest form — sulit!"],
+/* 2 unit 1 */
+["Unit one: ratio language! A ratio can be written three ways: 12 colon 18, 12 to 18, or the fraction 12 over 18. Order matters — mangoes first means mangoes on top!",
+ "Simplify by dividing both terms by their greatest common factor: 12 and 18 share 6, so the simplest form is 2 colon 3. Always serve ratios in simplest form!"],
+/* 3-7 practice 1 */
+["Practice: Aling Nena has 12 cans of sardines and 18 cans of corned beef. What is the ratio of sardines to corned beef in simplest form?|||Divide both by 6: TWO TO THREE!"],
+["Practice: the canteen has 15 chairs and 5 tables. Ratio of chairs to tables in simplest form?|||Fifteen to five divides by 5: THREE TO ONE!"],
+["Practice: which is NOT a way to write '4 to 6'?|||6 colon 4 flips the order — that is a different ratio!"],
+["Practice: a choir has 20 members; 8 are boys. What is the ratio of boys to girls in simplest form?|||8 boys and 12 girls: divide by 4 — TWO TO THREE!"],
+["Practice: simplify the ratio 24 to 36.|||Divide both by 12: TWO TO THREE!"],
+/* 8 unit 2 */
+["Unit two: proportions! A proportion says two ratios are EQUAL, like 2 colon 3 equals 4 colon 6. Test it with CROSS-PRODUCTS: 2 times 6 is 12, and 3 times 4 is 12. Equal cross-products mean a true proportion!",
+ "If the cross-products are not equal, the ratios are not proportional. Multiply diagonally — never straight across!"],
+/* 9-13 practice 2 */
+["Practice: is 3 colon 4 equals 9 colon 12 a proportion?|||Cross-products: 3 times 12 is 36, and 4 times 9 is 36 — YES, it is a proportion!"],
+["Practice: which pair of ratios forms a proportion?|||2 colon 5 and 4 colon 10: the cross-products are both 20 — proportion!"],
+["Practice: in the proportion 5 colon 8 equals 10 colon n, which equation matches the cross-products?|||5 times n equals 8 times 10 — so 5 n equals 80!"],
+["Practice: which proportion is TRUE?|||6 colon 10 equals 12 colon 20: the cross-products are both 120!"],
+["Practice: solve 1 colon 4 equals 5 colon n.|||Cross-multiply: 1 times n equals 4 times 5 — n equals TWENTY!"],
+/* 14 unit 3 */
+["Unit three: the four-step solver! READ the problem, SET UP the proportion with matching units, CROSS-SOLVE for the missing term, then CHECK by substituting back. Three pans of bibingka need 12 eggs, so 5 pans need n eggs: 3 over 12 equals 5 over n; cross-multiply: 3 n equals 60; n equals 20 eggs!",
+ "Check: 3 over 12 and 5 over 20 both simplify to 1 over 4. Correct! Four steps, every time — no guessing, no luck!"],
+/* 15-19 practice 3 */
+["Practice: 3 pans of bibingka need 12 eggs. How many eggs for 5 pans?|||3 over 12 equals 5 over n: 3 n equals 60 — TWENTY eggs!"],
+["Practice: 2 kilos of rice feed 10 people. How many kilos feed 25 people?|||2 over 10 equals n over 25: 10 n equals 50 — FIVE kilos!"],
+["Practice: solve 4 colon 7 equals 16 colon n.|||4 n equals 112 — n equals TWENTY-EIGHT!"],
+["Practice: 5 star lanterns need 15 bulbs. How many bulbs for 8 lanterns?|||5 over 15 equals 8 over n: 5 n equals 120 — TWENTY-FOUR bulbs!"],
+["Practice: solve n colon 6 equals 10 colon 12.|||12 n equals 60 — n equals FIVE!"],
+/* 20 unit 4 */
+["Unit four: the unit-rate shortcut! Four pandesal cost 32 pesos, so ONE pandesal costs 32 divided by 4 — 8 pesos. That unit rate buys anything: 7 pandesal cost 7 times 8 — 56 pesos!",
+ "Unit rate first, then multiply. Per piece, per kilo, per kilometer — the unit rate is your palengke superpower!"],
+/* 21-25 practice 4 */
+["Practice: 5 notebooks cost 75 pesos. How much do 8 notebooks cost?|||Unit rate 15 pesos each: 8 times 15 — ONE HUNDRED TWENTY pesos!"],
+["Practice: a jeepney travels 14 kilometers on 2 liters of diesel. How far on 5 liters?|||Unit rate 7 kilometers per liter: 5 times 7 — THIRTY-FIVE kilometers!"],
+["Practice: 3 kilos of mangoes cost 240 pesos. How much is one kilo?|||240 divided by 3 — EIGHTY pesos per kilo!"],
+["Practice: 12 eggs cost 96 pesos. How much do 15 eggs cost?|||Unit rate 8 pesos: 15 times 8 — ONE HUNDRED TWENTY pesos!"],
+["Practice: 4 meters of ribbon make 10 banderitas. How many banderitas from 14 meters?|||Unit rate 2.5 per meter: 14 times 2.5 — THIRTY-FIVE banderitas!"],
+/* 26 unit 5 */
+["Unit five: word-problem workout! Fiesta recipe: 2 cups of coconut milk for every 3 cups of rice flour. With 9 cups of rice flour, how much coconut milk? Set up 2 over 3 equals n over 9 — cross-multiply: 3 n equals 18 — n equals 6 cups!",
+ "Map problem: 1 centimeter stands for 5 kilometers, so 8 centimeters is 8 times 5 — 40 kilometers in real life. Choose cross-multiply OR unit rate — both roads lead to the fiesta!"],
+/* 27-31 practice 5 */
+["Practice: a recipe mixes 2 cups coconut milk with 3 cups rice flour. Using 9 cups rice flour, how many cups of coconut milk?|||2 over 3 equals n over 9: 3 n equals 18 — SIX cups!"],
+["Practice: a map scale is 1 centimeter to 5 kilometers. What is 8 centimeters in real distance?|||8 times 5 — FORTY kilometers!"],
+["Practice: the ratio of boys to girls in a dance rehearsal is 3 to 5. If there are 15 boys, how many girls?|||3 over 5 equals 15 over n: 3 n equals 75 — TWENTY-FIVE girls!"],
+["Practice: 560 pesos is shared by Ana and Bea in the ratio 3 to 5. How much does Bea receive?|||8 parts of 70 pesos each: Bea's 5 parts — THREE HUNDRED FIFTY pesos!"],
+["Practice: 9 itlog na maalat cost 108 pesos. How much do 14 eggs cost?|||Unit rate 12 pesos: 14 times 12 — ONE HUNDRED SIXTY-EIGHT pesos!"],
+/* 32 hazards */
+["Shop hazards, mga ka-shop! Hazard one: wrong order — boys to girls is NOT girls to boys; match the order of the question exactly! Hazard two: the adding trap — 2 colon 3 does NOT become 4 colon 5 by adding 2; ratios grow by MULTIPLYING both terms! Hazard three: straight-across mistake — cross-products are DIAGONAL: in a over b equals c over d, multiply a times d and b times c!"],
+/* 33-42 quiz */
+["Quiz one: simplify 18 to 24.|||Divide by 6: THREE TO FOUR!"],
+["Quiz two: solve 7 colon 9 equals 21 colon n.|||7 n equals 189 — n equals TWENTY-SEVEN!"],
+["Quiz three: which pair of ratios forms a proportion?|||5 colon 8 and 10 colon 16: the cross-products are both 80!"],
+["Quiz four: 3 bottles of calamansi juice cost 45 pesos. How much do 7 bottles cost?|||Unit rate 15 pesos: 7 times 15 — ONE HUNDRED FIVE pesos!"],
+["Quiz five: the ratio of red to blue flags is 2 to 7. If there are 28 blue flags, how many red flags?|||2 over 7 equals n over 28: 7 n equals 56 — EIGHT red flags!"],
+["Quiz six: solve 6 colon 11 equals 30 colon n.|||6 n equals 330 — n equals FIFTY-FIVE!"],
+["Quiz seven: a tricycle fare is 36 pesos for 4 kilometers. At the same rate, how much is 7 kilometers?|||Unit rate 9 pesos per kilometer: 7 times 9 — SIXTY-THREE pesos!"],
+["Quiz eight: simplify the ratio 50 pesos to 200 pesos.|||Divide by 50: ONE TO FOUR!"],
+["Quiz nine: 8 weavers make 12 banig mats in a day. At the same rate, how many mats do 12 weavers make?|||Unit rate 1.5 mats per weaver: 12 times 1.5 — EIGHTEEN mats!"],
+["Quiz ten: 60 mangoes are shared between two classes in the ratio 2 to 3. How many does the bigger class get?|||5 parts of 12 each: the bigger class takes 3 parts — THIRTY-SIX mangoes!"],
+/* 43 summary */
+["Shop complete! Ratios compare by division and love simplest form; proportions are equal ratios proven by cross-products; solve by cross-multiplying or by unit rate; and always check your answer. From the palengke to the fiesta — ratio and proportion solve it!",
+ "%STARS% You are a certified SARI-SARI SOLUTION SUPERSTAR! Kayang-kaya mo ang ratio and proportion — see you at the next mission!"]
+];
+
+var slides=[].slice.call(document.querySelectorAll('.slide'));
+var mcList=[].slice.call(document.querySelectorAll('.slide.mc'));
+shuffleChoicesOnce();
+
+var si=0,step=-1,started=false,mode=null,muted=false;
+var starCount=0,firstWrong=false,answered=false;
+var mcState=slides.map(function(){return {answered:false,firstWrong:false,wrongs:{}};});
+var synth=window.speechSynthesis||null,voices=[],voiceIdx=-1;
+/* Chrome keep-alive: speechSynthesis auto-pauses long utterances (~15s bug) */
+if(synth){setInterval(function(){if(synth.speaking){try{synth.resume();}catch(e){}}},8000);}
+var chip=document.getElementById('voiceChip');
+var recChip=document.getElementById('recChip'),starChip=document.getElementById('starChip');
+var stageEl=document.getElementById('stage');
+
+function getWhy(sl,i){
+  var mi=mcList.indexOf(sl);
+  var w=WHY[mi];
+  if(w&&w[i])return w[i];
+  return (i===+sl.getAttribute('data-ans'))?'This choice follows the ratio rule.':'This choice breaks the ratio rule — check the order, the cross-products, or the unit rate.';
+}
+function setFB(sl,type,html){
+  var fb=sl.querySelector('.fb'); if(!fb)return;
+  fb.innerHTML=html;
+  fb.classList.remove('g','r');
+  if(type==='g')fb.classList.add('g');
+  if(type==='r')fb.classList.add('r');
+}
+
+var stepStart=[],T=0;slides.forEach(function(s,i){stepStart.push(T);T+=NARR[i].length;});
+var digitAt={};[.15,.37,.57,.76,.93].forEach(function(p,k){digitAt[Math.min(T-1,Math.round(T*p))]=PASS[k];});
+var shownDigits={};
+
+var passOpen=false,passBuf=[];
+var modeBtns=document.getElementById('modeBtns'),passPanel=document.getElementById('passPanel');
+document.getElementById('btnPreview').onclick=function(e){e.stopPropagation();startPreview();};
+document.getElementById('btnLesson').onclick=function(e){e.stopPropagation();openPass();};
+document.getElementById('passBack').onclick=function(e){e.stopPropagation();closePass();};
+function openPass(){passOpen=true;modeBtns.style.display='none';passPanel.style.display='flex';passBuf=[];renderPass();
+  document.getElementById('passMsg').textContent='Type digits • Enter = unlock';}
+function closePass(){passOpen=false;passPanel.style.display='none';modeBtns.style.display='flex';}
+function renderPass(){var sl=passPanel.querySelectorAll('.pslot');
+  sl.forEach(function(s,i){s.textContent=passBuf[i]!==undefined?passBuf[i]:'';});}
+function tryPass(){var ok=passBuf.length===5&&passBuf.every(function(d,i){return d===PASS[i];});
+  if(ok){startLesson();}else{passPanel.classList.add('err');
+    document.getElementById('passMsg').textContent='❌ Wrong code! Watch the Preview video to collect the 5 digits.';
+    setTimeout(function(){passPanel.classList.remove('err');},600);passBuf=[];renderPass();}}
+function startPreview(){
+  if(YOUTUBE_LINK && YOUTUBE_LINK.trim()){window.open(YOUTUBE_LINK.trim(),'_blank');return;}
+  mode='preview';started=true;document.body.classList.add('preview');
+  recChip.classList.add('on');document.getElementById('overlay').style.display='none';
+  showIntroSlide();
+}
+/* 10-second animated bumper before the auto-lesson starts */
+function showIntroSlide(){
+  var intro=document.getElementById('introOverlay');
+  intro.classList.add('active');
+  var countEl=document.getElementById('introCount');
+  var timeLeft=10;
+  countEl.textContent=timeLeft;
+  tone(660,0,.2,'triangle',.3);tone(880,.2,.2,'triangle',.3);
+  var timer=setInterval(function(){
+    timeLeft--;
+    countEl.textContent=timeLeft;
+    if(timeLeft>0)tone(880,0,.08,'square',.15);
+    if(timeLeft<=0){
+      clearInterval(timer);
+      intro.classList.remove('active');
+      goTo(0);
+    }
+  },1000);
+}
+function startLesson(){mode='lesson';started=true;passOpen=false;document.body.classList.add('lesson');
+  document.getElementById('overlay').style.display='none';goTo(0);}
+
+var recTimer=null;
+function clearRec(){if(recTimer){clearTimeout(recTimer);recTimer=null;}}
+function scheduleNext(ms){clearRec();recTimer=setTimeout(function(){recTimer=null;if(mode==='preview'&&started)next();},ms);}
+
+var mcTimerInt=null,mcCounting=false;
+var mcTimerEl=document.getElementById('mcTimer'),mcTimerN=document.getElementById('mcTimerN');
+function clearMcTimer(){if(mcTimerInt){clearInterval(mcTimerInt);mcTimerInt=null;}
+  mcTimerEl.classList.remove('on');mcCounting=false;}
+function startMCCountdown(){mcCounting=true;var n=5;
+  mcTimerN.textContent=n;mcTimerEl.classList.add('on');tone(980,0,.09,'square',.12);
+  mcTimerInt=setInterval(function(){n--;
+    if(n<=0){clearInterval(mcTimerInt);mcTimerInt=null;mcTimerEl.classList.remove('on');mcCounting=false;
+      revealMC();speakAnswer();}
+    else{mcTimerN.textContent=n;tone(980,0,.09,'square',.12);}
+  },1000);}
+function autoAfter(){if(mode!=='preview'||!started)return;if(si>=slides.length-1)return;
+  if(slides[si].classList.contains('mc')){if(!answered&&!mcCounting)startMCCountdown();}
+  else scheduleNext(2000);}
+
+/* ---- ANTI-STALL TTS: sentence-chunked speech + per-chunk watchdog ---- */
+var spToken=0,wd=null;
+function splitSent(t){
+  var parts=t.match(/[^.!?]+[.!?]*/g)||[t];
+  var out=[],cur='';
+  for(var i=0;i<parts.length;i++){
+    if((cur+parts[i]).length>150&&cur){out.push(cur);cur=parts[i];}
+    else cur+=parts[i];
+  }
+  if(cur)out.push(cur);
+  return out.length?out:[t];
+}
+function speakChunks(ch,i,onDone,token){
+  if(token!==spToken)return;
+  if(wd){clearTimeout(wd);wd=null;}
+  if(i>=ch.length){onDone();return;}
+  var done=false;
+  var u=new SpeechSynthesisUtterance(ch[i]);
+  var v=pickVoice();if(v){u.voice=v;u.lang=v.lang;}
+  u.rate=1.0;u.pitch=1.0;u.volume=1;
+  u.onend=u.onerror=function(){if(done||token!==spToken)return;done=true;
+    if(wd){clearTimeout(wd);wd=null;}speakChunks(ch,i+1,onDone,token);};
+  try{if(synth.paused)synth.resume();}catch(e){}
+  setTimeout(function(){if(token!==spToken)return;synth.speak(u);},60);
+  var words=ch[i].split(/\s+/).length;
+  wd=setTimeout(function(){if(done||token!==spToken)return;done=true;
+    try{synth.cancel();}catch(e){}speakChunks(ch,i+1,onDone,token);},8000+words*430);
+}
+function speakAnswer(){
+  var full=NARR[si][step]||'';
+  var ans=full.split('|||')[1]||'';
+  if(mode!=='preview'||!ans||!synth||muted){scheduleNext(2600);return;}
+  synth.cancel();spToken++;
+  speakChunks(splitSent(ans),0,function(){scheduleNext(2200);},spToken);
+}
+function speak(t){
+  if(mode==='lesson')return;
+  if(!synth){autoAfter();return;}
+  synth.cancel();
+  if(muted){autoAfter();return;}
+  if(slides[si]&&slides[si].classList.contains('mc')){t=t.split('|||')[0];}
+  t=t.replace('%STARS%','Play Lesson Mode to earn stars!');
+  spToken++;
+  speakChunks(splitSent(t),0,autoAfter,spToken);
+}
+
+var AC=null;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}
+  if(AC&&AC.state==='suspended')AC.resume();return AC;}
+function tone(f,t0,dur,type,vol,slide){if(muted)return;var c=ac();if(!c)return;
+  var t=c.currentTime+t0,o=c.createOscillator(),g=c.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(f,t);
+  if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+dur);
+  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol||.2,t+.02);
+  g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+.05);}
+function sPop(){tone(520,0,.12,'triangle',.22,900);}
+function sWhoosh(){if(muted)return;var c=ac();if(!c)return;
+  var dur=.35,buf=c.createBuffer(1,c.sampleRate*dur,c.sampleRate),d=buf.getChannelData(0);
+  for(var i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);
+  var src=c.createBufferSource();src.buffer=buf;var f=c.createBiquadFilter();f.type='bandpass';
+  f.frequency.setValueAtTime(300,c.currentTime);f.frequency.exponentialRampToValueAtTime(2400,c.currentTime+dur);
+  var g=c.createGain();g.gain.value=.15;src.connect(f);f.connect(g);g.connect(c.destination);src.start();}
+function sCorrect(){tone(660,0,.14,'triangle',.3);tone(880,.13,.14,'triangle',.3);tone(1100,.26,.4,'triangle',.3);}
+function sWrong(){tone(170,0,.25,'sawtooth',.18,120);}
+function sCode(){tone(784,0,.15,'triangle',.3);tone(1175,.16,.3,'triangle',.3);}
+function sFanfare(){[523,659,784,1047].forEach(function(f,i){tone(f,i*.12,.28,'triangle',.3);});tone(1319,.55,.7,'triangle',.3);}
+
+/* Star counter only increments when the flying star LANDS on the score chip */
+function starBurst(fromEl){
+  var sr=stageEl.getBoundingClientRect();
+  var sc=sr.width/1920;
+  var fr=fromEl.getBoundingClientRect();
+  var fx0=(fr.left+fr.width/2-sr.left)/sc;
+  var fy0=(fr.top+fr.height/2-sr.top)/sc;
+  var cr=starChip.getBoundingClientRect();
+  var tx=(cr.left+cr.width/2-sr.left)/sc, ty=(cr.top+cr.height/2-sr.top)/sc;
+  var s=document.createElement('span');
+  s.textContent='⭐';
+  s.style.cssText='position:absolute;z-index:95;pointer-events:none;left:'+fx0+'px;top:'+fy0+'px;'+
+    'font-size:72px;transform:translate(-50%,-50%) scale(0);text-shadow:0 0 30px #f2b705,0 0 70px #d7263d;';
+  stageEl.appendChild(s);
+  var a1=s.animate([
+    {transform:'translate(-50%,-50%) scale(0) rotate(0deg)',opacity:1},
+    {transform:'translate(-50%,-50%) scale(2.5) rotate(540deg)',opacity:1,offset:.55},
+    {transform:'translate(-50%,-50%) scale(2.0) rotate(720deg)',opacity:1}
+  ],{duration:800,easing:'cubic-bezier(.2,.7,.2,1)'});
+  a1.onfinish=function(){
+    var dx=tx-fx0, dy=ty-fy0;
+    var a2=s.animate([
+      {transform:'translate(-50%,-50%) scale(2.0) rotate(720deg)',opacity:1},
+      {transform:'translate(calc(-50% + '+dx+'px), calc(-50% + '+dy+'px)) scale(.35) rotate(1080deg)',opacity:.95}
+    ],{duration:800,easing:'cubic-bezier(.4,0,.7,1)'});
+    a2.onfinish=function(){s.remove();
+      starCount++;document.getElementById('starN').textContent=starCount;
+      starChip.classList.remove('bump');void starChip.offsetWidth;starChip.classList.add('bump');
+      tone(1318,0,.18,'triangle',.28);};
+  };
+}
+
+function refreshVoices(){if(!synth)return;voices=synth.getVoices();label();}
+if(synth){refreshVoices();synth.onvoiceschanged=refreshVoices;}
+function pickVoice(){
+  if(!voices.length)return null;
+  var en=voices.filter(function(v){return v.lang.toLowerCase().indexOf('en')===0;});
+  if(voiceIdx>=0&&en.length)return en[voiceIdx%en.length];
+  var ph=voices.filter(function(v){return /en[-_]ph/i.test(v.lang);});
+  if(ph.length){var m=ph.filter(function(v){return /james|male/i.test(v.name);})[0];return m||ph[0];}
+  var ph2=voices.filter(function(v){return /philippines|filipino/i.test(v.name);})[0]; if(ph2)return ph2;
+  var nat=en.filter(function(v){return /natural|online|neural/i.test(v.name);});
+  var male=['james','guy','davis','ryan','daniel','david','mark','alex','george','arthur','fred','eric','brian','matthew','male'];
+  for(var i=0;i<male.length;i++){var f=nat.filter(function(v){return v.name.toLowerCase().indexOf(male[i])>-1;})[0]
+    ||en.filter(function(v){return v.name.toLowerCase().indexOf(male[i])>-1;})[0]; if(f)return f;}
+  return nat[0]||en[0]||voices[0];}
+function label(){var v=pickVoice();var ph=v&&(/en[-_]ph/i.test(v.lang)||/philippines|filipino/i.test(v.name));
+  chip.textContent=(muted?'🔇 Muted':(ph?'🇵🇭 ':'🔊 '))+(v?v.name.replace('Microsoft','MS').replace('Online (Natural)','Natural'):'no voice');}
+function testVoice(){if(mode==='lesson')return;
+  var en=voices.filter(function(v){return v.lang.toLowerCase().indexOf('en')===0;});
+  if(en.length){voiceIdx=(voiceIdx+1)%en.length;}
+  label();
+  if(muted||!synth)return;
+  synth.cancel();
+  var u=new SpeechSynthesisUtterance('Kumusta! This is your lesson voice. Press V again to audition other voices!');
+  var v=pickVoice();if(v){u.voice=v;u.lang=v.lang;} u.rate=1.0;u.pitch=1.0;
+  synth.speak(u);}
+chip.addEventListener('click',function(e){e.stopPropagation();testVoice();});
+
+var codeOv=document.getElementById('codeOv');
+function showCode(k,d){document.getElementById('codeLbl').textContent='PASSCODE DIGIT '+(k+1)+'/5 — WRITE IT DOWN!';
+  document.getElementById('codeDig').textContent=d;codeOv.classList.add('on');sCode();
+  setTimeout(function(){codeOv.classList.remove('on');},3000);}
+
+function shuffleChoicesOnce(){
+  document.querySelectorAll('.slide.mc .opts').forEach(function(box){
+    var btns=[].slice.call(box.children);
+    for(var i=btns.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=btns[i];btns[i]=btns[j];btns[j]=t;}
+    btns.forEach(function(btn,idx){var b=btn.querySelector('b');if(b)b.textContent=String.fromCharCode(65+idx);box.appendChild(btn);});
+  });
+}
+function getMCState(sl){return mcState[slides.indexOf(sl)];}
+
+function resetMC(sl){
+  var st=getMCState(sl);
+  answered=!!st.answered; firstWrong=!!st.firstWrong;
+  sl.querySelectorAll('.opt').forEach(function(o){
+    o.classList.remove('good','bad','reveal'); o.disabled=false;
+    if(st.wrongs[+o.getAttribute('data-i')])o.classList.add('bad');
+  });
+  if(st.answered){
+    var a=+sl.getAttribute('data-ans');
+    var correct=sl.querySelector('.opt[data-i="'+a+'"]');
+    if(correct)correct.classList.add('good');
+    setFB(sl,'g','✔ Correct!'+(st.firstWrong?' (no star — missed first try)':' +1 ⭐')+
+      '<span class="why">'+getWhy(sl,a)+'</span>');
+  }else if(Object.keys(st.wrongs).length>0){
+    setFB(sl,'r','Continue — choose the correct answer to proceed!<span class="why">Read each choice carefully.</span>');
+  }else{
+    setFB(sl,'','');
+  }
+}
+function revealMC(){
+  var sl=slides[si]; if(answered)return;
+  answered=true;
+  var st=getMCState(sl); if(st)st.answered=true;
+  var a=+sl.getAttribute('data-ans');
+  var o=sl.querySelector('.opt[data-i="'+a+'"]');
+  if(o){o.classList.add('reveal');
+    starBurst(o); sCorrect();}
+  if(o){setFB(sl,'g','✔ Answer: '+o.textContent.replace(/^[A-D]/,'').trim()+
+    '<span class="why">'+getWhy(sl,a)+'</span>');}
+}
+function clickOpt(btn){
+  if(mode!=='lesson'||answered)return;
+  var sl=btn.closest('.slide'); var st=getMCState(sl);
+  var a=+sl.getAttribute('data-ans'); var i=+btn.getAttribute('data-i');
+  var why=getWhy(sl,i);
+  if(i===a){
+    answered=true; st.answered=true; st.firstWrong=firstWrong;
+    btn.classList.add('good');
+    if(!firstWrong){
+      starBurst(btn);
+      setFB(sl,'g','✔ Correct! +1 ⭐<span class="why">'+why+'</span>');
+      sCorrect();
+    }else{
+      setFB(sl,'g','✔ Correct! (no star — missed first try)<span class="why">'+why+'</span>');
+      sCorrect();
+    }
+  }else{
+    firstWrong=true; st.firstWrong=true; st.wrongs[i]=true;
+    btn.classList.add('bad');
+    setFB(sl,'r','✘ Not quite — try again!<span class="why">'+why+'</span>');
+    sWrong();
+  }
+}
+document.addEventListener('click',function(e){var b=e.target.closest('.opt');if(b){clickOpt(b);return;}
+  if(mode==='lesson'&&started)next();});
+
+function confetti(){var host=document.getElementById('confetti');if(!host)return;host.innerHTML='';
+  var cols=['#d7263d','#f2b705','#2e9e4f','#1d6fdc','#7b4fc9','#ffffff'];
+  for(var i=0;i<90;i++){var s=document.createElement('i');
+    s.style.left=(Math.random()*100)+'%';s.style.background=cols[i%cols.length];
+    s.style.width=(8+Math.random()*10)+'px';s.style.height=(10+Math.random()*12)+'px';
+    s.style.animationDuration=(2.4+Math.random()*2)+'s';s.style.animationDelay=(Math.random()*.9)+'s';
+    host.appendChild(s);}
+  setTimeout(function(){host.innerHTML='';},5500);}
+
+function toggleFS(){
+  if(!document.fullscreenElement){if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen();}
+  else if(document.exitFullscreen){document.exitFullscreen();}
+}
+
+function updateHud(){
+  document.getElementById('counter').textContent=('0'+(si+1)).slice(-2)+' / '+slides.length;
+  document.getElementById('progress').style.width=((si+(step+1)/NARR[si].length)/slides.length*100)+'%';}
+function setStep(s){step=s;clearRec();clearMcTimer();
+  var els=slides[si].querySelectorAll('[data-step]'),newly=[];
+  for(var i=0;i<els.length;i++){var on=+els[i].getAttribute('data-step')<=s;
+    els[i].classList.toggle('on',on);
+    if(on&&+els[i].getAttribute('data-step')===s)newly.push(els[i]);}
+  newly.slice(0,5).forEach(function(el,idx){setTimeout(sPop,180*idx+120);});
+  if(slides[si].classList.contains('mc')&&s===0)resetMC(slides[si]);
+  var g=stepStart[si]+s;
+  if(mode==='preview'&&digitAt[g]!==undefined&&!shownDigits[g]){shownDigits[g]=1;showCode(PASS.indexOf(digitAt[g]),digitAt[g]);}
+  if(si===slides.length-1&&s===0){
+    var sl2=document.getElementById('starLine');
+    if(sl2)sl2.textContent=(mode==='lesson'?('You earned '+starCount+' of 35 stars! ⭐ '):'Play Lesson Mode to earn stars! ')+'Kayang-kaya mo ang ratio and proportion — see you at the next mission!';
+    if(mode==='lesson'){confetti();sFanfare();}
+  }
+  speak(NARR[si][s]||'');updateHud();}
+function goTo(i){clearRec();clearMcTimer();slides[si].classList.remove('active');si=i;slides[si].classList.add('active');
+  slides[si].scrollTop=0;sWhoosh();setStep(0);}
+function next(){
+  if(!started)return;
+  if(mode==='lesson'&&slides[si].classList.contains('mc')){
+    var st=getMCState(slides[si]);
+    if(!st||!st.answered){
+      setFB(slides[si],'r','Answer correctly first to continue! ⭐<span class="why">Set up the proportion, then cross-solve or use unit rate.</span>');
+      sWrong();return;
+    }
+  }
+  if(step<NARR[si].length-1)setStep(step+1); else if(si<slides.length-1)goTo(si+1);}
+function prev(){clearRec();clearMcTimer();if(si>0)goTo(si-1);}
+
+document.addEventListener('keydown',function(e){var k=e.key;
+  if(k==='f'||k==='F'){e.preventDefault();toggleFS();return;}
+  if(!started){
+    if(k==='v'||k==='V'){e.preventDefault();testVoice();return;}
+    if(k==='m'||k==='M'){muted=!muted;if(muted)synth&&synth.cancel();label();return;}
+    if(passOpen){
+      if(/^[0-9]$/.test(k)&&passBuf.length<5){passBuf.push(+k);renderPass();sPop();}
+      else if(k==='Backspace'){passBuf.pop();renderPass();}
+      else if(k==='Enter'){tryPass();}
+      else if(k==='Escape'){closePass();}
+      e.preventDefault();return;}
+    if(k==='p'||k==='P')startPreview();
+    if(k==='l'||k==='L')openPass();
+    return;}
+  if(mode==='lesson'){
+    if(k==='m'||k==='M'||k==='v'||k==='V'){e.preventDefault();return;}
+    if(k==='ArrowRight'||k===' '||k==='Enter'||k==='PageDown'){e.preventDefault();next();}
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){e.preventDefault();prev();}
+    return;}
+  if(k==='m'||k==='M'){muted=!muted;if(muted)synth&&synth.cancel();label();return;}
+  if(k==='v'||k==='V'){testVoice();return;}});
+
+var fx=document.getElementById('fx'),sym=['🏪','','🍌','️','','₱',':','=','×','★','🇵🇭','⭐'];
+for(var i=0;i<14;i++){var s=document.createElement('span');s.textContent=sym[i%sym.length];
+  s.style.left=(Math.random()*94)+'%';s.style.top=(Math.random()*86)+'%';
+  s.style.fontSize=(28+Math.random()*48)+'px';s.style.color=(i%3?'#1d6fdc':'#f2b705');
+  s.animationDelay=(Math.random()*6)+'s';fx.appendChild(s);}
+function fit(){var sc=Math.min(innerWidth/1920,innerHeight/1080);
+  stageEl.style.transform='translate(-50%,-50%) scale('+sc+')';}
+addEventListener('resize',fit);fit();label();
+</script>
+</body>
+</html>
