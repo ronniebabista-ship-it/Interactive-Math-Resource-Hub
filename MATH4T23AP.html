@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>📏 Measurement Conversion - Grade 4</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  body {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;
+    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 50%, #ffecd2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+  }
+
+  .game-container {
+    background: white;
+    border-radius: 18px;
+    padding: 12px 10px;
+    max-width: 720px;
+    width: 100%;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    text-align: center;
+    animation: popIn 0.5s ease;
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  h1 {
+    color: #4a6fa5;
+    font-size: 1.4em;
+    margin-bottom: 2px;
+    text-shadow: 1px 1px 0 #ffd93d;
+  }
+
+  .subtitle {
+    color: #666;
+    font-size: 0.85em;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .info-box {
+    background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+    border: 2px solid #00acc1;
+    border-radius: 10px;
+    padding: 6px 8px;
+    margin-bottom: 8px;
+    font-size: 0.82em;
+    color: #006064;
+    line-height: 1.4;
+    text-align: left;
+  }
+
+  .info-box strong {
+    color: #d32f2f;
+  }
+
+  .conv-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 3px;
+    margin-top: 5px;
+  }
+
+  .conv-item {
+    background: rgba(255,255,255,0.75);
+    border-radius: 6px;
+    padding: 3px 2px;
+    text-align: center;
+    font-size: 0.82em;
+    line-height: 1.2;
+    font-weight: bold;
+    color: #006064;
+  }
+
+  .conv-item .icon { font-size: 1.1em; }
+
+  .progress-bar {
+    background: #f0f0f0;
+    border-radius: 15px;
+    height: 14px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    border: 2px solid #ffd93d;
+  }
+
+  .progress-fill {
+    background: linear-gradient(90deg, #6bcf7f, #4ecdc4);
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease;
+    border-radius: 15px;
+  }
+
+  .item-counter {
+    font-size: 0.9em;
+    color: #555;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  .passage-box {
+    background: linear-gradient(135deg, #fff9c4, #fff59d);
+    border: 3px dashed #ff9800;
+    border-radius: 14px;
+    padding: 16px 14px;
+    margin-bottom: 10px;
+    font-size: 1.35em;
+    line-height: 1.6;
+    color: #333;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-weight: bold;
+    animation: slideIn 0.4s ease;
+  }
+
+  .passage-text { display: inline; }
+
+  .blank {
+    display: inline-block;
+    min-width: 70px;
+    border-bottom: 3px solid #d32f2f;
+    margin: 0 6px;
+    text-align: center;
+    color: #d32f2f;
+  }
+
+  @keyframes slideIn {
+    0% { transform: translateX(-20px); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+  }
+
+  .question {
+    font-size: 1em;
+    color: #ff6b9d;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  .toggle-btn {
+    background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+    border: 2px solid #4a6fa5;
+    color: #4a6fa5;
+    padding: 5px 15px;
+    font-size: 0.85em;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-bottom: 8px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 0 #4a6fa5;
+  }
+
+  .toggle-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 0 #4a6fa5; }
+  .toggle-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 #4a6fa5; }
+
+  .show-answer-btn {
+    background: linear-gradient(135deg, #ffecd2, #fcb69f);
+    border: 2px solid #ff9800;
+    color: #e65100;
+    padding: 8px 18px;
+    font-size: 0.95em;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-bottom: 8px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 0 #ff9800;
+    display: none;
+    animation: popIn 0.4s ease;
+  }
+
+  .show-answer-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 0 #ff9800; }
+  .show-answer-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 #ff9800; }
+
+  .choices-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+    transition: opacity 0.3s ease;
+  }
+
+  .choice-btn {
+    background: linear-gradient(135deg, #a8edea, #fed6e3);
+    border: 2px solid white;
+    border-radius: 12px;
+    padding: 14px 6px;
+    font-size: 1.15em;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+    font-family: inherit;
+    min-height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .choice-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 rgba(0,0,0,0.15);
+    background: linear-gradient(135deg, #8fd3f4, #fbc2eb);
+  }
+
+  .choice-btn:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.15);
+  }
+
+  .choice-btn.correct {
+    background: linear-gradient(135deg, #84fab0, #8fd3f4) !important;
+    animation: correctPulse 0.6s ease;
+    border-color: #4ecdc4;
+  }
+
+  .choice-btn.wrong {
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4) !important;
+    animation: shake 0.5s ease;
+    border-color: #ff6b6b;
+  }
+
+  @keyframes correctPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+
+  .feedback {
+    font-size: 0.95em;
+    font-weight: bold;
+    margin: 8px 0;
+    min-height: 20px;
+    transition: all 0.3s;
+    line-height: 1.4;
+  }
+
+  .feedback.correct { color: #4ecdc4; }
+  .feedback.wrong { color: #ff6b6b; }
+
+  .next-btn {
+    background: linear-gradient(135deg, #ff6b9d, #ff8e53);
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    font-size: 1.05em;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+    font-family: inherit;
+    transition: all 0.2s;
+    display: none;
+    margin-top: 5px;
+  }
+
+  .next-btn.show { display: inline-block; animation: popIn 0.4s ease; }
+  .next-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 0 rgba(0,0,0,0.2); }
+  .next-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(0,0,0,0.2); }
+
+  .keyboard-hint {
+    font-size: 0.75em;
+    color: #888;
+    margin-top: 5px;
+    font-style: italic;
+  }
+
+  .keyboard-hint kbd {
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: monospace;
+    font-style: normal;
+  }
+
+  .final-screen { display: none; text-align: center; }
+  .final-screen.active { display: block; animation: popIn 0.6s ease; }
+
+  .trophy { font-size: 4em; animation: bounce 1s infinite; }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .final-screen h1 { font-size: 1.6em; margin: 8px 0; color: #4ecdc4; }
+  .final-screen p { font-size: 1em; color: #555; margin-bottom: 8px; }
+
+  .score-box {
+    background: linear-gradient(135deg, #fff9c4, #ffe082);
+    border-radius: 14px;
+    padding: 12px;
+    margin: 10px 0;
+    border: 2px dashed #ff9800;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #ff6b9d;
+  }
+
+  .restart-btn {
+    background: linear-gradient(135deg, #4ecdc4, #44a08d);
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    font-size: 1.05em;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+    font-family: inherit;
+  }
+
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    z-index: 200;
+    animation: fall 3s linear forwards;
+  }
+
+  @keyframes fall {
+    to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  @media (max-width: 480px) {
+    body { padding: 5px; }
+    .game-container { padding: 8px 6px; border-radius: 14px; }
+    h1 { font-size: 1.15em; }
+    .passage-box { font-size: 1.15em; padding: 12px 8px; }
+    .choice-btn { font-size: 1em; padding: 11px 4px; min-height: 48px; }
+    .info-box { font-size: 0.72em; padding: 5px 6px; }
+    .conv-grid { grid-template-columns: repeat(5, 1fr); gap: 2px; }
+    .conv-item { font-size: 0.72em; }
+    .show-answer-btn { font-size: 0.9em; padding: 7px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="game-container">
+  <h1>📏 Measurement Conversion</h1>
+  <p class="subtitle">Fill in the blank with the correct number!</p>
+
+  <div class="info-box">
+    💡 <strong>Remember these conversions:</strong>
+    <div class="conv-grid">
+      <div class="conv-item"><span class="icon">📏</span><br>1 m<br>= 100 cm</div>
+      <div class="conv-item"><span class="icon">🛣️</span><br>1 km<br>= 1,000 m</div>
+      <div class="conv-item"><span class="icon">⚖️</span><br>1 kg<br>= 1,000 g</div>
+      <div class="conv-item"><span class="icon">💊</span><br>1 g<br>= 1,000 mg</div>
+      <div class="conv-item"><span class="icon">🥤</span><br>1 L<br>= 1,000 mL</div>
+    </div>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <div id="gameArea">
+    <div class="item-counter" id="itemCounter">Item 1 of 20</div>
+
+    <div class="passage-box">
+      <span class="passage-text" id="passageText">Loading...</span>
+    </div>
+
+    <div class="question">🤔 What number fills the blank?</div>
+    
+    <button class="toggle-btn" id="toggleChoicesBtn" onclick="toggleChoices()">👁️ Hide Choices</button>
+    
+    <button class="show-answer-btn" id="showAnswerBtn" onclick="showAnswer()">💡 Show Answer</button>
+
+    <div class="choices-grid" id="choicesGrid"></div>
+
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextItem()">Next Item ➡️</button>
+    <div class="keyboard-hint">Press <kbd>→</kbd> for next item</div>
+  </div>
+
+  <div class="final-screen" id="finalScreen">
+    <div class="trophy">🏆</div>
+    <h1>🎉 Amazing Job!</h1>
+    <p>You are a Measurement Master!</p>
+    <div class="score-box" id="scoreBox">Score: 0 / 20</div>
+    <button class="restart-btn" onclick="restartGame()">🔁 Try Again</button>
+  </div>
+</div>
+
+<script>
+  // ===== EMBEDDED SOUND (no external files needed) =====
+  let audioCtx = null;
+
+  function playCorrectSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
+      // Happy ascending arpeggio: C5 - E5 - G5
+      [523.25, 659.25, 783.99].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const start = now + i * 0.12;
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(0.25, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.01, start + 0.25);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + 0.3);
+      });
+    } catch(e) { console.log('Audio failed:', e); }
+  }
+
+  function playWrongSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.exponentialRampToValueAtTime(110, now + 0.3);
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } catch(e) { console.log('Audio failed:', e); }
+  }
+
+  // ===== 20 ITEMS: Measurement Conversion (Grade 4) =====
+  const originalItems = [
+    // METER <-> CENTIMETER
+    {
+      passage: "3 meters = <span class='blank'>____</span> centimeters",
+      choices: ["300", "30", "3,000", "3"],
+      correctAnswer: "300",
+      explanation: "1 meter = 100 cm, so 3 m × 100 = 300 cm."
+    },
+    {
+      passage: "500 centimeters = <span class='blank'>____</span> meters",
+      choices: ["5", "50", "5,000", "500"],
+      correctAnswer: "5",
+      explanation: "100 cm = 1 meter, so 500 cm ÷ 100 = 5 m."
+    },
+    {
+      passage: "7 meters = <span class='blank'>____</span> centimeters",
+      choices: ["700", "70", "7,000", "7"],
+      correctAnswer: "700",
+      explanation: "1 meter = 100 cm, so 7 m × 100 = 700 cm."
+    },
+    {
+      passage: "900 centimeters = <span class='blank'>____</span> meters",
+      choices: ["9", "90", "9,000", "900"],
+      correctAnswer: "9",
+      explanation: "100 cm = 1 meter, so 900 cm ÷ 100 = 9 m."
+    },
+    // KILOMETER <-> METER
+    {
+      passage: "2 kilometers = <span class='blank'>____</span> meters",
+      choices: ["2,000", "200", "20", "20,000"],
+      correctAnswer: "2,000",
+      explanation: "1 kilometer = 1,000 m, so 2 km × 1,000 = 2,000 m."
+    },
+    {
+      passage: "4,000 meters = <span class='blank'>____</span> kilometers",
+      choices: ["4", "40", "400", "4,000"],
+      correctAnswer: "4",
+      explanation: "1,000 m = 1 kilometer, so 4,000 m ÷ 1,000 = 4 km."
+    },
+    {
+      passage: "5 kilometers = <span class='blank'>____</span> meters",
+      choices: ["5,000", "500", "50", "50,000"],
+      correctAnswer: "5,000",
+      explanation: "1 kilometer = 1,000 m, so 5 km × 1,000 = 5,000 m."
+    },
+    {
+      passage: "8,000 meters = <span class='blank'>____</span> kilometers",
+      choices: ["8", "80", "800", "8,000"],
+      correctAnswer: "8",
+      explanation: "1,000 m = 1 kilometer, so 8,000 m ÷ 1,000 = 8 km."
+    },
+    // KILOGRAM <-> GRAM
+    {
+      passage: "4 kilograms = <span class='blank'>____</span> grams",
+      choices: ["4,000", "400", "40", "40,000"],
+      correctAnswer: "4,000",
+      explanation: "1 kilogram = 1,000 g, so 4 kg × 1,000 = 4,000 g."
+    },
+    {
+      passage: "6,000 grams = <span class='blank'>____</span> kilograms",
+      choices: ["6", "60", "600", "6,000"],
+      correctAnswer: "6",
+      explanation: "1,000 g = 1 kilogram, so 6,000 g ÷ 1,000 = 6 kg."
+    },
+    {
+      passage: "2 kilograms = <span class='blank'>____</span> grams",
+      choices: ["2,000", "200", "20", "20,000"],
+      correctAnswer: "2,000",
+      explanation: "1 kilogram = 1,000 g, so 2 kg × 1,000 = 2,000 g."
+    },
+    {
+      passage: "3,000 grams = <span class='blank'>____</span> kilograms",
+      choices: ["3", "30", "300", "3,000"],
+      correctAnswer: "3",
+      explanation: "1,000 g = 1 kilogram, so 3,000 g ÷ 1,000 = 3 kg."
+    },
+    // GRAM <-> MILLIGRAM
+    {
+      passage: "5 grams = <span class='blank'>____</span> milligrams",
+      choices: ["5,000", "500", "50", "50,000"],
+      correctAnswer: "5,000",
+      explanation: "1 gram = 1,000 mg, so 5 g × 1,000 = 5,000 mg."
+    },
+    {
+      passage: "7,000 milligrams = <span class='blank'>____</span> grams",
+      choices: ["7", "70", "700", "7,000"],
+      correctAnswer: "7",
+      explanation: "1,000 mg = 1 gram, so 7,000 mg ÷ 1,000 = 7 g."
+    },
+    {
+      passage: "3 grams = <span class='blank'>____</span> milligrams",
+      choices: ["3,000", "300", "30", "30,000"],
+      correctAnswer: "3,000",
+      explanation: "1 gram = 1,000 mg, so 3 g × 1,000 = 3,000 mg."
+    },
+    {
+      passage: "9,000 milligrams = <span class='blank'>____</span> grams",
+      choices: ["9", "90", "900", "9,000"],
+      correctAnswer: "9",
+      explanation: "1,000 mg = 1 gram, so 9,000 mg ÷ 1,000 = 9 g."
+    },
+    // LITER <-> MILLILITER
+    {
+      passage: "2 liters = <span class='blank'>____</span> milliliters",
+      choices: ["2,000", "200", "20", "20,000"],
+      correctAnswer: "2,000",
+      explanation: "1 liter = 1,000 mL, so 2 L × 1,000 = 2,000 mL."
+    },
+    {
+      passage: "5,000 milliliters = <span class='blank'>____</span> liters",
+      choices: ["5", "50", "500", "5,000"],
+      correctAnswer: "5",
+      explanation: "1,000 mL = 1 liter, so 5,000 mL ÷ 1,000 = 5 L."
+    },
+    {
+      passage: "6 liters = <span class='blank'>____</span> milliliters",
+      choices: ["6,000", "600", "60", "60,000"],
+      correctAnswer: "6,000",
+      explanation: "1 liter = 1,000 mL, so 6 L × 1,000 = 6,000 mL."
+    },
+    {
+      passage: "4,000 milliliters = <span class='blank'>____</span> liters",
+      choices: ["4", "40", "400", "4,000"],
+      correctAnswer: "4",
+      explanation: "1,000 mL = 1 liter, so 4,000 mL ÷ 1,000 = 4 L."
+    }
+  ];
+
+  let items = [];
+  let currentItem = 0;
+  let isLocked = false;
+  let correctCount = 0;
+  let wrongAttempts = 0;
+  let currentCorrectIndex = 0;
+  let choicesVisible = true;
+
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  function toggleChoices() {
+    choicesVisible = !choicesVisible;
+    updateChoicesVisibility();
+  }
+
+  function updateChoicesVisibility() {
+    const grid = document.getElementById('choicesGrid');
+    const toggleBtn = document.getElementById('toggleChoicesBtn');
+    const showAnswerBtn = document.getElementById('showAnswerBtn');
+    
+    if (choicesVisible) {
+      grid.style.display = 'grid';
+      toggleBtn.textContent = '👁️ Hide Choices';
+      showAnswerBtn.style.display = 'none';
+    } else {
+      grid.style.display = 'none';
+      toggleBtn.textContent = '👁️ Show Choices';
+      showAnswerBtn.style.display = (!isLocked) ? 'inline-block' : 'none';
+    }
+  }
+
+  function showAnswer() {
+    if (isLocked) return;
+    isLocked = true;
+    const item = items[currentItem];
+    const feedback = document.getElementById('feedback');
+    const grid = document.getElementById('choicesGrid');
+    grid.style.display = 'grid';
+    
+    document.querySelectorAll('.choice-btn').forEach(btn => {
+      btn.disabled = true;
+      if (btn.dataset.value === item.correctAnswer) btn.classList.add('correct');
+    });
+
+    playCorrectSound();
+    feedback.innerHTML = `💡 <strong>${item.correctAnswer}</strong><br><span style="font-size:0.85em; color:#555;">${item.explanation}</span>`;
+    feedback.className = 'feedback correct';
+    document.getElementById('showAnswerBtn').style.display = 'none';
+    setTimeout(() => document.getElementById('nextBtn').classList.add('show'), 500);
+  }
+
+  function initGame() {
+    items = shuffleArray([...originalItems]);
+    currentItem = 0;
+    correctCount = 0;
+    choicesVisible = true;
+    loadItem();
+  }
+
+  function loadItem() {
+    const item = items[currentItem];
+    document.getElementById('passageText').innerHTML = item.passage;
+    document.getElementById('itemCounter').textContent = `Item ${currentItem + 1} of ${items.length}`;
+    document.getElementById('progressFill').style.width = (currentItem / items.length) * 100 + '%';
+
+    const shuffledChoices = shuffleArray([...item.choices]);
+    currentCorrectIndex = shuffledChoices.indexOf(item.correctAnswer);
+
+    const choicesGrid = document.getElementById('choicesGrid');
+    choicesGrid.innerHTML = '';
+    shuffledChoices.forEach((choice, index) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.textContent = choice;
+      btn.dataset.value = choice;
+      btn.onclick = () => checkAnswer(btn, index);
+      choicesGrid.appendChild(btn);
+    });
+
+    updateChoicesVisibility();
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('feedback').className = 'feedback';
+    document.getElementById('nextBtn').classList.remove('show');
+    wrongAttempts = 0;
+    isLocked = false;
+  }
+
+  function checkAnswer(button, selectedIndex) {
+    if (isLocked) return;
+    const item = items[currentItem];
+    const feedback = document.getElementById('feedback');
+
+    if (selectedIndex === currentCorrectIndex) {
+      isLocked = true;
+      button.classList.add('correct');
+      playCorrectSound();
+      feedback.innerHTML = `✅ Correct! <span style="font-size:0.85em; color:#555;">${item.explanation}</span>`;
+      feedback.className = 'feedback correct';
+      document.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = true);
+      setTimeout(() => document.getElementById('nextBtn').classList.add('show'), 500);
+      if (wrongAttempts === 0) correctCount++;
+    } else {
+      wrongAttempts++;
+      button.classList.add('wrong');
+      button.disabled = true;
+      playWrongSound();
+      feedback.textContent = '❌ Not quite. Check if you multiply or divide!';
+      feedback.className = 'feedback wrong';
+      setTimeout(() => button.classList.remove('wrong'), 500);
+    }
+  }
+
+  function nextItem() {
+    currentItem++;
+    if (currentItem >= items.length) {
+      document.getElementById('gameArea').style.display = 'none';
+      document.getElementById('finalScreen').classList.add('active');
+      document.getElementById('progressFill').style.width = '100%';
+      document.getElementById('scoreBox').textContent = `Score: ${correctCount} / ${items.length}`;
+      launchConfetti();
+      setTimeout(launchConfetti, 500);
+    } else {
+      loadItem();
+    }
+  }
+
+  function restartGame() {
+    initGame();
+    document.getElementById('finalScreen').classList.remove('active');
+    document.getElementById('gameArea').style.display = 'block';
+  }
+
+  function launchConfetti() {
+    const colors = ['#ff6b9d', '#ffd93d', '#4ecdc4', '#a8edea', '#ff8e53', '#84fab0'];
+    for (let i = 0; i < 40; i++) {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.style.left = Math.random() * 100 + 'vw';
+      confetti.style.top = '-20px';
+      confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.animationDelay = Math.random() * 0.5 + 's';
+      confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+      confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+      document.body.appendChild(confetti);
+      setTimeout(() => confetti.remove(), 4000);
+    }
+  }
+
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'ArrowRight' || event.keyCode === 39) {
+      if (document.getElementById('nextBtn').classList.contains('show')) nextItem();
+    }
+  });
+
+  initGame();
+</script>
+
+</body>
+</html>

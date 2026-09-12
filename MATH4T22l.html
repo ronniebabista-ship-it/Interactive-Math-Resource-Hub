@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math 4 T2 W1 — Number Sentences | Aling Nena's Sari-Sari Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#3a2415; --mut:#7d6a55; --card:#fffdf6; --cream:#fff8ec;
+  --grn:#129d59; --grnL:#d9f4e4; --red:#ff5a4e; --redL:#ffe4e1;
+  --yel:#ffcf3f; --yelL:#fff3cd; --teal:#12b3a8; --tealL:#d8f5f2;
+  --pur:#8b5cf6; --purL:#ece5ff; --brown:#7a4a21;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#e7d8bf;overflow:hidden;font-family:'Nunito',sans-serif}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform:translate(-50%,-50%);
+  background:radial-gradient(#129d5910 4px,transparent 5px) 0 0/90px 90px,
+             radial-gradient(#ffcf3f14 4px,transparent 5px) 45px 45px/90px 90px,
+             linear-gradient(180deg,#fffaf0,#ffefdb);
+  color:var(--ink);overflow:hidden}
+/* sari-sari awning stripes */
+#stage::after{content:'';position:absolute;top:0;left:0;right:0;height:20px;z-index:3;pointer-events:none;
+  background:repeating-linear-gradient(90deg,var(--grn) 0 70px,#ffffff 70px 140px);opacity:.9}
+#fx{position:absolute;inset:0;z-index:1;pointer-events:none}
+#fx span{position:absolute;font-family:'Baloo 2';font-weight:800;opacity:.12;animation:float 9s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-30px) rotate(6deg)}}
+
+/* ANIM LIB */
+[data-anim]{opacity:0}
+.on[data-anim],.on [data-anim]{animation:var(--an,popIn) .8s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d,0s)}
+@keyframes popIn{0%{opacity:0;transform:scale(.4)}70%{opacity:1;transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+@keyframes riseIn{from{opacity:0;transform:translateY(60px)}to{opacity:1;transform:none}}
+@keyframes slideL{from{opacity:0;transform:translateX(-80px)}to{opacity:1;transform:none}}
+@keyframes slideR{from{opacity:0;transform:translateX(80px)}to{opacity:1;transform:none}}
+@keyframes zoomIn{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:scale(1)}}
+@keyframes flipIn{from{opacity:0;transform:perspective(900px) rotateY(65deg)}to{opacity:1;transform:none}}
+@keyframes bounceIn{0%{opacity:0;transform:translateY(70px) scale(.85)}60%{opacity:1;transform:translateY(-14px) scale(1.05)}100%{opacity:1;transform:none}}
+@keyframes wig{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+@keyframes iconB{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes confFall{0%{transform:translateY(-60px) rotate(0)}100%{transform:translateY(1150px) rotate(720deg);opacity:0}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* HUD */
+#progress{position:absolute;top:0;left:0;height:8px;width:0;z-index:60;
+  background:linear-gradient(90deg,var(--grn),var(--yel),var(--red));transition:width .5s}
+#tag{position:absolute;top:30px;left:84px;z-index:50;font:800 17px 'Baloo 2';letter-spacing:3px;color:var(--grn)}
+#voiceChip{position:absolute;top:28px;right:84px;z-index:50;font:800 14px 'Nunito';color:var(--mut);
+  border:3px solid var(--ink);border-radius:999px;padding:8px 18px;background:#fff}
+#recChip{position:absolute;top:76px;right:84px;z-index:70;display:none;align-items:center;gap:10px;
+  font:900 16px 'Nunito';color:#fff;background:#ff5a4eE6;border:3px solid #fff;border-radius:999px;
+  padding:6px 18px;box-shadow:0 4px 0 rgba(58,36,21,.25)}
+#recChip.on{display:flex}
+#recChip .rdot{width:12px;height:12px;border-radius:50%;background:#fff;animation:blink 1s infinite}
+#counter{position:absolute;bottom:26px;right:84px;z-index:50;font:800 22px 'Baloo 2';color:var(--mut)}
+#hints{position:absolute;bottom:26px;left:84px;z-index:50;font:800 14px 'Nunito';color:#a08a6d}
+#hints b{color:var(--red)}
+#cap{position:absolute;bottom:64px;left:50%;transform:translateX(-50%);z-index:55;max-width:1500px;
+  background:#3a2415E6;border:3px solid var(--yel);border-radius:18px;padding:16px 30px;
+  font:800 24px/1.45 'Nunito';color:#fff8ec;text-align:center;opacity:0;transition:opacity .4s}
+#cap.show{opacity:1} #cap.hide{display:none}
+#confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:40}
+#confetti i{position:absolute;top:0;border-radius:3px;animation:confFall linear both}
+
+/* SLIDES — scrollable */
+.slide{position:absolute;inset:0;z-index:2;padding:96px 84px 108px;display:flex;flex-direction:column;gap:26px;
+  opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s;
+  overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#129d5955 transparent;scroll-behavior:smooth}
+.slide::-webkit-scrollbar{width:10px}
+.slide::-webkit-scrollbar-track{background:transparent}
+.slide::-webkit-scrollbar-thumb{background:#129d5966;border-radius:999px}
+.slide.active{opacity:1;visibility:visible}
+[data-step]{opacity:0;transform:translateY(34px);transition:all .8s cubic-bezier(.2,.7,.2,1)}
+[data-step].on{opacity:1;transform:none}
+.kicker{font:800 22px 'Baloo 2';letter-spacing:5px;color:var(--red)}
+h1{font:800 58px/1.15 'Baloo 2';max-width:1000px}
+h2{font:800 56px/1.15 'Baloo 2'}
+.hlg{background:linear-gradient(90deg,var(--grn),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hlr{background:linear-gradient(90deg,var(--red),#ff9a3d);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hlp{background:linear-gradient(90deg,var(--pur),var(--red));-webkit-background-clip:text;background-clip:text;color:transparent}
+.card{background:var(--card);border:4px solid var(--ink);border-radius:26px;box-shadow:0 8px 0 rgba(58,36,21,.16);padding:28px 36px}
+.card h3{font:800 40px 'Baloo 2';margin-bottom:10px}
+/* BIG discussion fonts */
+.txt{color:var(--mut);font-size:34px;font-weight:800;line-height:1.4}
+.big{font-size:40px;font-weight:900;line-height:1.35;color:var(--ink)}
+.row{display:flex;gap:26px;align-items:stretch}
+.half{flex:1}
+.ico{width:92px;height:92px;min-width:92px;border-radius:22px;display:flex;align-items:center;justify-content:center;
+  font-size:46px;border:4px solid var(--ink)}
+.on .inf-b{display:inline-block;animation:iconB 2.4s ease-in-out infinite}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.chain{display:flex;align-items:center;gap:18px;justify-content:center;flex-wrap:wrap}
+.arrow{font-size:42px}
+.chipq{display:inline-flex;align-items:center;gap:10px;border-radius:999px;padding:12px 28px;font:900 32px 'Nunito';
+  background:#fff;border:4px solid var(--ink);box-shadow:0 5px 0 rgba(58,36,21,.16)}
+.chipq.pk{background:var(--redL)}.chipq.mt{background:var(--tealL)}.chipq.yl{background:var(--yelL)}.chipq.pu{background:var(--purL)}.chipq.gr{background:var(--grnL)}
+.obj{font:800 32px 'Nunito';padding:18px 28px}
+.heroframe{width:760px;height:560px;border-radius:30px;overflow:hidden;border:5px solid var(--ink);
+  box-shadow:0 10px 0 rgba(58,36,21,.2);background:#fff;position:relative;flex-shrink:0}
+.heroframe::before{content:'🏪';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:140px;opacity:.2}
+.heroframe img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#s1{flex-direction:row;gap:44px;align-items:center}
+#s1 .left{flex:1;display:flex;flex-direction:column;gap:24px}
+.lede{font-size:36px;font-weight:900;color:var(--mut)}
+
+/* NUMBER SENTENCE tokens */
+.ns{display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap}
+.tk{font:800 56px 'Baloo 2';background:#fff;border:4px solid var(--ink);border-radius:18px;padding:4px 28px;
+  box-shadow:0 6px 0 rgba(58,36,21,.15)}
+.tk.op{background:var(--yel)}
+.tk.eq{background:var(--grnL);border-color:var(--grn)}
+.tk.un{background:var(--purL);border:4px dashed var(--pur);color:var(--pur)}
+.tk.par{background:var(--tealL);border-color:var(--teal);color:var(--teal);padding:4px 16px}
+.sym{font:800 84px 'Baloo 2'}
+/* egg tray */
+.eggs{display:grid;grid-template-columns:repeat(10,1fr);gap:7px;width:480px}
+.eggs i{height:38px;border-radius:50% 50% 46% 46%;background:#fff;border:3px solid var(--ink);transition:all .4s}
+.eggs i.sold{background:#e5d5bd;border-color:#b9a58a;opacity:.35;transform:scale(.75)}
+/* baskets */
+.baskets{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.bkt{border:4px solid var(--ink);border-radius:16px;background:#fff;padding:10px;display:flex;flex-wrap:wrap;
+  gap:4px;align-content:flex-start;width:158px;min-height:96px;box-shadow:0 5px 0 rgba(58,36,21,.15)}
+.bkt .lbl{width:100%;text-align:center;font:800 22px 'Nunito';color:var(--mut)}
+.cd{font-size:28px;animation:popIn .4s both}
+.trap .no{color:var(--red)} .trap .yes{color:var(--grn)}
+.qbig{font:800 48px 'Baloo 2';text-align:center}
+.qsmall{font:800 30px 'Nunito';color:var(--mut);text-align:center}
+.ans{background:var(--grnL);border:4px solid var(--grn);border-radius:22px;padding:18px 30px;
+  font:800 42px 'Baloo 2';color:#0c6b3d;text-align:center;box-shadow:0 6px 0 rgba(12,107,61,.25)}
+.master{font:800 72px 'Baloo 2';color:var(--grn);text-align:center}
+#overlay{position:absolute;inset:0;z-index:100;background:#3a2415F2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;text-align:center}
+#overlay .key{font:800 64px 'Baloo 2';color:var(--yel);animation:pulse 1.6s infinite}
+#overlay p{font:900 26px 'Nunito';color:#fff8ec;max-width:1200px}
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="fx"></div>
+<div id="confetti"></div>
+<div id="progress"></div>
+<div id="tag">🏪 MATH 4 • TERM 2 • WEEK 1</div>
+<div id="voiceChip">🔊 loading voices…</div>
+<div id="recChip"><span class="rdot"></span>⏺ REC • AUTO</div>
+
+<!-- 1 TITLE -->
+<section class="slide" id="s1">
+  <div class="left">
+    <div data-step="0" style="display:flex;flex-direction:column;gap:22px">
+      <div class="kicker" data-anim style="--an:slideL">WELCOME TO ALING NENA'S SARI-SARI STORE!</div>
+      <h1 data-anim style="--an:riseIn;--d:.12s">Number Sentences & the <span class="hlg">Four Operations</span> ➕➖✖️➗</h1>
+      <p class="lede" data-anim style="--an:riseIn;--d:.28s">Represent real-life situations using number sentences!</p>
+    </div>
+    <div data-step="1" style="display:flex;flex-direction:column;gap:14px">
+      <div class="card obj" data-anim style="--an:popIn;--d:.1s">🏪 Spot the correct operation from a story situation.</div>
+      <div class="card obj" data-anim style="--an:popIn;--d:.3s">🏪 Write the number sentence with an unknown (n).</div>
+      <div class="card obj" data-anim style="--an:popIn;--d:.5s">🏪 Represent situations with ONE OR MORE operations!</div>
+    </div>
+  </div>
+  <div class="heroframe" data-step="0" data-anim style="--an:zoomIn;--d:.2s"><img src="sari-hero.png" alt="" onerror="this.style.display='none'"></div>
+</section>
+
+<!-- 2 WARM-UP -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">WARM-UP</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">The Store's <span class="hlr">4 Tools!</span></h2></div>
+  <div class="grid4" data-step="0">
+    <div class="card" style="text-align:center" data-anim style="--an:flipIn"><div class="sym" style="color:var(--grn)">+</div>
+      <h3>ADDITION</h3><p class="txt">putting amounts <b>together</b></p></div>
+    <div class="card" style="text-align:center" data-anim style="--an:flipIn;--d:.2s"><div class="sym" style="color:var(--red)">−</div>
+      <h3>SUBTRACTION</h3><p class="txt"><b>taking away</b> or comparing</p></div>
+    <div class="card" style="text-align:center" data-anim style="--an:flipIn;--d:.4s"><div class="sym" style="color:var(--teal)">×</div>
+      <h3>MULTIPLICATION</h3><p class="txt"><b>equal groups</b> combined</p></div>
+    <div class="card" style="text-align:center" data-anim style="--an:flipIn;--d:.6s"><div class="sym" style="color:var(--pur)">÷</div>
+      <h3>DIVISION</h3><p class="txt"><b>sharing equally</b></p></div>
+  </div>
+  <p class="big" data-step="1" data-anim style="--an:riseIn" style="text-align:center">These four symbols are the TOOLS that turn stories into math! 🧰</p>
+</section>
+
+<!-- 3 WHAT IS A NUMBER SENTENCE -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">KEY IDEA</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">What is a <span class="hlg">Number Sentence?</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn">
+    <p class="big" style="text-align:center;margin-bottom:18px">A math sentence with <b style="color:var(--grn)">numbers</b>, an <b style="color:var(--red)">operation symbol</b>, and an <b style="color:var(--teal)">equal sign</b>!</p>
+    <div class="ns">
+      <span class="tk" data-anim style="--an:popIn;--d:.3s">8</span>
+      <span class="tk op" data-anim style="--an:popIn;--d:.5s">+</span>
+      <span class="tk" data-anim style="--an:popIn;--d:.7s">5</span>
+      <span class="tk eq" data-anim style="--an:popIn;--d:.9s">=</span>
+      <span class="tk" data-anim style="--an:popIn;--d:1.1s">13</span>
+    </div>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <p class="big" style="text-align:center;margin-bottom:18px">Answer not known yet? Use an <b style="color:var(--pur)">unknown n</b> (or ?)!</p>
+    <div class="ns">
+      <span class="tk">8</span><span class="tk op">+</span><span class="tk un" data-anim style="--an:popIn;--d:.4s">n</span>
+      <span class="tk eq">=</span><span class="tk">13</span>
+    </div>
+    <p class="txt" style="text-align:center;margin-top:14px">The <b style="color:var(--pur)">n</b> is the missing price tag we must find! 🏷️</p>
+  </div>
+</section>
+
+<!-- 4 KEYWORDS -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">KEYWORD DETECTIVE 🕵️</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Words That <span class="hlp">Choose the Tool!</span></h2></div>
+  <div class="grid4" data-step="0">
+    <div class="card" data-anim style="--an:flipIn"><h3 style="color:var(--grn)">+ ADD</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:8px"><span class="chipq gr" style="font-size:26px">in all</span><span class="chipq gr" style="font-size:26px">total</span><span class="chipq gr" style="font-size:26px">altogether</span><span class="chipq gr" style="font-size:26px">combined</span></div></div>
+    <div class="card" data-anim style="--an:flipIn;--d:.2s"><h3 style="color:var(--red)">− SUBTRACT</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:8px"><span class="chipq pk" style="font-size:26px">left</span><span class="chipq pk" style="font-size:26px">remaining</span><span class="chipq pk" style="font-size:26px">change</span><span class="chipq pk" style="font-size:26px">how many more</span></div></div>
+    <div class="card" data-step="1" data-anim style="--an:flipIn"><h3 style="color:var(--teal)">× MULTIPLY</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:8px"><span class="chipq mt" style="font-size:26px">each</span><span class="chipq mt" style="font-size:26px">per pack</span><span class="chipq mt" style="font-size:26px">equal groups</span><span class="chipq mt" style="font-size:26px">times</span></div></div>
+    <div class="card" data-step="1" data-anim style="--an:flipIn;--d:.2s"><h3 style="color:var(--pur)">÷ DIVIDE</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:8px"><span class="chipq pu" style="font-size:26px">shared equally</span><span class="chipq pu" style="font-size:26px">divided among</span><span class="chipq pu" style="font-size:26px">split</span></div></div>
+  </div>
+  <p class="big" data-step="1" data-anim style="--an:riseIn;--d:.4s" style="text-align:center">The KEYWORDS in the story tell you which symbol to use! 🔑</p>
+</section>
+
+<!-- 5 ADDITION -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SITUATION 1 • ADDITION</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Sardines <span class="hlg">In All!</span> 🥫</h2></div>
+  <div class="row">
+    <div class="card half" data-step="0" data-anim style="--an:slideL">
+      <p class="big">"Aling Nena sold <b style="color:var(--grn)">24</b> cans of sardines in the morning and <b style="color:var(--grn)">18</b> more in the afternoon. How many cans <b style="color:var(--grn)">IN ALL</b>?"</p>
+      <p class="txt" style="margin-top:14px">🔑 Keyword: <b style="color:var(--grn)">IN ALL → ADDITION!</b> Two parts join into one total.</p>
+    </div>
+    <div class="card half" style="display:flex;flex-direction:column;gap:20px;justify-content:center" data-step="0" data-anim style="--an:slideR;--d:.2s">
+      <div class="chain"><span class="chipq gr">🥫 24</span><span class="sym" style="color:var(--grn);font-size:56px">+</span><span class="chipq gr">🥫 18</span></div>
+      <div class="ns" data-step="1">
+        <span class="tk" data-anim style="--an:popIn;--d:.2s">24</span>
+        <span class="tk op" data-anim style="--an:popIn;--d:.4s">+</span>
+        <span class="tk" data-anim style="--an:popIn;--d:.6s">18</span>
+        <span class="tk eq" data-anim style="--an:popIn;--d:.8s">=</span>
+        <span class="tk un" data-anim style="--an:popIn;--d:1s">n</span>
+      </div>
+      <p class="txt" data-step="1" data-anim style="--an:riseIn;--d:1.2s" style="text-align:center">n = 42 cans — but our job is to WRITE the sentence! ✔</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6 SUBTRACTION + EGGS -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SITUATION 2 • SUBTRACTION</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Eggs <span class="hlr">Left!</span> 🥚</h2></div>
+  <div class="row">
+    <div class="card half" style="display:flex;flex-direction:column;gap:18px;justify-content:center" data-step="0" data-anim style="--an:slideL">
+      <p class="big">"The store had <b style="color:var(--red)">60</b> eggs. A baker bought <b style="color:var(--red)">25</b>. How many are <b style="color:var(--red)">LEFT</b>?"</p>
+      <p class="txt">🔑 Keyword: <b style="color:var(--red)">LEFT → SUBTRACTION!</b> Start with the WHOLE, take away the part.</p>
+      <div class="ns" data-step="1">
+        <span class="tk" data-anim style="--an:popIn;--d:.2s">60</span>
+        <span class="tk op" data-anim style="--an:popIn;--d:.4s">−</span>
+        <span class="tk" data-anim style="--an:popIn;--d:.6s">25</span>
+        <span class="tk eq" data-anim style="--an:popIn;--d:.8s">=</span>
+        <span class="tk un" data-anim style="--an:popIn;--d:1s">n</span>
+      </div>
+    </div>
+    <div class="card half" style="display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+      <div class="eggs" id="eggs"></div>
+      <p class="txt" data-step="1" data-anim style="--an:riseIn;--d:.4s" style="text-align:center">Watch 25 eggs fade as SOLD 🧺 → n = 35 left!</p>
+    </div>
+  </div>
+</section>
+
+<!-- 7 MULTIPLICATION -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SITUATION 3 • MULTIPLICATION</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Candy Packs — <span class="hlg">Equal Groups!</span> 🍬</h2></div>
+  <div class="row">
+    <div class="card half" style="display:flex;flex-direction:column;gap:18px;justify-content:center" data-step="0" data-anim style="--an:slideL">
+      <p class="big">"Aling Nena hangs <b style="color:var(--teal)">4</b> packs of candy. <b style="color:var(--teal)">EACH</b> pack has <b style="color:var(--teal)">6</b> candies. How many in all?"</p>
+      <p class="txt">🔑 Keywords: <b style="color:var(--teal)">EACH + equal groups → MULTIPLICATION!</b> It's fast repeated addition.</p>
+      <div class="ns" data-step="1">
+        <span class="tk" data-anim style="--an:popIn;--d:.2s">4</span>
+        <span class="tk op" data-anim style="--an:popIn;--d:.4s">×</span>
+        <span class="tk" data-anim style="--an:popIn;--d:.6s">6</span>
+        <span class="tk eq" data-anim style="--an:popIn;--d:.8s">=</span>
+        <span class="tk un" data-anim style="--an:popIn;--d:1s">n</span>
+      </div>
+    </div>
+    <div class="card half" style="display:flex;align-items:center;justify-content:center" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+      <div class="baskets" id="mulB"></div>
+    </div>
+  </div>
+  <p class="big" data-step="1" data-anim style="--an:riseIn;--d:.6s" style="text-align:center">6+6+6+6 is the same as 4 × 6 → n = 24! ✔</p>
+</section>
+
+<!-- 8 DIVISION -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SITUATION 4 • DIVISION</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Fair Sharing — <span class="hlp">Divide!</span> 🧺</h2></div>
+  <div class="row">
+    <div class="card half" style="display:flex;flex-direction:column;gap:18px;justify-content:center" data-step="0" data-anim style="--an:slideL">
+      <p class="big">"<b style="color:var(--pur)">30</b> candies are <b style="color:var(--pur)">SHARED EQUALLY</b> among <b style="color:var(--pur)">5</b> children. How many does each child get?"</p>
+      <p class="txt">🔑 Keyword: <b style="color:var(--pur)">SHARED EQUALLY → DIVISION!</b> The total is dealt into equal groups.</p>
+      <div class="ns" data-step="1">
+        <span class="tk" data-anim style="--an:popIn;--d:.2s">30</span>
+        <span class="tk op" data-anim style="--an:popIn;--d:.4s">÷</span>
+        <span class="tk" data-anim style="--an:popIn;--d:.6s">5</span>
+        <span class="tk eq" data-anim style="--an:popIn;--d:.8s">=</span>
+        <span class="tk un" data-anim style="--an:popIn;--d:1s">n</span>
+      </div>
+    </div>
+    <div class="card half" style="display:flex;align-items:center;justify-content:center" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+      <div class="baskets" id="dealB"></div>
+    </div>
+  </div>
+  <p class="big" data-step="1" data-anim style="--an:riseIn;--d:2.4s" style="text-align:center">Each basket ends with 6 → n = 6! Fair! ✔</p>
+</section>
+
+<!-- 9 TWO OPERATIONS -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">BOSS LEVEL 👑 TWO OPERATIONS</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Miguel's <span class="hlr">Sukli!</span> 💰</h2></div>
+  <div class="card" data-step="0" data-anim style="--an:riseIn">
+    <p class="big">"Miguel buys <b style="color:var(--teal)">3</b> notebooks at <b style="color:var(--teal)">₱15 EACH</b> and pays <b style="color:var(--grn)">₱50</b>. How much is his <b style="color:var(--red)">CHANGE</b>?"</p>
+    <p class="txt" style="margin-top:12px">🔑 "EACH" → multiply first. "CHANGE" → subtract. TWO operations in ONE sentence!</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="ns">
+      <span class="tk" data-anim style="--an:popIn;--d:.2s">50</span>
+      <span class="tk op" data-anim style="--an:popIn;--d:.4s">−</span>
+      <span class="tk par" data-anim style="--an:popIn;--d:.6s">(</span>
+      <span class="tk" data-anim style="--an:popIn;--d:.8s">3</span>
+      <span class="tk op" data-anim style="--an:popIn;--d:1s">×</span>
+      <span class="tk" data-anim style="--an:popIn;--d:1.2s">15</span>
+      <span class="tk par" data-anim style="--an:popIn;--d:1.4s">)</span>
+      <span class="tk eq" data-anim style="--an:popIn;--d:1.6s">=</span>
+      <span class="tk un" data-anim style="--an:popIn;--d:1.8s">n</span>
+    </div>
+    <p class="txt" data-anim style="--an:riseIn;--d:2.2s" style="text-align:center;margin-top:14px">( ) keeps the multiplication together FIRST → 50 − 45 = <b style="color:var(--grn)">₱5 sukli!</b></p>
+  </div>
+</section>
+
+<!-- 10 STEPS -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">THE METHOD</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">4 Steps to <span class="hlg">Write It!</span></h2></div>
+  <div class="grid4" data-step="0">
+    <div class="card" style="text-align:center" data-anim style="--an:flipIn"><div class="ico" style="margin:0 auto 12px;background:var(--redL)"><span class="inf-b">📖</span></div>
+      <h3>1 • READ</h3><p class="txt">the whole situation carefully.</p></div>
+    <div class="card" style="text-align:center" data-anim style="--an:flipIn;--d:.2s"><div class="ico" style="margin:0 auto 12px;background:var(--yelL)"><span class="inf-b" style="animation-delay:.4s">❓</span></div>
+      <h3>2 • FIND</h3><p class="txt">what is asked — that's your <b style="color:var(--pur)">n</b>.</p></div>
+    <div class="card" style="text-align:center" data-anim style="--an:flipIn;--d:.4s"><div class="ico" style="margin:0 auto 12px;background:var(--tealL)"><span class="inf-b" style="animation-delay:.8s">🔑</span></div>
+      <h3>3 • SPOT</h3><p class="txt">the keyword → choose the operation.</p></div>
+    <div class="card" style="text-align:center" data-anim style="--an:flipIn;--d:.6s"><div class="ico" style="margin:0 auto 12px;background:var(--grnL)"><span class="inf-b" style="animation-delay:1.2s">✍️</span></div>
+      <h3>4 • WRITE</h3><p class="txt">numbers + symbol + = + n.</p></div>
+  </div>
+</section>
+
+<!-- 11 HAZARDS -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">WATCH OUT!</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Store <span class="hlr">Hazards!</span> 🕳️</h2></div>
+  <div class="row" data-step="0">
+    <div class="card trap half" data-anim style="--an:flipIn"><h3>Hazard 1 • Wrong operation</h3>
+      <p class="no" style="font:800 38px 'Baloo 2'">"how many MORE" ≠ add</p>
+      <p class="yes" style="font:800 38px 'Baloo 2'">it means SUBTRACT ✔</p>
+      <p class="txt">Comparing = difference!</p></div>
+    <div class="card trap half" data-anim style="--an:flipIn;--d:.25s"><h3>Hazard 2 • Wrong order</h3>
+      <p class="no" style="font:800 38px 'Baloo 2'">25 − 60 ✗</p>
+      <p class="yes" style="font:800 38px 'Baloo 2'">60 − 25 ✔</p>
+      <p class="txt">Whole first in − and ÷!</p></div>
+    <div class="card trap half" data-anim style="--an:flipIn;--d:.5s"><h3>Hazard 3 • Missing pieces</h3>
+      <p class="no" style="font:800 38px 'Baloo 2'">60 − 25 ✗</p>
+      <p class="yes" style="font:800 38px 'Baloo 2'">60 − 25 = n ✔</p>
+      <p class="txt">Always include = and the unknown!</p></div>
+  </div>
+</section>
+
+<!-- 12 PRACTICE 1-2 -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">CUSTOMER TURN! 🖐️</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Practice <span class="hlg">Round 1</span></h2></div>
+  <div class="card" data-step="0" style="display:flex;flex-direction:column;gap:20px">
+    <div class="qbig" data-anim style="--an:riseIn">1) 17 pandesal in the basket; Nena bakes 15 more. How many now?</div>
+    <div class="ans" data-anim style="--an:zoomIn;--d:4s">17 + 15 = n ✔</div>
+  </div>
+  <div class="card" data-step="1" style="display:flex;flex-direction:column;gap:20px">
+    <div class="qbig" data-anim style="--an:riseIn">2) A box has 48 juice packs; 19 were sold. How many left?</div>
+    <div class="ans" data-anim style="--an:zoomIn;--d:4s">48 − 19 = n ✔</div>
+  </div>
+</section>
+
+<!-- 13 PRACTICE 3-4 -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">CUSTOMER TURN! 🖐️</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Practice <span class="hlr">Round 2</span></h2></div>
+  <div class="card" data-step="0" style="display:flex;flex-direction:column;gap:20px">
+    <div class="qbig" data-anim style="--an:riseIn">3) 6 boxes with 8 choco bars each. How many in all?</div>
+    <div class="ans" data-anim style="--an:zoomIn;--d:4s">6 × 8 = n ✔</div>
+  </div>
+  <div class="card" data-step="1" style="display:flex;flex-direction:column;gap:20px">
+    <div class="qbig" data-anim style="--an:riseIn">4) ₱45 shared equally among 3 children. Each gets?</div>
+    <div class="ans" data-anim style="--an:zoomIn;--d:4s">45 ÷ 3 = n ✔</div>
+  </div>
+</section>
+
+<!-- 14 QUIZ -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">QUIZ TIME! 🧠</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Sukli Quiz — <span class="hlp">5 Questions</span></h2>
+    <p class="txt" data-anim style="--an:riseIn;--d:.25s" style="text-align:center">✍️ Write the NUMBER SENTENCE only — Answer Key on the NEXT slide!</p></div>
+  <div class="card" data-step="1" style="text-align:center"><div class="qbig">Q1: Kiko has 12 marbles and wins 9 more. How many now?</div></div>
+  <div class="card" data-step="2" style="text-align:center"><div class="qbig">Q2: 54 stickers; she gives away 26. How many left?</div></div>
+  <div class="card" data-step="3" style="text-align:center"><div class="qbig">Q3: 7 bags with 5 candies each. How many in all?</div></div>
+  <div class="card" data-step="4" style="text-align:center"><div class="qbig">Q4: 20 bananas shared equally by 4 monkeys. Each gets?</div></div>
+  <div class="card" data-step="5" style="text-align:center"><div class="qbig">Q5: 2 toys at ₱18 each; pay ₱40. Change?</div>
+    <p class="txt" style="margin-top:12px">Done? Press → for the Answer Key! 🔑</p></div>
+</section>
+
+<!-- 15 ANSWER KEY -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">🔑 ANSWER KEY</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Count Your <span class="hlg">Sukli Points!</span></h2></div>
+  <div class="card" data-step="1" style="display:flex;flex-direction:column;gap:14px">
+    <div class="qsmall">Q1: 12 marbles, wins 9 more</div><div class="ans" data-anim style="--an:zoomIn;--d:.2s">12 + 9 = n ✔</div></div>
+  <div class="card" data-step="2" style="display:flex;flex-direction:column;gap:14px">
+    <div class="qsmall">Q2: 54 stickers, gives 26</div><div class="ans" data-anim style="--an:zoomIn;--d:.2s">54 − 26 = n ✔</div></div>
+  <div class="card" data-step="3" style="display:flex;flex-direction:column;gap:14px">
+    <div class="qsmall">Q3: 7 bags, 5 each</div><div class="ans" data-anim style="--an:zoomIn;--d:.2s">7 × 5 = n ✔</div></div>
+  <div class="card" data-step="4" style="display:flex;flex-direction:column;gap:14px">
+    <div class="qsmall">Q4: 20 bananas, 4 monkeys</div><div class="ans" data-anim style="--an:zoomIn;--d:.2s">20 ÷ 4 = n ✔</div></div>
+  <div class="card" data-step="5" style="display:flex;flex-direction:column;gap:14px">
+    <div class="qsmall">Q5: 2 toys ₱18 each, pay ₱40</div><div class="ans" data-anim style="--an:zoomIn;--d:.2s">40 − (2 × 18) = n ✔</div></div>
+</section>
+
+<!-- 16 SUMMARY -->
+<section class="slide" style="align-items:center;justify-content:center;text-align:center">
+  <div data-step="0" style="display:flex;flex-direction:column;gap:26px;align-items:center">
+    <div class="kicker" data-anim style="--an:slideL">STORE CLOSING TIME 🔔</div>
+    <div class="chain" data-anim style="--an:riseIn;--d:.15s">
+      <span class="chipq gr">KEYWORDS pick the symbol</span><span class="chipq pu">n = unknown</span><span class="chipq mt">( ) for 2 operations</span>
+    </div>
+    <div class="master" data-anim style="--an:zoomIn;--d:.4s"><span class="inf-b">🏪</span> NUMBER SENTENCE STOREKEEPER!</div>
+    <p class="big" data-anim style="--an:riseIn;--d:.6s">Every story has a math sentence waiting — READ, FIND, SPOT, WRITE! See you next week!</p>
+  </div>
+</section>
+
+<div id="cap"></div>
+<div id="hints"><b>→</b> Next &nbsp; <b>←</b> Back &nbsp; <b>R</b> Repeat &nbsp; <b>C</b> Captions &nbsp; <b>M</b> Mute &nbsp; <b>V</b> Voice &nbsp; <b>Q</b> Auto-Rec &nbsp; <b>🖱️</b> Scroll</div>
+<div id="counter">01 / 16</div>
+<div id="overlay">
+  <div class="key">PRESS → TO START 🏪</div>
+  <p>Math 4 • Term 2 • Week 1 — Number Sentences & the Four Operations. 🎥 <b style="color:var(--yel)">Q</b> = hands-free auto-recording. 🔊 Natural Filipino-English voice in <b style="color:var(--yel)">Microsoft Edge (online)</b>.</p>
+</div>
+</div>
+
+<script>
+var NARR=[
+["Welcome to Grade 4 Math, Term 2, Week 1 — welcome to Aling Nena's Sari-Sari Store! Today we will learn to represent real-life situations using NUMBER SENTENCES with addition, subtraction, multiplication, and division.",
+ "Our goals for today: one, spot the correct operation from a story; two, write the number sentence with an unknown n; and three, represent situations that use one OR more operations. The store is open — let's go!"],
+["Quick warm-up! Meet the four tools in our store toolbox. The PLUS sign means addition — putting amounts together. The MINUS sign means subtraction — taking away or comparing.",
+ "The TIMES sign means multiplication — combining equal groups. The DIVISION sign means sharing equally. These four symbols are the tools that turn stories into math!"],
+["What is a number sentence? It is a math sentence that uses numbers, an operation symbol like plus, minus, times, or divide, and an equal sign to show that both sides match. Look: eight plus five equals thirteen!",
+ "When we don't know the answer yet, we use a letter like n, or a question mark. Eight plus n equals thirteen. The n is the UNKNOWN — the missing price tag we must find!"],
+["Be a keyword detective! Addition clues: in all, total, altogether, combined. Subtraction clues: left, remaining, change, and how many more.",
+ "Multiplication clues: each, per pack, equal groups, times. Division clues: shared equally, divided among, split. The keywords in the story tell you exactly which symbol to use!"],
+["Situation one: Aling Nena sold twenty-four cans of sardines in the morning and eighteen more in the afternoon. How many cans were sold IN ALL? Hear the keyword? IN ALL — that means addition, because two parts join into one total!",
+ "So we write the number sentence: twenty-four plus eighteen equals n. The twenty-four and eighteen are the parts, plus joins them, and n is the unknown total. If we solve it, n equals forty-two — but today, our job is to WRITE the sentence. Perfect!"],
+["Situation two: the store had sixty eggs, and a baker bought twenty-five. How many eggs are LEFT? The keyword LEFT tells us something was taken away — subtraction! Always start with the WHOLE, then take away the part.",
+ "Number sentence: sixty minus twenty-five equals n. Watch the egg tray: sixty eggs, and twenty-five fade away as sold. n equals thirty-five!"],
+["Situation three: Aling Nena hangs four packs of candy, and EACH pack has six candies. How many candies in all? The word EACH with equal groups screams multiplication — it is fast repeated addition!",
+ "Number sentence: four times six equals n. See the four groups of six candies pop in — six plus six plus six plus six is the same as four times six! n equals twenty-four."],
+["Situation four: thirty candies are SHARED EQUALLY among five children. How many does each child get? Shared equally is the magic phrase for division — the total is dealt into equal groups!",
+ "Number sentence: thirty divided by five equals n. Watch the candies deal out to the five baskets, one by one, until every basket is equal. n equals six. Fair sharing!"],
+["Boss level — two operations! Miguel buys three notebooks at fifteen pesos EACH, and pays fifty pesos. How much is his CHANGE? The word EACH means multiply first; the word CHANGE means subtract.",
+ "Number sentence: fifty minus the quantity three times fifteen equals n. The parentheses keep the multiplication together first. Three times fifteen is forty-five; fifty minus forty-five is five — Miguel's sukli is five pesos!"],
+["Four steps to write ANY number sentence. One: READ the situation. Two: FIND what is asked — that becomes your n. Three: SPOT the keyword and choose the operation. Four: WRITE the number sentence with numbers, symbol, equal sign, and n. Read, Find, Spot, Write!"],
+["Watch out for store hazards! Hazard one: 'how many MORE' is subtraction, not addition — it compares. Hazard two: order matters — sixty minus twenty-five is correct, NOT twenty-five minus sixty; start with the whole in subtraction and division. Hazard three: never forget the equal sign and the unknown n — a number sentence needs both!"],
+["Customer, your turn! Number one: seventeen pandesal in the basket, and Nena bakes fifteen more. How many now? Pause... 'more' joins amounts: seventeen plus fifteen equals n.",
+ "Number two: a box has forty-eight juice packs, and nineteen were sold. How many left? 'Left' means subtract: forty-eight minus nineteen equals n. Nice!"],
+["Number three: six boxes with eight choco bars EACH. How many in all? Equal groups: six times eight equals n.",
+ "Number four: forty-five pesos shared equally among three children. 'Shared equally' means divide: forty-five divided by three equals n. Amazing!"],
+["Quiz time! Five situations — write the NUMBER SENTENCE only. The answer key is on the next slide, so no peeking!",
+ "Question one: Kiko has twelve marbles and wins nine more. How many now?",
+ "Question two: fifty-four stickers; she gives away twenty-six. How many left?",
+ "Question three: seven bags with five candies each. How many in all?",
+ "Question four: twenty bananas shared equally by four monkeys. How many each?",
+ "Question five: two toys at eighteen pesos each; you pay forty pesos. What is the change? Pens down? Next slide!"],
+["Answer key — count your sukli points!",
+ "Number one: twelve plus nine equals n. Addition — 'wins more' joins amounts.",
+ "Number two: fifty-four minus twenty-six equals n. Subtraction — 'gives away'.",
+ "Number three: seven times five equals n. Multiplication — 'each'.",
+ "Number four: twenty divided by four equals n. Division — 'shared equally'.",
+ "Number five: forty minus the quantity two times eighteen equals n — two operations with parentheses! How many did you get right?"],
+["Store closing time! Remember: keywords choose the operation; a number sentence needs numbers, a symbol, an equal sign, and the unknown n; and big stories may need two operations with parentheses.",
+ "You are now a Number Sentence Storekeeper! Keep reading stories like a detective, and see you at the next lesson!"]
+];
+
+var slides=[].slice.call(document.querySelectorAll('.slide'));
+var si=0,step=-1,started=false,muted=false,captionsOn=true;
+var synth=window.speechSynthesis||null,voices=[],voiceIdx=-1;
+var cap=document.getElementById('cap'),chip=document.getElementById('voiceChip');
+var recChip=document.getElementById('recChip');
+
+/* AUTO-RECORD (Q) */
+var recMode=false,recTimer=null,speaking=false;
+function clearRec(){if(recTimer){clearTimeout(recTimer);recTimer=null;}}
+function scheduleNext(ms){clearRec();recTimer=setTimeout(function(){recTimer=null;if(recMode&&started)next();},ms);}
+function estMs(t){return t.split(/\s+/).length*420+1500;}
+function autoAfter(){if(!recMode||!started)return;if(si>=slides.length-1)return;scheduleNext(2000);}
+function toggleRec(){recMode=!recMode;recChip.classList.toggle('on',recMode);
+  if(recMode){if(!started){start();}else if(!speaking){autoAfter();}}else clearRec();}
+
+/* SFX */
+var AC=null;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}
+  if(AC&&AC.state==='suspended')AC.resume();return AC;}
+function tone(f,t0,dur,type,vol,slide){if(muted)return;var c=ac();if(!c)return;
+  var t=c.currentTime+t0,o=c.createOscillator(),g=c.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(f,t);
+  if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+dur);
+  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol||.2,t+.02);
+  g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+.05);}
+function sPop(){tone(520,0,.12,'triangle',.22,900);}
+function sWhoosh(){if(muted)return;var c=ac();if(!c)return;
+  var dur=.35,buf=c.createBuffer(1,c.sampleRate*dur,c.sampleRate),d=buf.getChannelData(0);
+  for(var i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);
+  var src=c.createBufferSource();src.buffer=buf;var f=c.createBiquadFilter();f.type='bandpass';
+  f.frequency.setValueAtTime(300,c.currentTime);f.frequency.exponentialRampToValueAtTime(2400,c.currentTime+dur);
+  var g=c.createGain();g.gain.value=.15;src.connect(f);f.connect(g);g.connect(c.destination);src.start();}
+function sCorrect(){tone(660,0,.14,'triangle',.3);tone(880,.13,.14,'triangle',.3);tone(1100,.26,.4,'triangle',.3);}
+function sFanfare(){[523,659,784,1047].forEach(function(f,i){tone(f,i*.12,.28,'triangle',.3);});tone(1319,.55,.7,'triangle',.3);}
+function sTick(k){tone(600+k*8,0,.05,'square',.05);}
+
+function refreshVoices(){if(!synth)return;voices=synth.getVoices();label();}
+if(synth){refreshVoices();synth.onvoiceschanged=refreshVoices;}
+function pickVoice(){
+  if(!voices.length)return null;
+  var ph=voices.filter(function(v){return /en[-_]ph/i.test(v.lang);});
+  if(ph.length){var m=ph.filter(function(v){return /james|male/i.test(v.name);})[0];return m||ph[0];}
+  var ph2=voices.filter(function(v){return /philippines|filipino/i.test(v.name);})[0]; if(ph2)return ph2;
+  var en=voices.filter(function(v){return v.lang.toLowerCase().indexOf('en')===0;});
+  if(voiceIdx>=0&&en.length)return en[voiceIdx%en.length];
+  var nat=en.filter(function(v){return /natural|online|neural/i.test(v.name);});
+  var male=['james','guy','davis','ryan','daniel','david','mark','alex','george','arthur','fred','eric','brian','matthew','male'];
+  for(var i=0;i<male.length;i++){var f=nat.filter(function(v){return v.name.toLowerCase().indexOf(male[i])>-1;})[0]
+    ||en.filter(function(v){return v.name.toLowerCase().indexOf(male[i])>-1;})[0]; if(f)return f;}
+  return nat[0]||en[0]||voices[0];}
+function label(){var v=pickVoice();var ph=v&&(/en[-_]ph/i.test(v.lang)||/philippines|filipino/i.test(v.name));
+  chip.textContent=(muted?'🔇 Muted':(ph?'🇵🇭 ':'🔊 '))+(v?v.name.replace('Microsoft','MS').replace('Online (Natural)','Natural'):'no voice');}
+function speak(t){
+  if(!synth){speaking=false;autoAfter();return;}
+  synth.cancel();
+  if(muted){cap.classList.remove('show');speaking=false;autoAfter();return;}
+  cap.textContent='🗣️ '+t; if(captionsOn)cap.classList.add('show');
+  var u=new SpeechSynthesisUtterance(t),v=pickVoice();
+  if(v){u.voice=v;u.lang=v.lang;} u.rate=1.0;u.pitch=1.0;u.volume=1;
+  speaking=true;
+  u.onend=u.onerror=function(){speaking=false;autoAfter();};
+  synth.speak(u);}
+
+/* VISUALS: eggs, multiplication groups, division dealing */
+var eggs=[];(function(){var g=document.getElementById('eggs');for(var i=0;i<60;i++){var e=document.createElement('i');eggs.push(e);g.appendChild(e);}})();
+function setEggs(sold){for(var i=0;i<25;i++){(function(e,on,k){setTimeout(function(){e.classList.toggle('sold',on);if(on)sTick(k);},k*45);})(eggs[i],sold,i);} }
+(function(){var mb=document.getElementById('mulB');
+  for(var b=0;b<4;b++){var bk=document.createElement('div');bk.className='bkt';
+    var l=document.createElement('span');l.className='lbl';l.textContent='Pack '+(b+1);bk.appendChild(l);
+    for(var c=0;c<6;c++){var s=document.createElement('span');s.className='cd';s.textContent='🍬';
+      s.style.animationDelay=((b*6+c)*0.06)+'s';bk.appendChild(s);}
+    mb.appendChild(bk);}})();
+function deal(){var db=document.getElementById('dealB');db.innerHTML='';var bks=[];
+  for(var b=0;b<5;b++){var bk=document.createElement('div');bk.className='bkt';
+    var l=document.createElement('span');l.className='lbl';l.textContent='🧒 '+(b+1);bk.appendChild(l);
+    bks.push(bk);db.appendChild(bk);}
+  for(var k=0;k<30;k++){(function(k){setTimeout(function(){
+    var s=document.createElement('span');s.className='cd';s.textContent='🍬';
+    bks[k%5].appendChild(s);sTick(k);},k*70);})(k);}}
+
+function confetti(){var host=document.getElementById('confetti');if(!host)return;host.innerHTML='';
+  var cols=['#129d59','#ffcf3f','#ff5a4e','#12b3a8','#8b5cf6','#ffffff'];
+  for(var i=0;i<90;i++){var s=document.createElement('i');
+    s.style.left=(Math.random()*100)+'%';s.style.background=cols[i%cols.length];
+    s.style.width=(8+Math.random()*10)+'px';s.style.height=(10+Math.random()*12)+'px';
+    s.style.animationDuration=(2.4+Math.random()*2)+'s';s.style.animationDelay=(Math.random()*.9)+'s';
+    host.appendChild(s);}
+  setTimeout(function(){host.innerHTML='';},5500);}
+
+function updateHud(){
+  document.getElementById('counter').textContent=('0'+(si+1)).slice(-2)+' / '+slides.length;
+  document.getElementById('progress').style.width=((si+(step+1)/NARR[si].length)/slides.length*100)+'%';}
+function setStep(s){step=s;clearRec();
+  var els=slides[si].querySelectorAll('[data-step]'),newly=[],ansEls=[];
+  for(var i=0;i<els.length;i++){var on=+els[i].getAttribute('data-step')<=s;
+    els[i].classList.toggle('on',on);
+    if(on&&+els[i].getAttribute('data-step')===s){newly.push(els[i]);
+      if(els[i].classList.contains('ans'))ansEls.push(els[i]);
+      ansEls=ansEls.concat([].slice.call(els[i].querySelectorAll('.ans')));}}
+  newly.slice(0,5).forEach(function(el,idx){setTimeout(sPop,180*idx+120);});
+  ansEls.forEach(function(a){var d=parseFloat(a.style.getPropertyValue('--d'))||0;
+    setTimeout(sCorrect,d*1000+350);});
+  if(newly.length){setTimeout(function(){
+    try{newly[newly.length-1].scrollIntoView({behavior:'smooth',block:'nearest'});}catch(e){}},450);}
+  if(si===5)setEggs(s>=1);
+  if(si===7){if(s>=1)deal();else document.getElementById('dealB').innerHTML='';}
+  if(si===15&&s===0){confetti();sFanfare();}
+  speak(NARR[si][s]||'');updateHud();}
+function goTo(i){clearRec();slides[si].classList.remove('active');si=i;slides[si].classList.add('active');
+  slides[si].scrollTop=0;sWhoosh();setStep(0);}
+function next(){if(!started){start();return;}
+  if(step<NARR[si].length-1)setStep(step+1); else if(si<slides.length-1)goTo(si+1);}
+function prev(){clearRec();if(si>0)goTo(si-1);}
+function start(){started=true;ac();document.getElementById('overlay').style.display='none';goTo(0);}
+document.addEventListener('keydown',function(e){var k=e.key;
+  if(k==='ArrowRight'||k===' '||k==='Enter'||k==='PageDown'){e.preventDefault();next();}
+  else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){e.preventDefault();prev();}
+  else if(k==='r'||k==='R'){speak(NARR[si][step]||'');}
+  else if(k==='q'||k==='Q'){toggleRec();}
+  else if(k==='c'||k==='C'){captionsOn=!captionsOn;cap.classList.toggle('hide',!captionsOn);if(captionsOn)cap.classList.add('show');}
+  else if(k==='m'||k==='M'){muted=!muted;if(muted)synth&&synth.cancel();else speak(NARR[si][step]||'');label();}
+  else if(k==='v'||k==='V'){var en=voices.filter(function(v){return v.lang.toLowerCase().indexOf('en')===0;});
+    if(en.length){voiceIdx=(voiceIdx+1)%en.length;speak(NARR[si][step]||'');}label();}});
+document.getElementById('stage').addEventListener('click',next);
+var fx=document.getElementById('fx'),sym=['+','−','×','÷','=','n','₱','🥫'];
+for(var i=0;i<14;i++){var s=document.createElement('span');s.textContent=sym[i%sym.length];
+  s.style.left=(Math.random()*94)+'%';s.style.top=(Math.random()*86)+'%';
+  s.style.fontSize=(30+Math.random()*50)+'px';s.style.color=(i%3?'#129d59':'#ff5a4e');
+  s.animationDelay=(Math.random()*6)+'s';fx.appendChild(s);}
+function fit(){var sc=Math.min(innerWidth/1920,innerHeight/1080);
+  document.getElementById('stage').style.transform='translate(-50%,-50%) scale('+sc+')';}
+addEventListener('resize',fit);fit();label();
+</script>
+</body>
+</html>

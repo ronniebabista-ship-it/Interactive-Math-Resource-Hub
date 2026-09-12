@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math 4 T2 W3 — Convert It! | Measurement Mania Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#f0fbf6; --mut:#9cc2b6; --card:#0e3241; --card2:#123d4e; --line:#1f6478; --bg:#07222c;
+  --cyan:#3ae8c5; --yel:#ffd93d; --org:#ffa14e; --grn:#8ce563; --pur:#a795ff; --pink:#ff85ab; --red:#ff6b6b;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#03121a;overflow:hidden;font-family:'Nunito',sans-serif}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform:translate(-50%,-50%);
+  background-image:linear-gradient(rgba(58,232,197,.07) 1.5px,transparent 1.5px),
+    linear-gradient(90deg,rgba(58,232,197,.07) 1.5px,transparent 1.5px),
+    radial-gradient(circle at 50% 0%,#0e3547,#07222c 70%);
+  background-size:52px 52px,52px 52px,100% 100%;
+  color:var(--ink);overflow:hidden}
+#fx{position:absolute;inset:0;z-index:1;pointer-events:none}
+#fx span{position:absolute;font-family:'Fredoka';font-weight:700;opacity:.14;animation:float 9s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-30px) rotate(6deg)}}
+
+[data-anim]{opacity:0}
+.on[data-anim],.on [data-anim]{animation:var(--an,popIn) .8s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d,0s)}
+@keyframes popIn{0%{opacity:0;transform:scale(.4)}70%{opacity:1;transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+@keyframes riseIn{from{opacity:0;transform:translateY(60px)}to{opacity:1;transform:none}}
+@keyframes slideL{from{opacity:0;transform:translateX(-80px)}to{opacity:1;transform:none}}
+@keyframes slideR{from{opacity:0;transform:translateX(80px)}to{opacity:1;transform:none}}
+@keyframes zoomIn{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:scale(1)}}
+@keyframes flipIn{from{opacity:0;transform:perspective(900px) rotateY(65deg)}to{opacity:1;transform:none}}
+@keyframes bounceIn{0%{opacity:0;transform:translateY(70px) scale(.85)}60%{opacity:1;transform:translateY(-14px) scale(1.05)}100%{opacity:1;transform:none}}
+@keyframes iconB{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes confFall{0%{transform:translateY(-60px) rotate(0)}100%{transform:translateY(1150px) rotate(720deg);opacity:0}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-14px)}40%{transform:translateX(12px)}60%{transform:translateX(-9px)}80%{transform:translateX(6px)}}
+@keyframes winSpin{0%{transform:scale(1) rotate(0deg)}35%{transform:scale(1.16) rotate(-4deg)}65%{transform:scale(1.08) rotate(4deg)}100%{transform:scale(1) rotate(0deg)}}
+@keyframes growX{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes arrowB{0%,100%{transform:translateX(0);opacity:1}50%{transform:translateX(14px);opacity:.6}}
+@keyframes segPop{from{opacity:0;transform:scaleY(0)}to{opacity:1;transform:scaleY(1)}}
+
+#progress{position:absolute;top:0;left:0;height:8px;width:0;z-index:60;
+  background:linear-gradient(90deg,var(--cyan),var(--yel),var(--grn));transition:width .5s}
+#tag{position:absolute;top:24px;left:84px;z-index:50;font:700 17px 'Fredoka';letter-spacing:3px;color:var(--cyan)}
+#voiceChip{position:absolute;top:22px;right:84px;z-index:110;font:800 14px 'Nunito';color:var(--mut);
+  border:3px solid var(--line);border-radius:999px;padding:8px 18px;background:#0f3644;cursor:pointer}
+body.lesson #voiceChip{pointer-events:none;opacity:.55}
+#starChip{position:absolute;top:70px;right:84px;z-index:70;display:none;align-items:center;gap:10px;
+  font:900 20px 'Nunito';color:var(--yel);background:#14445a;border:3px solid var(--line);border-radius:999px;
+  padding:6px 20px;box-shadow:0 4px 0 #04161e}
+body.lesson #starChip,body.preview #starChip{display:flex}
+#starChip.bump{animation:pulse .5s}
+#recChip{position:absolute;top:118px;right:84px;z-index:70;display:none;align-items:center;gap:10px;
+  font:900 16px 'Nunito';color:#fff;background:#ff5a4eE6;border:3px solid #fff;border-radius:999px;
+  padding:6px 18px;box-shadow:0 4px 0 #04161e}
+#recChip.on{display:flex}
+#recChip .rdot{width:12px;height:12px;border-radius:50%;background:#fff;animation:blink 1s infinite}
+#counter{position:absolute;bottom:18px;right:84px;z-index:50;font:700 20px 'Fredoka';color:#6f9aa3}
+#hints{position:absolute;bottom:18px;left:84px;z-index:50;font:800 13px 'Nunito';color:#6f9aa3}
+#hints b{color:var(--yel)}
+#confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:40}
+#confetti i{position:absolute;top:0;border-radius:3px;animation:confFall linear both}
+
+#mcTimer{position:absolute;top:96px;left:50%;transform:translateX(-50%);z-index:85;display:none;align-items:center;gap:16px;
+  background:#07222cF2;border:4px solid var(--yel);border-radius:999px;padding:8px 38px;box-shadow:0 8px 0 #04161e}
+#mcTimer.on{display:flex}
+#mcTimerN{font:700 64px/1 'Fredoka';color:var(--yel)}
+#mcTimer small{font:800 22px 'Nunito';color:var(--ink)}
+
+#codeOv{position:absolute;inset:0;z-index:90;display:none;align-items:center;justify-content:center;pointer-events:none}
+#codeOv.on{display:flex}
+#codeOv .box{background:#07222cF0;border:5px solid var(--yel);border-radius:30px;padding:30px 70px;text-align:center;animation:popIn .5s both}
+#codeOv .lbl{font:700 30px 'Fredoka';color:var(--yel);letter-spacing:4px}
+#codeOv .dig{font:700 150px/1.1 'Fredoka';color:#fff}
+
+/* ---- 10-SECOND INTRO BUMPER ---- */
+#introOverlay{position:absolute;inset:0;z-index:200;background:radial-gradient(ellipse at top,#123d4e 0%,#07222c 70%);
+  display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s}
+#introOverlay.active{opacity:1;visibility:visible}
+.intro-box{display:flex;flex-direction:column;gap:28px;align-items:center;max-width:1320px;text-align:center;padding:0 60px}
+#introOverlay.active .free-chip{animation:bounceIn .8s cubic-bezier(.2,.7,.2,1) both,pulse 2s infinite .9s}
+#introOverlay.active h1{animation:riseIn .8s .3s both}
+#introOverlay.active .comment-box{animation:slideR .8s .6s both}
+#introOverlay.active .instructions{animation:flipIn .8s .9s both}
+#introOverlay.active .countdown-box{animation:popIn .8s 1.2s both}
+.free-chip{font:900 34px 'Nunito';color:#062a22;background:linear-gradient(90deg,var(--grn),var(--cyan));
+  padding:16px 44px;border-radius:999px;box-shadow:0 8px 0 #04161e}
+.comment-box{display:flex;align-items:center;gap:20px;font:800 36px 'Nunito';color:var(--ink);background:#0e3241;
+  padding:22px 46px;border-radius:24px;border:4px solid var(--cyan);box-shadow:0 7px 0 #04161e}
+.pin-icon{font-size:56px;animation:iconB 2s infinite}
+.instructions h3{font:700 44px 'Fredoka';margin-bottom:10px}
+.instructions .txt{font-size:30px;max-width:1060px}
+.countdown-box{font:800 30px 'Nunito';color:var(--mut);margin-top:8px}
+#introCount{font:700 76px 'Fredoka';color:var(--yel);display:inline-block;min-width:90px;text-shadow:0 0 30px #ffd93d66}
+
+.slide{position:absolute;inset:0;z-index:2;padding:64px 84px 64px;display:flex;flex-direction:column;
+  justify-content:center;align-items:stretch;gap:28px;
+  opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s;
+  overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#1f6478 transparent;scroll-behavior:smooth}
+.slide::-webkit-scrollbar{width:10px}
+.slide::-webkit-scrollbar-thumb{background:#1f6478;border-radius:999px}
+.slide.active{opacity:1;visibility:visible}
+.slide>.row[style*="flex:1"],.slide>.card[style*="flex:1"]{flex:0 0 auto !important}
+[data-step]{opacity:0;transform:translateY(30px);transition:all .8s cubic-bezier(.2,.7,.2,1)}
+[data-step].on{opacity:1;transform:none}
+.kicker{font:700 20px 'Fredoka';letter-spacing:5px;color:var(--yel)}
+h1{font:700 62px/1.15 'Fredoka';max-width:1000px}
+h2{font:700 58px/1.15 'Fredoka'}
+.hlc{background:linear-gradient(90deg,var(--cyan),var(--grn));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hly{background:linear-gradient(90deg,var(--yel),var(--org));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hlp{background:linear-gradient(90deg,var(--pur),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+.card{background:linear-gradient(160deg,var(--card2),var(--card));border:4px solid var(--line);border-radius:28px;
+  box-shadow:0 9px 0 #04161e;padding:24px 34px}
+.card h3{font:700 38px 'Fredoka';margin-bottom:8px}
+.txt{color:var(--mut);font-size:36px;font-weight:800;line-height:1.35}
+.big{font-size:44px;font-weight:900;line-height:1.28;color:var(--ink)}
+.row{display:flex;gap:26px;align-items:stretch}
+.half{flex:1}
+.chain{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap}
+.chipq{display:inline-flex;align-items:center;gap:10px;border-radius:999px;padding:10px 28px;font:900 32px 'Nunito';
+  background:#0f3644;border:4px solid var(--line);color:var(--ink);box-shadow:0 5px 0 #04161e}
+.chipq.cy{background:rgba(58,232,197,.15);border-color:var(--cyan);color:var(--cyan)}
+.chipq.yl{background:rgba(255,217,61,.15);border-color:var(--yel);color:var(--yel)}
+.chipq.gr{background:rgba(140,229,99,.15);border-color:var(--grn);color:var(--grn)}
+.chipq.pu{background:rgba(167,149,255,.15);border-color:var(--pur);color:var(--pur)}
+.chipq.pk{background:rgba(255,133,171,.15);border-color:var(--pink);color:var(--pink)}
+.obj{font:800 32px 'Nunito';padding:16px 28px}
+.heroframe{width:760px;height:600px;border-radius:30px;overflow:hidden;border:5px solid var(--line);
+  box-shadow:0 10px 0 #04161e;background:#0e3241;position:relative;flex-shrink:0}
+.heroframe::before{content:'📏';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:150px;opacity:.25}
+.heroframe img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#s1{flex-direction:row;gap:44px;align-items:center;justify-content:center}
+#s1 .left{flex:1;display:flex;flex-direction:column;gap:22px;justify-content:center}
+
+/* ---- LESSON VISUALS ---- */
+.fact{font:700 36px 'Fredoka';color:var(--ink);text-align:center;margin-top:12px}
+.flowrow{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.arr{font:700 36px 'Fredoka';color:var(--yel);animation:arrowB 1.4s ease-in-out infinite;white-space:nowrap}
+.fstack{display:flex;flex-direction:column;gap:14px;align-items:center;margin-top:12px}
+.famcard{flex:1;text-align:center}
+.famcard h3{font-size:42px}
+
+/* warm-up ropes */
+.ropes{display:flex;flex-direction:column;gap:16px;align-items:center}
+.ropeRow{display:flex;align-items:center;gap:18px}
+.rlab{font:700 34px 'Fredoka';width:180px;text-align:right}
+.rope{width:760px;height:50px;border-radius:12px;box-shadow:0 5px 0 #04161e;transform-origin:left center}
+.rope.m{background:linear-gradient(90deg,var(--org),var(--yel))}
+.rope.cm{background:repeating-linear-gradient(90deg,var(--cyan) 0 5.6px,#0b2e3a 5.6px 7.6px)}
+.on .rope{animation:growX 1.1s cubic-bezier(.2,.7,.2,1) both}
+.on .ropeRow:nth-child(2) .rope{animation-delay:.5s}
+
+/* unit 1: meter bar splits into 100 cm segments */
+.mcmp{display:flex;flex-direction:column;align-items:center;gap:12px}
+.mbar{width:760px;height:58px;border-radius:14px;background:linear-gradient(90deg,var(--org),var(--yel));
+  display:flex;align-items:center;justify-content:center;font:700 27px 'Fredoka';color:#3a2604;
+  box-shadow:0 6px 0 #04161e;transform-origin:left center}
+.on .mbar{animation:growX 1s cubic-bezier(.2,.7,.2,1) both}
+.eqsign{font:700 42px 'Fredoka';color:var(--yel);line-height:1}
+.cmstrip{display:flex;width:760px;height:52px;border-radius:12px;overflow:hidden;
+  box-shadow:0 6px 0 #04161e;background:#0b2e3a;border:3px solid var(--line)}
+.cmstrip i{flex:1;background:linear-gradient(180deg,#7df2da,var(--cyan) 55%,#1d9e86)}
+.cmstrip i+i{border-left:2px solid #07222c}
+.on .cmstrip i{animation:segPop .3s ease-out both}
+.cmnums{display:flex;justify-content:space-between;width:760px;font:700 24px 'Fredoka';color:var(--mut)}
+.cmnums b{color:var(--cyan)}
+
+/* unit 2: km road — bigger car, drives forward, seamless loop */
+.roadwrap{max-width:980px;margin:8px auto 0}
+.road{position:relative;height:112px;border-radius:16px;background:#26333d;border:4px solid var(--line);overflow:hidden}
+.road::before{content:'';position:absolute;left:0;right:0;top:50%;height:8px;transform:translateY(-50%);
+  background:repeating-linear-gradient(90deg,#ffd93d 0 44px,transparent 44px 84px)}
+.car{position:absolute;top:12px;left:0;font-size:88px;animation:drive 5.5s linear infinite;
+  filter:drop-shadow(0 6px 8px #00000066)}
+.car i{display:inline-block;transform:scaleX(-1);font-style:normal}
+@keyframes drive{
+  0%{transform:translateX(-150px);opacity:0}
+  6%{transform:translateX(-95px);opacity:1}
+  88%{transform:translateX(930px);opacity:1}
+  96%,100%{transform:translateX(975px);opacity:0}
+}
+.miles{display:flex;justify-content:space-between;margin-top:12px;font:700 27px 'Fredoka';color:var(--mut)}
+.miles b{color:var(--yel)}
+
+/* unit 3: balance scale */
+.scale{position:relative;width:640px;height:250px;margin:6px auto 0}
+.pole{position:absolute;left:50%;top:26px;bottom:16px;transform:translateX(-50%);width:16px;background:#5f8a92;border-radius:8px}
+.sbase{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:230px;height:16px;background:#5f8a92;border-radius:8px}
+.rockwrap{position:absolute;left:50%;top:26px;width:0;height:0;animation:rock 3.2s ease-in-out infinite}
+@keyframes rock{0%,100%{transform:rotate(0deg)}22%{transform:rotate(-7deg)}58%{transform:rotate(5deg)}}
+.beam2{position:absolute;left:-210px;top:-7px;width:420px;height:14px;background:linear-gradient(90deg,var(--org),var(--yel));border-radius:8px}
+.pan{position:absolute;top:7px;width:0;height:0}
+.pan.l{left:-210px}.pan.r{left:210px}
+.string{position:absolute;left:-2px;top:0;width:4px;height:44px;background:#bfe9dd;border-radius:2px}
+.dish{position:absolute;left:-85px;top:44px;width:170px;height:64px;border-radius:0 0 30px 30px;
+  background:#0e3241;border:4px solid var(--line);border-top:none;display:flex;align-items:center;justify-content:center;
+  gap:10px;font:700 27px 'Fredoka';color:var(--ink);box-shadow:0 6px 0 #04161e}
+
+/* unit 4: mg magnifier */
+.mgscene{display:flex;align-items:flex-end;justify-content:center;gap:100px;height:210px;padding-top:10px}
+.mgitem{display:flex;flex-direction:column;align-items:center;gap:14px;font:700 30px 'Fredoka';color:var(--ink)}
+.blob{width:96px;height:96px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#b6ffe9,#3ae8c5 60%,#179e85);
+  box-shadow:0 0 44px #3ae8c544;animation:pulse 2.6s infinite}
+.speckwrap{position:relative;width:96px;height:96px;display:flex;align-items:center;justify-content:center}
+.speck{width:10px;height:10px;border-radius:50%;background:var(--pink);box-shadow:0 0 14px #ff85ab;animation:blink 1.5s infinite}
+.lens{position:absolute;font-size:88px;animation:lensHover 3s ease-in-out infinite;filter:drop-shadow(0 0 16px #ffd93d66)}
+@keyframes lensHover{0%,100%{transform:translate(14px,10px) rotate(-10deg)}50%{transform:translate(-8px,-6px) rotate(6deg)}}
+
+/* unit 5: pouring liter */
+.pour{position:relative;width:640px;height:230px;margin:6px auto 0}
+.jug{position:absolute;left:70px;top:0;font-size:100px;transform-origin:85% 85%;animation:tipPour 3s ease-in-out infinite}
+@keyframes tipPour{0%,100%{transform:rotate(18deg)}45%,70%{transform:rotate(52deg)}}
+.droplets{position:absolute;left:235px;top:60px;width:40px;height:130px}
+.droplets i{position:absolute;left:0;top:0;font-size:26px;opacity:0;animation:fall 1.35s linear infinite}
+@keyframes fall{0%{transform:translateY(0);opacity:0}12%{opacity:1}85%{opacity:1}100%{transform:translateY(115px);opacity:0}}
+.beaker2{position:absolute;right:70px;bottom:0;width:170px;height:190px;border:6px solid #bfe9dd;border-top:none;
+  border-radius:0 0 26px 26px;background:#0a2833;overflow:hidden}
+.beaker2 .water{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(180deg,#5ef0d6,#1d9e86);animation:fillUp 3s ease-in-out infinite}
+@keyframes fillUp{0%{height:12%}55%{height:88%}100%{height:12%}}
+.beaker2 .marks{position:absolute;right:8px;top:14px;bottom:14px;width:24px;background:repeating-linear-gradient(180deg,#ffffff99 0 3px,transparent 3px 24px)}
+.plabels{display:flex;justify-content:space-between;max-width:640px;margin:6px auto 0;font:700 26px 'Fredoka';color:var(--mut)}
+
+/* ---- MC SLIDES (ENLARGED) ---- */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:26px;max-width:1560px;margin:0 auto;width:100%}
+.opt{font:900 46px 'Nunito';color:var(--ink);background:#0f3644;border:5px solid var(--line);border-radius:24px;
+  padding:22px 30px;cursor:pointer;box-shadow:0 6px 0 #04161e;transition:all .2s;text-align:left;
+  display:flex;align-items:center;gap:20px;opacity:1}
+.opt b{font:700 42px 'Fredoka';background:rgba(167,149,255,.2);border-radius:12px;padding:6px 18px;color:var(--pur)}
+.opt:hover{transform:translateY(-3px)}
+.opt.good{opacity:1;background:rgba(140,229,99,.16);border-color:var(--grn);color:var(--grn);
+  animation:winSpin .7s cubic-bezier(.2,.7,.2,1);box-shadow:0 0 0 8px #8ce56333,0 6px 0 #04161e}
+.opt.good b{background:var(--grn);color:#123a06}
+.opt.bad{opacity:.55;background:rgba(255,107,107,.12);border-color:var(--red);color:var(--red);pointer-events:none;animation:shake .4s}
+.opt.reveal{opacity:1;background:rgba(140,229,99,.16);border-color:var(--grn);color:var(--grn);
+  animation:winSpin .7s cubic-bezier(.2,.7,.2,1);box-shadow:0 0 0 8px #8ce56333,0 6px 0 #04161e}
+.opt.reveal b{background:var(--grn);color:#123a06}
+body.preview .opt{pointer-events:none}
+.fb{font:700 40px 'Fredoka';text-align:center;min-height:120px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.fb .why{display:block;font:800 32px/1.3 'Nunito';margin-top:6px;opacity:.95}
+.fb.g{color:var(--grn)}.fb.r{color:var(--red)}
+.qbig{font:700 56px/1.25 'Fredoka';text-align:center;max-width:1560px;margin:0 auto}
+
+.master{font:700 72px 'Fredoka';color:var(--yel);text-align:center}
+#overlay{position:absolute;inset:0;z-index:100;background:#07222cF7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;text-align:center}
+#overlay .ttl{font:700 60px 'Fredoka';color:var(--cyan)}
+#overlay .sub{font:800 25px 'Nunito';color:var(--ink);max-width:1250px}
+.modeBtns{display:flex;gap:30px}
+.modeBtns button{font:700 32px 'Fredoka';border-radius:26px;border:5px solid var(--line);padding:24px 38px;cursor:pointer;
+  box-shadow:0 8px 0 #04161e;transition:transform .15s;color:#062a22}
+.modeBtns button:hover{transform:translateY(-4px)}
+.modeBtns small{display:block;font:800 19px 'Nunito';margin-top:8px}
+#btnPreview{background:var(--yel)}
+#btnLesson{background:var(--cyan)}
+#passPanel{display:none;flex-direction:column;gap:20px;align-items:center}
+.pslots{display:flex;gap:16px}
+.pslot{width:82px;height:100px;border-radius:18px;border:5px solid var(--line);background:#0f3644;
+  font:700 54px 'Fredoka';display:flex;align-items:center;justify-content:center;color:var(--cyan)}
+#passPanel.err .pslot{animation:shake .4s;border-color:var(--red)}
+#passMsg{font:800 23px 'Nunito';color:var(--yel);min-height:28px}
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="fx"></div>
+<div id="confetti"></div>
+<div id="progress"></div>
+<div id="tag">📐 MATH 4 • TERM 2 • WEEK 3</div>
+<div id="voiceChip">🔊 loading voices…</div>
+<div id="starChip">⭐ <span id="starN">0</span> / 35</div>
+<div id="recChip"><span class="rdot"></span>⏺ PREVIEW • AUTO</div>
+<div id="mcTimer"><span id="mcTimerN">5</span><small>⏳ answer reveal in…</small></div>
+<div id="codeOv"><div class="box"><div class="lbl" id="codeLbl">PASSCODE DIGIT 1/5</div><div class="dig" id="codeDig">7</div></div></div>
+
+<!-- 10-SECOND INTRO BUMPER (preview only) -->
+<div id="introOverlay">
+  <div class="intro-box">
+    <div class="free-chip">🎁 FREE INTERACTIVE PRESENTATION</div>
+    <h1><span class="hly">Automated Assessment &amp; Interactive Assessment!</span></h1>
+    <div class="comment-box">
+      <span class="pin-icon">📌</span>
+      <span>Get them ALL in the <b style="color:var(--cyan)">PINNED COMMENTS</b>!</span>
+    </div>
+    <div class="instructions">
+      <h3 class="hlc">HOW TO UNLOCK LESSON MODE 🔓</h3>
+      <p class="txt">Watch this video and write down the <b style="color:var(--grn)">5 SECRET DIGITS</b> that pop up on screen — then type them to unlock the interactive lesson, answer the questions, and earn ⭐ stars!</p>
+    </div>
+    <div class="countdown-box"><span id="introCount">10</span> seconds until the lab opens…</div>
+  </div>
+</div>
+
+<!-- 1 TITLE -->
+<section class="slide" id="s1">
+  <div class="left">
+    <div data-step="0" style="display:flex;flex-direction:column;gap:20px">
+      <div class="kicker" data-anim style="--an:slideL">WELCOME TO THE MEASUREMENT MANIA LAB!</div>
+      <h1 data-anim style="--an:riseIn;--d:.12s">Mission: <span class="hly">Convert It!</span> 📏</h1>
+      <p class="txt" data-anim style="--an:riseIn;--d:.28s;font-size:34px">Convert common units of measure from larger to smaller — and vice versa!</p>
+    </div>
+    <div data-step="1" style="display:flex;flex-direction:column;gap:14px">
+      <div class="card obj" data-anim style="--an:popIn;--d:.1s">📏 LENGTH: meter ↔ centimeter • kilometer ↔ meter</div>
+      <div class="card obj" data-anim style="--an:popIn;--d:.3s">⚖️ MASS: kilogram ↔ gram • gram ↔ milligram</div>
+      <div class="card obj" data-anim style="--an:popIn;--d:.5s">🥛 CAPACITY: liter ↔ milliliter — multiply down, divide up!</div>
+    </div>
+  </div>
+  <div class="heroframe" data-step="0" data-anim style="--an:zoomIn;--d:.2s"><img src="measure-hero.png" alt="" onerror="this.style.display='none'"></div>
+</section>
+
+<!-- 2 WARM-UP -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">WARM-UP, LAB ASSISTANT!</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Same Rope, <span class="hlc">Different Numbers!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="ropes">
+      <div class="ropeRow"><span class="rlab" style="color:var(--yel)">1 m 📏</span><div class="rope m"></div></div>
+      <div class="ropeRow"><span class="rlab" style="color:var(--cyan)">100 cm</span><div class="rope cm"></div></div>
+      <div class="chain"><span class="chipq gr">SAME rope!</span><span class="chipq pu">different units → different numbers</span></div>
+    </div>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq yl">SMALL unit → BIG number</span><span class="chipq cy">BIG unit → small number</span></div>
+    <p class="txt" style="text-align:center;margin-top:10px">A centimeter is tiny — you need 100 of them to match just 1 meter!</p>
+  </div>
+</section>
+
+<!-- 3 FAMILIES -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">THE MEASURING FAMILIES 🧰</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Meet Your <span class="hlp">Tools!</span></h2></div>
+  <div class="row" data-step="0">
+    <div class="card famcard" data-anim style="--an:flipIn"><h3>📏 LENGTH</h3>
+      <div class="fstack"><span class="chipq cy">1 km = 1000 m</span><span class="chipq cy">1 m = 100 cm</span></div></div>
+    <div class="card famcard" data-anim style="--an:flipIn;--d:.2s"><h3>⚖️ MASS</h3>
+      <div class="fstack"><span class="chipq gr">1 kg = 1000 g</span><span class="chipq gr">1 g = 1000 mg</span></div></div>
+    <div class="card famcard" data-anim style="--an:flipIn;--d:.4s"><h3>🥛 CAPACITY</h3>
+      <div class="fstack"><span class="chipq yl">1 L = 1000 mL</span><span class="chipq pk">1 mL = one tiny drop 💧</span></div></div>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq yl">100 for centimeters</span><span class="chipq gr">1000 for EVERYTHING else!</span></div>
+    <p class="txt" style="text-align:center;margin-top:10px">Two magic numbers run the whole lab — memorize them!</p>
+  </div>
+</section>
+
+<!-- 4 GOLDEN RULE -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">THE GOLDEN RULE 🔑</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Multiply Down, <span class="hly">Divide Up!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:flipIn;--d:.2s">
+    <div class="flowrow"><span class="chipq yl">LARGE UNIT • 3 m</span><span class="arr">➜ × 100 ➜</span><span class="chipq gr">SMALL UNIT • 300 cm</span></div>
+    <div class="flowrow"><span class="chipq pk">SMALL UNIT • 300 cm</span><span class="arr">➜ ÷ 100 ➜</span><span class="chipq cy">LARGE UNIT • 3 m</span></div>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:flipIn">
+    <p class="big" style="text-align:center">Big → small: <b style="color:var(--yel)">MULTIPLY</b> (the number grows!) • Small → big: <b style="color:var(--cyan)">DIVIDE</b> (the number shrinks!)</p>
+  </div>
+</section>
+
+<!-- 5 UNIT 1: m ↔ cm -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 1 📏</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Meters ↔ Centimeters — <span class="hlc">×100!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="mcmp">
+      <div class="mbar"><span>1 METER 📏</span></div>
+      <div class="eqsign">=</div>
+      <div class="cmstrip"></div>
+      <div class="cmnums"><span>0</span><span>25</span><span>50</span><span>75</span><span><b>100 cm!</b></span></div>
+    </div>
+    <p class="fact">1 m = <b style="color:var(--yel)">100 cm</b> — the same bar, split into 100 centimeter segments!</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="flowrow"><span class="chipq yl">4 m → cm</span><span class="arr">➜ × 100 ➜</span><span class="chipq gr">400 cm</span></div>
+    <div class="flowrow"><span class="chipq pk">700 cm → m</span><span class="arr">➜ ÷ 100 ➜</span><span class="chipq cy">7 m</span></div>
+  </div>
+</section>
+
+<!-- P1 SET -->
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 📏 Q1/5 • METERS &amp; CENTIMETERS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">5 m = <span style="color:var(--yel)">? cm</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 50 cm</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 500 cm</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 5000 cm</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 15 cm</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 📏 Q2/5 • METERS &amp; CENTIMETERS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">800 cm = <span style="color:var(--yel)">? m</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 8 m</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 80 m</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 8000 m</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 9 m</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 📏 Q3/5 • METERS &amp; CENTIMETERS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Which is LONGER: <span style="color:var(--cyan)">3 m</span> or <span style="color:var(--org)">350 cm</span>?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 3 m</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 350 cm</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> They are equal</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Cannot tell</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 📏 Q4/5 • METERS &amp; CENTIMETERS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A rope is 7 m long. How many cm is that?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 70 cm</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 700 cm</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 7000 cm</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 17 cm</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 📏 Q5/5 • METERS &amp; CENTIMETERS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">1200 cm = <span style="color:var(--yel)">? m</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 12 m</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 120 m</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 1000 m</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 220 m</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- UNIT 2: km ↔ m -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 2 🛣️</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Kilometers ↔ Meters — <span class="hlc">×1000!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="roadwrap">
+      <div class="road"><span class="car"><i>🚗</i></span></div>
+      <div class="miles"><span>0 m 🚩</span><span>500 m</span><span>1000 m = <b>1 km 🏁</b></span></div>
+    </div>
+    <p class="fact">1 km = <b style="color:var(--yel)">1000 m</b> — 1000 meter steps make 1 km!</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="flowrow"><span class="chipq yl">5 km → m</span><span class="arr">➜ × 1000 ➜</span><span class="chipq gr">5000 m</span></div>
+    <div class="flowrow"><span class="chipq pk">8000 m → km</span><span class="arr">➜ ÷ 1000 ➜</span><span class="chipq cy">8 km</span></div>
+  </div>
+</section>
+
+<!-- P2 SET -->
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🛣️ Q1/5 • KILOMETERS &amp; METERS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">4 km = <span style="color:var(--yel)">? m</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 400 m</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 4000 m</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 40 m</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 40000 m</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🛣️ Q2/5 • KILOMETERS &amp; METERS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">9000 m = <span style="color:var(--yel)">? km</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 9 km</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 90 km</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 900 km</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 19 km</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🛣️ Q3/5 • KILOMETERS &amp; METERS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A road is 6 km 500 m long. How many meters is that in all?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 6500 m</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 650 m</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 60500 m</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 1100 m</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🛣️ Q4/5 • KILOMETERS &amp; METERS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Which is LONGER: <span style="color:var(--cyan)">2 km</span> or <span style="color:var(--org)">1500 m</span>?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 2 km</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 1500 m</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> They are equal</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Cannot tell</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🛣️ Q5/5 • KILOMETERS &amp; METERS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">3000 m = <span style="color:var(--yel)">? km</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 300 km</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 30 km</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 3 km</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 33 km</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- UNIT 3: kg ↔ g -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 3 ⚖️</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Kilograms ↔ Grams — <span class="hly">×1000!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="scale">
+      <div class="pole"></div><div class="sbase"></div>
+      <div class="rockwrap">
+        <div class="beam2"></div>
+        <div class="pan l"><div class="string"></div><div class="dish">🏋️ 1 kg</div></div>
+        <div class="pan r"><div class="string"></div><div class="dish">🧂 1000 g</div></div>
+      </div>
+    </div>
+    <p class="fact">1 kg ⚖️ <b style="color:var(--yel)">1000 g</b> — perfectly balanced!</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="flowrow"><span class="chipq yl">3 kg → g</span><span class="arr">➜ × 1000 ➜</span><span class="chipq gr">3000 g</span></div>
+    <div class="flowrow"><span class="chipq pk">6000 g → kg</span><span class="arr">➜ ÷ 1000 ➜</span><span class="chipq cy">6 kg</span></div>
+  </div>
+</section>
+
+<!-- P3 SET -->
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⚖️ Q1/5 • KILOGRAMS &amp; GRAMS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">2 kg = <span style="color:var(--yel)">? g</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 200 g</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 2000 g</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 20 g</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 20000 g</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⚖️ Q2/5 • KILOGRAMS &amp; GRAMS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">5000 g = <span style="color:var(--yel)">? kg</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 50 kg</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 5 kg</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 500 kg</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 15 kg</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⚖️ Q3/5 • KILOGRAMS &amp; GRAMS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A watermelon weighs 4 kg 250 g. How many grams is that?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 4250 g</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 425 g</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 42500 g</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 4025 g</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⚖️ Q4/5 • KILOGRAMS &amp; GRAMS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Which is HEAVIER: <span style="color:var(--cyan)">3 kg</span> or <span style="color:var(--org)">2500 g</span>?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 3 kg</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 2500 g</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> They are equal</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Cannot tell</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⚖️ Q5/5 • KILOGRAMS &amp; GRAMS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">7000 g = <span style="color:var(--yel)">? kg</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 7 kg</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 70 kg</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 700 kg</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 17 kg</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- UNIT 4: g ↔ mg -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 4 🔍</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Grams ↔ Milligrams — <span class="hlp">×1000!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="mgscene">
+      <div class="mgitem"><div class="blob"></div><span>1 g</span></div>
+      <div class="mgitem"><div class="speckwrap"><i class="speck"></i><span class="lens">🔍</span></div><span>1 mg — 1000× smaller!</span></div>
+    </div>
+    <p class="fact">1 g = <b style="color:var(--yel)">1000 mg</b> — milligrams are for tiny things like medicine 💊!</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="flowrow"><span class="chipq yl">7 g → mg</span><span class="arr">➜ × 1000 ➜</span><span class="chipq gr">7000 mg</span></div>
+    <div class="flowrow"><span class="chipq pk">9000 mg → g</span><span class="arr">➜ ÷ 1000 ➜</span><span class="chipq cy">9 g</span></div>
+  </div>
+</section>
+
+<!-- P4 SET -->
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🔍 Q1/5 • GRAMS &amp; MILLIGRAMS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">6 g = <span style="color:var(--yel)">? mg</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 600 mg</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 6000 mg</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 60 mg</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 16 mg</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🔍 Q2/5 • GRAMS &amp; MILLIGRAMS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">8000 mg = <span style="color:var(--yel)">? g</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 8 g</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 80 g</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 800 g</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 18 g</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🔍 Q3/5 • GRAMS &amp; MILLIGRAMS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">One pill has 500 mg of medicine. How many GRAMS are in 2 pills?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 1 g</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 10 g</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 500 g</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 1000 g</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🔍 Q4/5 • GRAMS &amp; MILLIGRAMS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Which is HEAVIER: <span style="color:var(--cyan)">2 g</span> or <span style="color:var(--org)">1900 mg</span>?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 2 g</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 1900 mg</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> They are equal</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Cannot tell</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🔍 Q5/5 • GRAMS &amp; MILLIGRAMS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">9 g 500 mg = <span style="color:var(--yel)">? mg</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 9500 mg</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 950 mg</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 95000 mg</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 9050 mg</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- UNIT 5: L ↔ mL -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 5 🥛</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Liters ↔ Milliliters — <span class="hlc">×1000!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="pour">
+      <span class="jug">🥛</span>
+      <div class="droplets"><i style="animation-delay:0s">💧</i><i style="animation-delay:.45s">💧</i><i style="animation-delay:.9s">💧</i></div>
+      <div class="beaker2"><div class="water"></div><div class="marks"></div></div>
+    </div>
+    <div class="plabels"><span>🥛 the 1 L jug tips…</span><span>…and fills <b style="color:var(--cyan)">1000 mL</b>!</span></div>
+    <p class="fact">1 L = <b style="color:var(--yel)">1000 mL</b></p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="flowrow"><span class="chipq yl">2 L → mL</span><span class="arr">➜ × 1000 ➜</span><span class="chipq gr">2000 mL</span></div>
+    <div class="flowrow"><span class="chipq pk">4000 mL → L</span><span class="arr">➜ ÷ 1000 ➜</span><span class="chipq cy">4 L</span></div>
+  </div>
+</section>
+
+<!-- P5 SET -->
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🥛 Q1/5 • LITERS &amp; MILLILITERS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">3 L = <span style="color:var(--yel)">? mL</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 300 mL</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3000 mL</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 30 mL</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 30000 mL</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🥛 Q2/5 • LITERS &amp; MILLILITERS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">6000 mL = <span style="color:var(--yel)">? L</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 6 L</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 60 L</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 600 L</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 16 L</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🥛 Q3/5 • LITERS &amp; MILLILITERS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A jug holds 2 L 750 mL of juice. How many mL is that?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 2750 mL</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 275 mL</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 27500 mL</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 2075 mL</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🥛 Q4/5 • LITERS &amp; MILLILITERS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Which holds MORE: <span style="color:var(--cyan)">1 L</span> or <span style="color:var(--org)">850 mL</span>?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 1 L</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 850 mL</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> They are equal</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Cannot tell</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🥛 Q5/5 • LITERS &amp; MILLILITERS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">4500 mL = <span style="color:var(--yel)">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 4 L 500 mL</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 45 L</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 4 L 50 mL</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 450 L</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- HAZARDS -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">LAB HAZARDS! ⚠️</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Watch Out, <span class="hly">Lab Assistant!</span> 🧪</h2></div>
+  <div class="row" data-step="0">
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center" data-anim style="--an:flipIn"><h3>Hazard 1 • Wrong Operation</h3>
+      <p class="txt">Big→small <b style="color:var(--grn)">MULTIPLIES</b> (3 m = 300 cm). Small→big <b style="color:var(--cyan)">DIVIDES</b> (300 cm = 3 m). Swap them and your answer sinks!</p></div>
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center" data-anim style="--an:flipIn;--d:.25s"><h3>Hazard 2 • Wrong Magic Number</h3>
+      <p class="txt">m→cm uses <b style="color:var(--yel)">100</b>, but km→m, kg→g, g→mg and L→mL all use <b style="color:var(--yel)">1000</b>! Only centimeters use 100!</p></div>
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center" data-anim style="--an:flipIn;--d:.5s"><h3>Hazard 3 • Mixed Units</h3>
+      <p class="txt">6 km 500 m = <b style="color:var(--grn)">6500 m</b> — convert 6 km to 6000 m FIRST, then add. Never just glue digits: 650 and 60500 are traps!</p></div>
+  </div>
+</section>
+
+<!-- FINAL QUIZ (10) -->
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 Q1/10</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">10 m = <span style="color:var(--yel)">? cm</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 100 cm</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 1000 cm</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 10000 cm</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 110 cm</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 Q2/10</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">1 km = <span style="color:var(--yel)">? m</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 100 m</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 1000 m</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 10 m</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 10000 m</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 Q3/10</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">To convert a LARGER unit to a SMALLER unit, you ___</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ADD</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> SUBTRACT</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> MULTIPLY</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> DIVIDE</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 Q4/10</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">8 kg = <span style="color:var(--yel)">? g</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 800 g</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 8000 g</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 80 g</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 80000 g</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 Q5/10</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">7000 mL = <span style="color:var(--yel)">? L</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 7 L</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 70 L</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 700 L</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 17 L</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 Q6/10</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">5 g = <span style="color:var(--yel)">? mg</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 500 mg</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 5000 mg</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 50 mg</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 50000 mg</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 Q7/10</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">900 cm = <span style="color:var(--yel)">? m</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 9 m</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 90 m</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 9000 m</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 19 m</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 Q8/10</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">To convert a SMALLER unit to a LARGER unit, you ___</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> MULTIPLY</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> DIVIDE</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ADD</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> SUBTRACT</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 Q9/10</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A bottle holds 1 L 250 mL of water. How many mL is that?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 1250 mL</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 125 mL</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 12500 mL</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 1025 mL</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 Q10/10</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Which length is the <span style="color:var(--yel)">LONGEST</span>?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 3 km</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 2900 m</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 3100 m</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 2 km</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- SUMMARY -->
+<section class="slide" style="align-items:center;justify-content:center;text-align:center">
+  <div data-step="0" style="display:flex;flex-direction:column;gap:26px;align-items:center">
+    <div class="kicker" data-anim style="--an:slideL">LAB COMPLETE 🔔</div>
+    <div class="chain" data-anim style="--an:riseIn;--d:.15s">
+      <span class="chipq yl">BIG → SMALL = ×</span><span class="chipq pu">SMALL → BIG = ÷</span><span class="chipq pk">100 for cm • 1000 for the rest</span>
+    </div>
+    <div class="chain" data-anim style="--an:riseIn;--d:.3s">
+      <span class="chipq cy">1 m = 100 cm</span><span class="chipq cy">1 km = 1000 m</span><span class="chipq gr">1 kg = 1000 g</span><span class="chipq gr">1 g = 1000 mg</span><span class="chipq yl">1 L = 1000 mL</span>
+    </div>
+    <div class="master" data-anim style="--an:zoomIn;--d:.45s">📏 UNIT CONVERSION MASTER!</div>
+    <p class="big" data-anim style="--an:riseIn;--d:.6s" id="starLine">Keep measuring, keep converting — see you at the next lab!</p>
+  </div>
+</section>
+
+<div id="hints"><b>→</b> Next &nbsp; <b>←</b> Back &nbsp; <b>F</b> Fullscreen &nbsp; <b>🖱️</b> click answers (Lesson) &nbsp; <b>V/M</b> Preview only</div>
+<div id="counter">01 / 46</div>
+
+<div id="overlay">
+  <div class="ttl">📏 MEASUREMENT MANIA LAB</div>
+  <div class="sub">Math 4 • Term 2 • Week 3 — Convert units from larger to smaller &amp; vice versa: m↔cm • km↔m • kg↔g • g↔mg • L↔mL</div>
+  <div class="sub" style="font-size:21px;color:var(--yel)">🎙️ <b>V</b> = audition voice • <b>F</b> = fullscreen • M & V disabled inside Lesson Mode.</div>
+  <div class="modeBtns" id="modeBtns">
+    <button id="btnPreview">🎬 PREVIEW MODE<small>auto-play • 5s countdown • answers spoken ONLY after reveal</small></button>
+    <button id="btnLesson">🎓 LESSON MODE<small>interactive + ⭐ big star on first-try correct • needs 5-digit passcode</small></button>
+  </div>
+  <div id="passPanel">
+    <div class="sub">Enter the 5-digit passcode you collected from the Preview video 👀</div>
+    <div class="pslots"><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div></div>
+    <div id="passMsg">Type digits • Enter = unlock • Esc = back</div>
+  </div>
+</div>
+</div>
+
+<script>
+/* ============================================================
+    YOUTUBE LINK SLOT — LEAVE EMPTY ("") WHILE YOU SCREEN-RECORD,
+    so the built-in auto-preview (TTS + 10s intro + digits) runs.
+    AFTER uploading, paste the new video URL and redistribute:
+    var YOUTUBE_LINK = "https://youtu.be/YourNewVideo";
+============================================================ */
+var YOUTUBE_LINK = "https://www.youtube.com/watch?v=_1Dsu1HUZ4M";
+
+var PASS=[7,4,1,9,3];
+
+/* WHY bank: [mcQuestionIndex][optionIndex] — 25 practice + 10 quiz = 35 */
+var WHY=[
+/* P1: m/cm */
+["50 cm is only half of 1 m — 5 m is much more.",
+ "5 × 100 = 500 — big to small, MULTIPLY by 100!",
+ "5000 used ×1000 — that is the km magic number; m→cm is ×100.",
+ "15? Adding is not converting — multiply by 100!"],
+["800 ÷ 100 = 8 m — small to big, DIVIDE!",
+ "80 m would need 8000 cm.",
+ "8000 came from multiplying — but cm→m means divide.",
+ "9 is 8+1 — conversions never add!"],
+["3 m = 300 cm, and 300 is less than 350.",
+ "350 cm beats 300 cm — so 350 cm is LONGER!",
+ "3 m = 300 cm, not 350 cm.",
+ "Convert to the same unit and you CAN compare: 300 cm vs 350 cm."],
+["70 cm is shorter than 1 m — too small for a 7 m rope.",
+ "7 × 100 = 700 cm — big to small, multiply!",
+ "7000 used ×1000 — wrong magic number; m→cm is ×100.",
+ "17 is 7+10 — no adding in conversions!"],
+["1200 ÷ 100 = 12 m — divide to go small→big!",
+ "120 m would need 12,000 cm.",
+ "1000 m would need 100,000 cm.",
+ "220? Subtracting is not converting — divide by 100!"],
+/* P2: km/m */
+["400 used ×100 — km→m is ×1000.",
+ "4 × 1000 = 4000 m — big to small, MULTIPLY!",
+ "40 is tiny — 1 km alone is 1000 m!",
+ "40,000 has one zero too many — 4 × 1000 = 4000."],
+["9000 ÷ 1000 = 9 km — small to big, DIVIDE!",
+ "90 km would need 90,000 m.",
+ "900 km would need 900,000 m — way too much!",
+ "19 is 9+10 — conversions never add!"],
+["6 km = 6000 m, plus 500 m = 6500 m — convert FIRST, then add!",
+ "650 forgot to convert: 6 km alone is 6000 m.",
+ "60500 glued the digits — convert 6 km to 6000 m first.",
+ "1100 is 600+500 — but 6 km is 6000 m, not 600!"],
+["2 km = 2000 m, and 2000 > 1500 — 2 km is LONGER!",
+ "1500 m is only 1 km and 500 m — less than 2 km.",
+ "2000 m is not equal to 1500 m.",
+ "Convert both to meters: 2000 vs 1500 — easy to compare!"],
+["300 km would need 300,000 m.",
+ "30 km would need 30,000 m.",
+ "3000 ÷ 1000 = 3 km — divide small→big!",
+ "33? No operation makes that — divide by 1000."],
+/* P3: kg/g */
+["200 used ×100 — kg→g is ×1000.",
+ "2 × 1000 = 2000 g — big to small, MULTIPLY!",
+ "20 is 2×10 — wrong magic number.",
+ "20,000 has too many zeros — 2 × 1000 = 2000."],
+["50 kg would need 50,000 g.",
+ "5000 ÷ 1000 = 5 kg — small to big, DIVIDE!",
+ "500 kg would need 500,000 g — way too much!",
+ "15 is 5+10 — no adding in conversions!"],
+["4 kg = 4000 g, plus 250 g = 4250 g!",
+ "425 dropped a zero — 4 kg alone is 4000 g.",
+ "42,500 multiplied instead of adding the 250.",
+ "4025 misplaced the digits — it is 4000 + 250."],
+["3 kg = 3000 g, and 3000 > 2500 — 3 kg is HEAVIER!",
+ "2500 g is less than 3000 g.",
+ "3000 g is not equal to 2500 g.",
+ "Convert both to grams: 3000 vs 2500 — clear winner!"],
+["7000 ÷ 1000 = 7 kg — divide small→big!",
+ "70 kg would need 70,000 g.",
+ "700 kg would need 700,000 g.",
+ "17 is 7+10 — divide, don't add!"],
+/* P4: g/mg */
+["600 used ×100 — g→mg is ×1000.",
+ "6 × 1000 = 6000 mg — big to small, MULTIPLY!",
+ "60 is 6×10 — wrong magic number.",
+ "16 is 6+10 — conversions never add!"],
+["8000 ÷ 1000 = 8 g — small to big, DIVIDE!",
+ "80 g would need 80,000 mg.",
+ "800 g would need 800,000 mg.",
+ "18 = 8+10 — no adding in conversions!"],
+["500 + 500 = 1000 mg, and 1000 mg = 1 g!",
+ "10 g would be 10,000 mg — way too much.",
+ "500 g took one pill's number and swapped the unit — mg→g divides.",
+ "1000 g is a whole kilogram — 2 pills make 1000 mg = 1 g."],
+["2 g = 2000 mg, and 2000 > 1900 — 2 g is HEAVIER!",
+ "1900 mg is just under 2000 mg (2 g).",
+ "2000 mg is not equal to 1900 mg.",
+ "Convert to mg: 2000 vs 1900 — 2 g wins!"],
+["9 g = 9000 mg, plus 500 = 9500 mg!",
+ "950 dropped zeros — 9 g alone is 9000 mg.",
+ "95,000 multiplied the wrong part — convert 9 g, then add 500.",
+ "9050 misplaced the 500 — it is 9000 + 500."],
+/* P5: L/mL */
+["300 used ×100 — L→mL is ×1000.",
+ "3 × 1000 = 3000 mL — big to small, MULTIPLY!",
+ "30 is 3×10 — wrong magic number.",
+ "30,000 has too many zeros — 3 × 1000 = 3000."],
+["6000 ÷ 1000 = 6 L — small to big, DIVIDE!",
+ "60 L would need 60,000 mL.",
+ "600 L would need 600,000 mL — way too much!",
+ "16 = 6+10 — divide by 1000!"],
+["2 L = 2000 mL, plus 750 = 2750 mL!",
+ "275 dropped a zero — 2 L alone is 2000 mL.",
+ "27,500 multiplied instead of adding the 750.",
+ "2075 misplaced the 750 — it is 2000 + 750."],
+["1 L = 1000 mL, and 1000 > 850 — 1 L holds MORE!",
+ "850 mL is 150 mL short of a full liter.",
+ "1000 mL is not equal to 850 mL.",
+ "Convert to mL: 1000 vs 850 — the liter wins!"],
+["4500 = 4000 + 500 → 4 L and 500 mL!",
+ "45 L would be 45,000 mL — ten times too much.",
+ "4 L 50 mL is only 4050 mL.",
+ "450 L would be 450,000 mL — way too much!"],
+/* QUIZ 1-10 */
+["100 cm is only 1 m.",
+ "10 × 100 = 1000 cm — big to small, multiply!",
+ "10,000 used ×1000 — m→cm is ×100.",
+ "110 is 10+100 — multiply, don't add!"],
+["100 m is only one-tenth of a km.",
+ "1 km = 1000 m — the magic number!",
+ "10 m is smaller than a classroom!",
+ "10,000 m would be 10 km!"],
+["Adding compares amounts, not units.",
+ "Subtracting answers 'how much less'.",
+ "Big → small: MULTIPLY — the number grows!",
+ "Dividing is for small → big."],
+["800 used ×100 — kg→g is ×1000.",
+ "8 × 1000 = 8000 g!",
+ "80 is 8×10 — wrong magic number.",
+ "80,000 has one zero too many."],
+["7000 ÷ 1000 = 7 L — divide small→big!",
+ "70 L would need 70,000 mL.",
+ "700 L would need 700,000 mL.",
+ "17 = 7+10 — divide, never add!"],
+["500 used ×100 — g→mg is ×1000.",
+ "5 × 1000 = 5000 mg!",
+ "50 is 5×10 — wrong magic number.",
+ "50,000 has too many zeros."],
+["900 ÷ 100 = 9 m — cm→m divides by 100!",
+ "90 m would need 9000 cm.",
+ "9000 came from multiplying — small→big DIVIDES.",
+ "19 = 9+10 — no adding!"],
+["Multiplying is for big → small.",
+ "Small → big: DIVIDE — the number shrinks!",
+ "Adding does not convert units.",
+ "Subtracting does not convert units."],
+["1 L = 1000 mL, plus 250 = 1250 mL!",
+ "125 dropped a zero — 1 L is 1000 mL.",
+ "12,500 multiplied instead of adding.",
+ "1025 misplaced digits — it is 1000 + 250."],
+["3 km = 3000 m — long, but not the longest!",
+ "2900 m is less than 3000 m.",
+ "3100 m beats 3000 m (3 km) — it is the LONGEST!",
+ "2 km = 2000 m — the shortest of all."]
+];
+
+/* MC narrations: "QUESTION ||| ANSWER" — Preview speaks question first,
+   answer only AFTER the 5s reveal. 35 MC entries in slide order. */
+var NARR=[
+/* 0 title */
+["Welcome to Grade 4 Math, Term 2, Week 3 — welcome to the MEASUREMENT MANIA LAB! This week's mission: convert units of measurement from larger to smaller — and vice versa!",
+ "Our goals: convert meters and centimeters, kilometers and meters, kilograms and grams, grams and milligrams, and liters and milliliters. Big to small, small to big — let's measure up!"],
+/* 1 warm-up */
+["Warm-up, lab assistant! Look at this rope. Measured with a big unit, it is one meter. Measured with a tiny unit, it is one hundred centimeters! Same rope — but different units give different numbers.",
+ "Here is the secret: SMALL units give BIG numbers, and BIG units give small numbers. A centimeter is tiny, so you need one hundred of them to match just one meter!"],
+/* 2 families */
+["Meet the three measuring families! LENGTH: one kilometer equals one thousand meters, and one meter equals one hundred centimeters. MASS: one kilogram equals one thousand grams, and one gram equals one thousand milligrams.",
+ "And CAPACITY: one liter equals one thousand milliliters! Watch for the magic numbers: one hundred for centimeters — and one thousand for everything else!"],
+/* 3 golden rule */
+["The golden rule of the Measurement Lab! Converting from a LARGER unit to a SMALLER unit — MULTIPLY! Three meters to centimeters: three times one hundred equals three hundred centimeters.",
+ "Converting from a SMALLER unit to a LARGER unit — DIVIDE! Three hundred centimeters to meters: three hundred divided by one hundred equals three meters. Big to small, multiply it all; small to big, divide — that's the trick!"],
+/* 4 unit 1 */
+["Unit one: meters and centimeters! One meter equals one hundred centimeters. Watch — the one-meter bar splits into one hundred tiny centimeter segments!",
+ "Larger to smaller: four meters times one hundred equals four hundred centimeters. Smaller to larger: seven hundred centimeters divided by one hundred equals seven meters!"],
+/* 5-9 practice 1 */
+["Practice: five meters equals how many centimeters?|||Five times one hundred equals FIVE HUNDRED centimeters — big to small, multiply!"],
+["Practice: eight hundred centimeters equals how many meters?|||Eight hundred divided by one hundred equals EIGHT meters — small to big, divide!"],
+["Practice: which is longer — three meters, or three hundred fifty centimeters?|||Three meters is three hundred centimeters — so THREE HUNDRED FIFTY CENTIMETERS is longer!"],
+["Practice: a rope is seven meters long. How many centimeters is that?|||Seven times one hundred equals SEVEN HUNDRED centimeters!"],
+["Practice: twelve hundred centimeters equals how many meters?|||Twelve hundred divided by one hundred equals TWELVE meters!"],
+/* 10 unit 2 */
+["Unit two: kilometers and meters! One kilometer equals one thousand meters. Watch the car — it takes one thousand meters to drive one kilometer down the road!",
+ "Larger to smaller: five kilometers times one thousand equals five thousand meters. Smaller to larger: eight thousand meters divided by one thousand equals eight kilometers!"],
+/* 11-15 practice 2 */
+["Practice: four kilometers equals how many meters?|||Four times one thousand equals FOUR THOUSAND meters!"],
+["Practice: nine thousand meters equals how many kilometers?|||Nine thousand divided by one thousand equals NINE kilometers!"],
+["Practice: a road is six kilometers and five hundred meters long. How many meters is that in all?|||Six kilometers is six thousand meters — plus five hundred equals SIX THOUSAND FIVE HUNDRED meters!"],
+["Practice: which is longer — two kilometers, or one thousand five hundred meters?|||Two kilometers is two thousand meters — so TWO KILOMETERS is longer!"],
+["Practice: three thousand meters equals how many kilometers?|||Three thousand divided by one thousand equals THREE kilometers!"],
+/* 16 unit 3 */
+["Unit three: kilograms and grams! One kilogram equals one thousand grams. Look at the balance — one kilogram on the left balances one thousand grams on the right!",
+ "Larger to smaller: three kilograms times one thousand equals three thousand grams. Smaller to larger: six thousand grams divided by one thousand equals six kilograms!"],
+/* 17-21 practice 3 */
+["Practice: two kilograms equals how many grams?|||Two times one thousand equals TWO THOUSAND grams!"],
+["Practice: five thousand grams equals how many kilograms?|||Five thousand divided by one thousand equals FIVE kilograms!"],
+["Practice: a watermelon weighs four kilograms and two hundred fifty grams. How many grams is that?|||Four kilograms is four thousand grams — plus two fifty equals FOUR THOUSAND TWO HUNDRED FIFTY grams!"],
+["Practice: which is heavier — three kilograms, or two thousand five hundred grams?|||Three kilograms is three thousand grams — so THREE KILOGRAMS is heavier!"],
+["Practice: seven thousand grams equals how many kilograms?|||Seven thousand divided by one thousand equals SEVEN kilograms!"],
+/* 22 unit 4 */
+["Unit four: grams and milligrams! Milligrams are SUPER tiny — one thousand of them fit inside one single gram! That's why we use milligrams for things like medicine.",
+ "Larger to smaller: seven grams times one thousand equals seven thousand milligrams. Smaller to larger: nine thousand milligrams divided by one thousand equals nine grams!"],
+/* 23-27 practice 4 */
+["Practice: six grams equals how many milligrams?|||Six times one thousand equals SIX THOUSAND milligrams!"],
+["Practice: eight thousand milligrams equals how many grams?|||Eight thousand divided by one thousand equals EIGHT grams!"],
+["Practice: one pill contains five hundred milligrams of medicine. How many GRAMS are in two pills?|||Five hundred plus five hundred is one thousand milligrams — and one thousand milligrams equals ONE GRAM!"],
+["Practice: which is heavier — two grams, or one thousand nine hundred milligrams?|||Two grams is two thousand milligrams — so TWO GRAMS is heavier!"],
+["Practice: nine grams and five hundred milligrams equals how many milligrams?|||Nine grams is nine thousand milligrams — plus five hundred equals NINE THOUSAND FIVE HUNDRED milligrams!"],
+/* 28 unit 5 */
+["Unit five: liters and milliliters! One liter equals one thousand milliliters. Watch the milk pour — one big one-liter jug fills one thousand tiny milliliters!",
+ "Larger to smaller: two liters times one thousand equals two thousand milliliters. Smaller to larger: four thousand milliliters divided by one thousand equals four liters!"],
+/* 29-33 practice 5 */
+["Practice: three liters equals how many milliliters?|||Three times one thousand equals THREE THOUSAND milliliters!"],
+["Practice: six thousand milliliters equals how many liters?|||Six thousand divided by one thousand equals SIX liters!"],
+["Practice: a jug holds two liters and seven hundred fifty milliliters of juice. How many milliliters is that?|||Two liters is two thousand milliliters — plus seven fifty equals TWO THOUSAND SEVEN HUNDRED FIFTY milliliters!"],
+["Practice: which holds more — one liter, or eight hundred fifty milliliters?|||One liter is one thousand milliliters — so ONE LITER holds more!"],
+["Practice: four thousand five hundred milliliters is how many liters and milliliters?|||It splits into FOUR LITERS AND FIVE HUNDRED MILLILITERS!"],
+/* 34 hazards */
+["Lab hazards, watch out! Hazard one: the wrong operation — big to small MULTIPLIES, small to big DIVIDES; never swap them! Hazard two: the wrong magic number — meters to centimeters uses one hundred, but kilometers, kilograms, milligrams, and milliliters all use one THOUSAND! Hazard three: mixed units — for six kilometers five hundred meters, convert the kilometers FIRST: six thousand plus five hundred equals six thousand five hundred meters. Never just glue the digits together!"],
+/* 35-44 final quiz */
+["Quiz one: ten meters equals how many centimeters?|||Ten times one hundred equals ONE THOUSAND centimeters!"],
+["Quiz two: one kilometer equals how many meters?|||One kilometer equals ONE THOUSAND meters!"],
+["Quiz three: when you convert from a LARGER unit to a SMALLER unit, what do you do?|||MULTIPLY! Big to small — the number grows!"],
+["Quiz four: eight kilograms equals how many grams?|||Eight times one thousand equals EIGHT THOUSAND grams!"],
+["Quiz five: seven thousand milliliters equals how many liters?|||Seven thousand divided by one thousand equals SEVEN liters!"],
+["Quiz six: five grams equals how many milligrams?|||Five times one thousand equals FIVE THOUSAND milligrams!"],
+["Quiz seven: nine hundred centimeters equals how many meters?|||Nine hundred divided by one hundred equals NINE meters!"],
+["Quiz eight: when you convert from a SMALLER unit to a LARGER unit, what do you do?|||DIVIDE! Small to big — the number shrinks!"],
+["Quiz nine: a bottle holds one liter and two hundred fifty milliliters of water. How many milliliters is that?|||One liter is one thousand milliliters — plus two fifty equals ONE THOUSAND TWO HUNDRED FIFTY milliliters!"],
+["Quiz ten: which length is the LONGEST — three kilometers, two thousand nine hundred meters, three thousand one hundred meters, or two kilometers?|||THREE THOUSAND ONE HUNDRED METERS! Three kilometers is only three thousand meters, so three thousand one hundred wins!"],
+/* 45 summary */
+["Lab complete! Remember the golden rule: larger to smaller — MULTIPLY; smaller to larger — DIVIDE. One meter equals one hundred centimeters; one kilometer equals one thousand meters; one kilogram equals one thousand grams; one gram equals one thousand milligrams; and one liter equals one thousand milliliters!",
+ "%STARS% You are a certified UNIT CONVERSION MASTER! Big to small, multiply it all; small to big, divide — see you at the next lab!"]
+];
+
+var slides=[].slice.call(document.querySelectorAll('.slide'));
+var mcList=[].slice.call(document.querySelectorAll('.slide.mc'));
+shuffleChoicesOnce();
+buildSegments();
+
+var si=0,step=-1,started=false,mode=null,muted=false;
+var starCount=0,firstWrong=false,answered=false;
+var mcState=slides.map(function(){return {answered:false,firstWrong:false,wrongs:{}};});
+var synth=window.speechSynthesis||null,voices=[],voiceIdx=-1;
+var chip=document.getElementById('voiceChip');
+var recChip=document.getElementById('recChip'),starChip=document.getElementById('starChip');
+var stageEl=document.getElementById('stage');
+
+if(YOUTUBE_LINK && YOUTUBE_LINK.trim()){
+  var bp=document.getElementById('btnPreview');
+  if(bp)bp.querySelector('small').textContent='opens YouTube video link (Watch for the 5 Digit Code)';
+}
+
+function buildSegments(){
+  var strip=document.querySelector('.cmstrip');
+  if(!strip)return;
+  for(var i=0;i<100;i++){var c=document.createElement('i');
+    c.style.animationDelay=(0.8+i*0.013).toFixed(3)+'s';strip.appendChild(c);}
+}
+
+function getWhy(sl,i){
+  var mi=mcList.indexOf(sl);
+  var w=WHY[mi];
+  if(w&&w[i])return w[i];
+  return (i===+sl.getAttribute('data-ans'))?'This choice follows the conversion rule.':'This choice breaks the conversion rule — check the operation or the magic number.';
+}
+function setFB(sl,type,html){
+  var fb=sl.querySelector('.fb'); if(!fb)return;
+  fb.innerHTML=html;
+  fb.classList.remove('g','r');
+  if(type==='g')fb.classList.add('g');
+  if(type==='r')fb.classList.add('r');
+}
+
+var stepStart=[],T=0;slides.forEach(function(s,i){stepStart.push(T);T+=NARR[i].length;});
+var digitAt={};[.15,.37,.57,.76,.93].forEach(function(p,k){digitAt[Math.min(T-1,Math.round(T*p))]=PASS[k];});
+var shownDigits={};
+
+var passOpen=false,passBuf=[];
+var modeBtns=document.getElementById('modeBtns'),passPanel=document.getElementById('passPanel');
+document.getElementById('btnPreview').onclick=function(e){e.stopPropagation();startPreview();};
+document.getElementById('btnLesson').onclick=function(e){e.stopPropagation();openPass();};
+function openPass(){passOpen=true;modeBtns.style.display='none';passPanel.style.display='flex';passBuf=[];renderPass();}
+function renderPass(){var sl=passPanel.querySelectorAll('.pslot');
+  sl.forEach(function(s,i){s.textContent=passBuf[i]!==undefined?passBuf[i]:'';});}
+function tryPass(){var ok=passBuf.length===5&&passBuf.every(function(d,i){return d===PASS[i];});
+  if(ok){startLesson();}else{passPanel.classList.add('err');
+    document.getElementById('passMsg').textContent='❌ Wrong code! Watch the Preview video to collect the 5 digits.';
+    setTimeout(function(){passPanel.classList.remove('err');},600);passBuf=[];renderPass();}}
+function startPreview(){
+  if(YOUTUBE_LINK && YOUTUBE_LINK.trim()){window.open(YOUTUBE_LINK.trim(),'_blank');return;}
+  mode='preview';started=true;document.body.classList.add('preview');
+  recChip.classList.add('on');document.getElementById('overlay').style.display='none';
+  showIntroSlide();
+}
+/* 10-second animated bumper before the auto-lesson starts */
+function showIntroSlide(){
+  var intro=document.getElementById('introOverlay');
+  intro.classList.add('active');
+  var countEl=document.getElementById('introCount');
+  var timeLeft=10;
+  countEl.textContent=timeLeft;
+  tone(660,0,.2,'triangle',.3);tone(880,.2,.2,'triangle',.3);
+  var timer=setInterval(function(){
+    timeLeft--;
+    countEl.textContent=timeLeft;
+    if(timeLeft>0)tone(880,0,.08,'square',.15);
+    if(timeLeft<=0){
+      clearInterval(timer);
+      intro.classList.remove('active');
+      goTo(0);
+    }
+  },1000);
+}
+function startLesson(){mode='lesson';started=true;passOpen=false;document.body.classList.add('lesson');
+  document.getElementById('overlay').style.display='none';goTo(0);}
+
+var recTimer=null;
+function clearRec(){if(recTimer){clearTimeout(recTimer);recTimer=null;}}
+function scheduleNext(ms){clearRec();recTimer=setTimeout(function(){recTimer=null;if(mode==='preview'&&started)next();},ms);}
+
+var mcTimerInt=null,mcCounting=false;
+var mcTimerEl=document.getElementById('mcTimer'),mcTimerN=document.getElementById('mcTimerN');
+function clearMcTimer(){if(mcTimerInt){clearInterval(mcTimerInt);mcTimerInt=null;}
+  mcTimerEl.classList.remove('on');mcCounting=false;}
+function startMCCountdown(){mcCounting=true;var n=5;
+  mcTimerN.textContent=n;mcTimerEl.classList.add('on');tone(980,0,.09,'square',.12);
+  mcTimerInt=setInterval(function(){n--;
+    if(n<=0){clearInterval(mcTimerInt);mcTimerInt=null;mcTimerEl.classList.remove('on');mcCounting=false;
+      revealMC();speakAnswer();}
+    else{mcTimerN.textContent=n;tone(980,0,.09,'square',.12);}
+  },1000);}
+function autoAfter(){if(mode!=='preview'||!started)return;if(si>=slides.length-1)return;
+  if(slides[si].classList.contains('mc')){if(!answered&&!mcCounting)startMCCountdown();}
+  else scheduleNext(2000);}
+
+function speakAnswer(){
+  var full=NARR[si][step]||'';
+  var parts=full.split('|||');
+  var ans=parts[1]||'';
+  if(mode!=='preview'||!ans||!synth||muted){scheduleNext(2600);return;}
+  synth.cancel();
+  var u=new SpeechSynthesisUtterance(ans);
+  var v=pickVoice();if(v){u.voice=v;u.lang=v.lang;}
+  u.rate=1.0;u.pitch=1.0;u.volume=1;
+  u.onend=u.onerror=function(){scheduleNext(2200);};
+  synth.speak(u);
+}
+
+var AC=null;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}
+  if(AC&&AC.state==='suspended')AC.resume();return AC;}
+function tone(f,t0,dur,type,vol,slide){if(muted)return;var c=ac();if(!c)return;
+  var t=c.currentTime+t0,o=c.createOscillator(),g=c.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(f,t);
+  if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+dur);
+  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol||.2,t+.02);
+  g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+.05);}
+function sPop(){tone(520,0,.12,'triangle',.22,900);}
+function sWhoosh(){if(muted)return;var c=ac();if(!c)return;
+  var dur=.35,buf=c.createBuffer(1,c.sampleRate*dur,c.sampleRate),d=buf.getChannelData(0);
+  for(var i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);
+  var src=c.createBufferSource();src.buffer=buf;var f=c.createBiquadFilter();f.type='bandpass';
+  f.frequency.setValueAtTime(300,c.currentTime);f.frequency.exponentialRampToValueAtTime(2400,c.currentTime+dur);
+  var g=c.createGain();g.gain.value=.15;src.connect(f);f.connect(g);g.connect(c.destination);src.start();}
+function sCorrect(){tone(660,0,.14,'triangle',.3);tone(880,.13,.14,'triangle',.3);tone(1100,.26,.4,'triangle',.3);}
+function sWrong(){tone(170,0,.25,'sawtooth',.18,120);}
+function sCode(){tone(784,0,.15,'triangle',.3);tone(1175,.16,.3,'triangle',.3);}
+function sFanfare(){[523,659,784,1047].forEach(function(f,i){tone(f,i*.12,.28,'triangle',.3);});tone(1319,.55,.7,'triangle',.3);}
+
+function starBurst(fromEl){
+  var sr=stageEl.getBoundingClientRect();
+  var sc=sr.width/1920;
+  var fr=fromEl.getBoundingClientRect();
+  var fx0=(fr.left+fr.width/2-sr.left)/sc;
+  var fy0=(fr.top+fr.height/2-sr.top)/sc;
+  var cr=starChip.getBoundingClientRect();
+  var tx=(cr.left+cr.width/2-sr.left)/sc, ty=(cr.top+cr.height/2-sr.top)/sc;
+  var s=document.createElement('span');
+  s.textContent='⭐';
+  s.style.cssText='position:absolute;z-index:95;pointer-events:none;left:'+fx0+'px;top:'+fy0+'px;'+
+    'font-size:72px;transform:translate(-50%,-50%) scale(0);text-shadow:0 0 30px #ffd93d,0 0 70px #ffa14e;';
+  stageEl.appendChild(s);
+  var a1=s.animate([
+    {transform:'translate(-50%,-50%) scale(0) rotate(0deg)',opacity:1},
+    {transform:'translate(-50%,-50%) scale(2.5) rotate(540deg)',opacity:1,offset:.55},
+    {transform:'translate(-50%,-50%) scale(2.0) rotate(720deg)',opacity:1}
+  ],{duration:800,easing:'cubic-bezier(.2,.7,.2,1)'});
+  a1.onfinish=function(){
+    var dx=tx-fx0, dy=ty-fy0;
+    var a2=s.animate([
+      {transform:'translate(-50%,-50%) scale(2.0) rotate(720deg)',opacity:1},
+      {transform:'translate(calc(-50% + '+dx+'px), calc(-50% + '+dy+'px)) scale(.35) rotate(1080deg)',opacity:.95}
+    ],{duration:800,easing:'cubic-bezier(.4,0,.7,1)'});
+    a2.onfinish=function(){s.remove();
+      starChip.classList.remove('bump');void starChip.offsetWidth;starChip.classList.add('bump');
+      tone(1318,0,.18,'triangle',.28);};
+  };
+}
+
+function refreshVoices(){if(!synth)return;voices=synth.getVoices();label();}
+if(synth){refreshVoices();synth.onvoiceschanged=refreshVoices;}
+function pickVoice(){
+  if(!voices.length)return null;
+  var en=voices.filter(function(v){return v.lang.toLowerCase().indexOf('en')===0;});
+  if(voiceIdx>=0&&en.length)return en[voiceIdx%en.length];
+  var ph=voices.filter(function(v){return /en[-_]ph/i.test(v.lang);});
+  if(ph.length){var m=ph.filter(function(v){return /james|male/i.test(v.name);})[0];return m||ph[0];}
+  var ph2=voices.filter(function(v){return /philippines|filipino/i.test(v.name);})[0]; if(ph2)return ph2;
+  var nat=en.filter(function(v){return /natural|online|neural/i.test(v.name);});
+  var male=['james','guy','davis','ryan','daniel','david','mark','alex','george','arthur','fred','eric','brian','matthew','male'];
+  for(var i=0;i<male.length;i++){var f=nat.filter(function(v){return v.name.toLowerCase().indexOf(male[i])>-1;})[0]
+    ||en.filter(function(v){return v.name.toLowerCase().indexOf(male[i])>-1;})[0]; if(f)return f;}
+  return nat[0]||en[0]||voices[0];}
+function label(){var v=pickVoice();var ph=v&&(/en[-_]ph/i.test(v.lang)||/philippines|filipino/i.test(v.name));
+  chip.textContent=(muted?'🔇 Muted':(ph?'🇵🇭 ':'🔊 '))+(v?v.name.replace('Microsoft','MS').replace('Online (Natural)','Natural'):'no voice');}
+function testVoice(){if(mode==='lesson')return;
+  var en=voices.filter(function(v){return v.lang.toLowerCase().indexOf('en')===0;});
+  if(en.length){voiceIdx=(voiceIdx+1)%en.length;}
+  label();
+  if(muted||!synth)return;
+  synth.cancel();
+  var u=new SpeechSynthesisUtterance('Kumusta! This is your lesson voice. Press V again to audition other voices!');
+  var v=pickVoice();if(v){u.voice=v;u.lang=v.lang;} u.rate=1.0;u.pitch=1.0;
+  synth.speak(u);}
+chip.addEventListener('click',function(e){e.stopPropagation();testVoice();});
+
+function speak(t){
+  if(mode==='lesson')return;
+  if(!synth){autoAfter();return;}
+  synth.cancel();
+  if(muted){autoAfter();return;}
+  if(slides[si]&&slides[si].classList.contains('mc')){t=t.split('|||')[0];}
+  var u=new SpeechSynthesisUtterance(t.replace('%STARS%','Play Lesson Mode to earn stars!')),v=pickVoice();
+  if(v){u.voice=v;u.lang=v.lang;} u.rate=1.0;u.pitch=1.0;u.volume=1;
+  u.onend=u.onerror=function(){autoAfter();};
+  synth.speak(u);
+}
+
+var codeOv=document.getElementById('codeOv');
+function showCode(k,d){document.getElementById('codeLbl').textContent='PASSCODE DIGIT '+(k+1)+'/5 — WRITE IT DOWN!';
+  document.getElementById('codeDig').textContent=d;codeOv.classList.add('on');sCode();
+  setTimeout(function(){codeOv.classList.remove('on');},3000);}
+
+function shuffleChoicesOnce(){
+  document.querySelectorAll('.slide.mc .opts').forEach(function(box){
+    var btns=[].slice.call(box.children);
+    for(var i=btns.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=btns[i];btns[i]=btns[j];btns[j]=t;}
+    btns.forEach(function(btn,idx){var b=btn.querySelector('b');if(b)b.textContent=String.fromCharCode(65+idx);box.appendChild(btn);});
+  });
+}
+function getMCState(sl){return mcState[slides.indexOf(sl)];}
+
+function resetMC(sl){
+  var st=getMCState(sl);
+  answered=!!st.answered; firstWrong=!!st.firstWrong;
+  sl.querySelectorAll('.opt').forEach(function(o){
+    o.classList.remove('good','bad','reveal'); o.disabled=false;
+    if(st.wrongs[+o.getAttribute('data-i')])o.classList.add('bad');
+  });
+  if(st.answered){
+    var a=+sl.getAttribute('data-ans');
+    var correct=sl.querySelector('.opt[data-i="'+a+'"]');
+    if(correct)correct.classList.add('good');
+    setFB(sl,'g','✔ Correct!'+(st.firstWrong?' (no star — missed first try)':' +1 ⭐')+
+      '<span class="why">'+getWhy(sl,a)+'</span>');
+  }else if(Object.keys(st.wrongs).length>0){
+    setFB(sl,'r','Continue — choose the correct answer to proceed!<span class="why">Read each choice carefully.</span>');
+  }else{
+    setFB(sl,'','');
+  }
+}
+function revealMC(){
+  var sl=slides[si]; if(answered)return;
+  answered=true;
+  var st=getMCState(sl); if(st)st.answered=true;
+  var a=+sl.getAttribute('data-ans');
+  var o=sl.querySelector('.opt[data-i="'+a+'"]');
+  if(o){o.classList.add('reveal');
+    starCount++;document.getElementById('starN').textContent=starCount;
+    starBurst(o); sCorrect();}
+  if(o){setFB(sl,'g','✔ Answer: '+o.textContent.replace(/^[A-D]/,'').trim()+
+    '<span class="why">'+getWhy(sl,a)+'</span>');}
+}
+function clickOpt(btn){
+  if(mode!=='lesson'||answered)return;
+  var sl=btn.closest('.slide'); var st=getMCState(sl);
+  var a=+sl.getAttribute('data-ans'); var i=+btn.getAttribute('data-i');
+  var why=getWhy(sl,i);
+  if(i===a){
+    answered=true; st.answered=true; st.firstWrong=firstWrong;
+    btn.classList.add('good');
+    if(!firstWrong){
+      starCount++;document.getElementById('starN').textContent=starCount;
+      starBurst(btn);
+      setFB(sl,'g','✔ Correct! +1 ⭐<span class="why">'+why+'</span>');
+      sCorrect();
+    }else{
+      setFB(sl,'g','✔ Correct! (no star — missed first try)<span class="why">'+why+'</span>');
+      sCorrect();
+    }
+  }else{
+    firstWrong=true; st.firstWrong=true; st.wrongs[i]=true;
+    btn.classList.add('bad');
+    setFB(sl,'r','✘ Not quite — try again!<span class="why">'+why+'</span>');
+    sWrong();
+  }
+}
+document.addEventListener('click',function(e){var b=e.target.closest('.opt');if(b){clickOpt(b);return;}
+  if(mode==='lesson'&&started)next();});
+
+function confetti(){var host=document.getElementById('confetti');if(!host)return;host.innerHTML='';
+  var cols=['#3ae8c5','#ffd93d','#8ce563','#a795ff','#ff85ab','#ffffff'];
+  for(var i=0;i<90;i++){var s=document.createElement('i');
+    s.style.left=(Math.random()*100)+'%';s.style.background=cols[i%cols.length];
+    s.style.width=(8+Math.random()*10)+'px';s.style.height=(10+Math.random()*12)+'px';
+    s.style.animationDuration=(2.4+Math.random()*2)+'s';s.style.animationDelay=(Math.random()*.9)+'s';
+    host.appendChild(s);}
+  setTimeout(function(){host.innerHTML='';},5500);}
+
+function toggleFS(){
+  if(!document.fullscreenElement){if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen();}
+  else if(document.exitFullscreen){document.exitFullscreen();}
+}
+
+function updateHud(){
+  document.getElementById('counter').textContent=('0'+(si+1)).slice(-2)+' / '+slides.length;
+  document.getElementById('progress').style.width=((si+(step+1)/NARR[si].length)/slides.length*100)+'%';}
+function setStep(s){step=s;clearRec();clearMcTimer();
+  var els=slides[si].querySelectorAll('[data-step]'),newly=[];
+  for(var i=0;i<els.length;i++){var on=+els[i].getAttribute('data-step')<=s;
+    els[i].classList.toggle('on',on);
+    if(on&&+els[i].getAttribute('data-step')===s)newly.push(els[i]);}
+  newly.slice(0,5).forEach(function(el,idx){setTimeout(sPop,180*idx+120);});
+  if(slides[si].classList.contains('mc')&&s===0)resetMC(slides[si]);
+  var g=stepStart[si]+s;
+  if(mode==='preview'&&digitAt[g]!==undefined&&!shownDigits[g]){shownDigits[g]=1;showCode(PASS.indexOf(digitAt[g]),digitAt[g]);}
+  if(si===slides.length-1&&s===0){
+    var sl2=document.getElementById('starLine');
+    if(sl2)sl2.textContent=(mode==='lesson'?('You earned '+starCount+' of 35 stars! ⭐ '):'Play Lesson Mode to earn stars! ')+'Keep measuring, keep converting — see you at the next lab!';
+    if(mode==='lesson'){confetti();sFanfare();}
+  }
+  speak(NARR[si][s]||'');updateHud();}
+function goTo(i){clearRec();clearMcTimer();slides[si].classList.remove('active');si=i;slides[si].classList.add('active');
+  slides[si].scrollTop=0;sWhoosh();setStep(0);}
+function next(){
+  if(!started)return;
+  if(mode==='lesson'&&slides[si].classList.contains('mc')){
+    var st=getMCState(slides[si]);
+    if(!st||!st.answered){
+      setFB(slides[si],'r','Answer correctly first to continue! ⭐<span class="why">Multiply down, divide up — check the magic number.</span>');
+      sWrong();return;
+    }
+  }
+  if(step<NARR[si].length-1)setStep(step+1); else if(si<slides.length-1)goTo(si+1);}
+function prev(){clearRec();clearMcTimer();if(si>0)goTo(si-1);}
+
+document.addEventListener('keydown',function(e){var k=e.key;
+  if(k==='f'||k==='F'){e.preventDefault();toggleFS();return;}
+  if(!started){
+    if(k==='v'||k==='V'){e.preventDefault();testVoice();return;}
+    if(k==='m'||k==='M'){muted=!muted;if(muted)synth&&synth.cancel();label();return;}
+    if(passOpen){
+      if(/^[0-9]$/.test(k)&&passBuf.length<5){passBuf.push(+k);renderPass();sPop();}
+      else if(k==='Backspace'){passBuf.pop();renderPass();}
+      else if(k==='Enter'){tryPass();}
+      else if(k==='Escape'){passOpen=false;passPanel.style.display='none';modeBtns.style.display='flex';}
+      e.preventDefault();return;}
+    if(k==='p'||k==='P')startPreview();
+    if(k==='l'||k==='L')openPass();
+    return;}
+  if(mode==='lesson'){
+    if(k==='m'||k==='M'||k==='v'||k==='V'){e.preventDefault();return;}
+    if(k==='ArrowRight'||k===' '||k==='Enter'||k==='PageDown'){e.preventDefault();next();}
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){e.preventDefault();prev();}
+    return;}
+  if(k==='m'||k==='M'){muted=!muted;if(muted)synth&&synth.cancel();label();return;}
+  if(k==='v'||k==='V'){testVoice();return;}});
+
+var fx=document.getElementById('fx'),sym=['📏','📐','⚖️','🧪','🥛','💧','🔍','×','÷','=','🚗','⭐'];
+for(var i=0;i<14;i++){var s=document.createElement('span');s.textContent=sym[i%sym.length];
+  s.style.left=(Math.random()*94)+'%';s.style.top=(Math.random()*86)+'%';
+  s.style.fontSize=(28+Math.random()*48)+'px';s.style.color=(i%3?'#3ae8c5':'#ffd93d');
+  s.animationDelay=(Math.random()*6)+'s';fx.appendChild(s);}
+function fit(){var sc=Math.min(innerWidth/1920,innerHeight/1080);
+  stageEl.style.transform='translate(-50%,-50%) scale('+sc+')';}
+addEventListener('resize',fit);fit();label();
+</script>
+</body>
+</html>

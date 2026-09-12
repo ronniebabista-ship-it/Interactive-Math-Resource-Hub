@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>⏰ Time Conversion Master - Grade 4</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  html {
+    font-size: 20px; 
+  }
+
+  body {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    padding-top: 80px;
+  }
+
+  /* ===== TOP BAR (Score + Hint) ===== */
+  .top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    max-width: 850px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    z-index: 100;
+  }
+
+  /* HINT BUTTON - Just the bulb emoji */
+  .hint-btn {
+    background: linear-gradient(135deg, #fff9c4, #ffe082);
+    border: 3px solid #ff9800;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 2em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 0 #ff9800, 0 6px 15px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+    line-height: 1;
+  }
+
+  .hint-btn:hover { 
+    transform: translateY(-2px) scale(1.05); 
+    box-shadow: 0 6px 0 #ff9800, 0 8px 20px rgba(0,0,0,0.25); 
+  }
+  .hint-btn:active { 
+    transform: translateY(2px); 
+    box-shadow: 0 1px 0 #ff9800; 
+  }
+
+  /* SCORE BOARD - Upper Right */
+  .score-board {
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    color: #5c4000;
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-size: 1.4em;
+    font-weight: 900;
+    box-shadow: 0 4px 0 #cc8800, 0 6px 15px rgba(0,0,0,0.2);
+    border: 3px solid #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  /* ===== GAME CONTAINER ===== */
+  .game-container {
+    background: white;
+    border-radius: 24px;
+    padding: 24px 20px;
+    max-width: 850px;
+    width: 100%;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.25);
+    text-align: center;
+    animation: popIn 0.5s ease;
+    position: relative;
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  h1 {
+    color: #4a2c82;
+    font-size: 1.8em;
+    margin-bottom: 5px;
+    text-shadow: 2px 2px 0 #ffd93d;
+  }
+
+  .subtitle {
+    color: #555;
+    font-size: 1.1em;
+    margin-bottom: 16px;
+    line-height: 1.4;
+  }
+
+  .progress-bar {
+    background: #e0e0e0;
+    border-radius: 20px;
+    height: 20px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    border: 3px solid #ffd93d;
+  }
+
+  .progress-fill {
+    background: linear-gradient(90deg, #6bcf7f, #4ecdc4);
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease;
+    border-radius: 20px;
+  }
+
+  .item-counter {
+    font-size: 1.1em;
+    color: #555;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .passage-box {
+    background: linear-gradient(135deg, #fff9c4, #fff59d);
+    border: 4px dashed #ff9800;
+    border-radius: 20px;
+    padding: 28px 20px;
+    margin-bottom: 16px;
+    font-size: 1.8em; 
+    line-height: 1.5;
+    color: #333;
+    min-height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-weight: bold;
+    animation: slideIn 0.4s ease;
+  }
+
+  .passage-text { display: inline; }
+
+  .blank {
+    display: inline-block;
+    min-width: 90px;
+    border-bottom: 4px solid #d32f2f;
+    margin: 0 8px;
+    text-align: center;
+    color: #d32f2f;
+  }
+
+  @keyframes slideIn {
+    0% { transform: translateX(-20px); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+  }
+
+  .question {
+    font-size: 1.2em;
+    color: #ff6b9d;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .choices-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .choice-btn {
+    background: linear-gradient(135deg, #a8edea, #fed6e3);
+    border: 3px solid white;
+    border-radius: 16px;
+    padding: 20px 10px;
+    font-size: 1.4em; 
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.15);
+    font-family: inherit;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .choice-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 0 rgba(0,0,0,0.15);
+    background: linear-gradient(135deg, #8fd3f4, #fbc2eb);
+  }
+
+  .choice-btn:active:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.15);
+  }
+
+  .choice-btn.correct {
+    background: linear-gradient(135deg, #84fab0, #8fd3f4) !important;
+    animation: correctPulse 0.6s ease;
+    border-color: #4ecdc4;
+  }
+
+  .choice-btn.wrong {
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4) !important;
+    animation: shake 0.5s ease;
+    border-color: #ff6b6b;
+  }
+
+  @keyframes correctPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+
+  .feedback {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin: 12px 0;
+    min-height: 30px;
+    transition: all 0.3s;
+    line-height: 1.4;
+  }
+
+  .feedback.correct { color: #00897b; }
+  .feedback.wrong { color: #d32f2f; }
+
+  .next-btn {
+    background: linear-gradient(135deg, #ff6b9d, #ff8e53);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    font-size: 1.2em;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+    font-family: inherit;
+    transition: all 0.2s;
+    display: none;
+    margin-top: 8px;
+  }
+
+  .next-btn.show { display: inline-block; animation: popIn 0.4s ease; }
+  .next-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 rgba(0,0,0,0.2); }
+  .next-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.2); }
+
+  .keyboard-hint {
+    font-size: 0.9em;
+    color: #777;
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  .keyboard-hint kbd {
+    background: #f0f0f0;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-family: monospace;
+    font-style: normal;
+    font-weight: bold;
+  }
+
+  .final-screen { display: none; text-align: center; }
+  .final-screen.active { display: block; animation: popIn 0.6s ease; }
+
+  .trophy { font-size: 5em; animation: bounce 1s infinite; }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  .final-screen h1 { font-size: 2em; margin: 12px 0; color: #4ecdc4; }
+  .final-screen p { font-size: 1.2em; color: #555; margin-bottom: 12px; }
+
+  .score-box {
+    background: linear-gradient(135deg, #fff9c4, #ffe082);
+    border-radius: 20px;
+    padding: 16px;
+    margin: 16px 0;
+    border: 3px dashed #ff9800;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #ff6b9d;
+  }
+
+  .restart-btn {
+    background: linear-gradient(135deg, #4ecdc4, #44a08d);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    font-size: 1.2em;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+    font-family: inherit;
+  }
+
+  .restart-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 rgba(0,0,0,0.2); }
+
+  .confetti {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    pointer-events: none;
+    z-index: 200;
+    animation: fall 3s linear forwards;
+  }
+
+  @keyframes fall {
+    to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  .flying-star {
+    position: fixed;
+    font-size: 3em;
+    z-index: 1000;
+    pointer-events: none;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+  }
+
+  /* ===== HINT OVERLAY ===== */
+  .hint-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.65);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+    padding: 20px;
+  }
+
+  .hint-overlay.show {
+    display: flex;
+  }
+
+  .hint-modal {
+    background: white;
+    border-radius: 24px;
+    padding: 28px 24px;
+    max-width: 650px;
+    width: 100%;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    border: 4px solid #ffd93d;
+    animation: popIn 0.3s ease;
+  }
+
+  .hint-modal h2 {
+    color: #4a2c82;
+    font-size: 1.6em;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .close-hint-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 1.3em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 0 #d32f2f;
+    transition: all 0.2s ease;
+  }
+
+  .close-hint-btn:hover { transform: scale(1.1); }
+  .close-hint-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #d32f2f; }
+
+  .conv-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .conv-item {
+    background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+    border: 3px solid #00acc1;
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+    font-size: 1.1em;
+    line-height: 1.4;
+    font-weight: bold;
+    color: #006064;
+  }
+
+  .conv-item .icon { font-size: 1.5em; display: block; margin-bottom: 6px; }
+
+  @media (max-width: 600px) {
+    html { font-size: 18px; }
+    body { padding: 10px; padding-top: 70px; }
+    .top-bar { padding: 8px 12px; }
+    .hint-btn { width: 50px; height: 50px; font-size: 1.6em; }
+    .score-board { font-size: 1.1em; padding: 8px 18px; }
+    .game-container { padding: 20px 14px; border-radius: 18px; }
+    h1 { font-size: 1.5em; }
+    .passage-box { font-size: 1.5em; padding: 20px 14px; min-height: 90px; }
+    .choice-btn { font-size: 1.2em; padding: 16px 8px; min-height: 70px; }
+    .conv-grid { grid-template-columns: repeat(2, 1fr); }
+    .conv-item { font-size: 1em; padding: 10px 6px; }
+    .hint-modal { padding: 24px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR: Hint (left) + Score (right) -->
+<div class="top-bar">
+  <button class="hint-btn" onclick="toggleHintOverlay()" aria-label="Show conversion clues">💡</button>
+  <div class="score-board" id="scoreBoard">
+    <span>⭐</span>
+    <span>Score: <span id="scoreValue">0</span></span>
+  </div>
+</div>
+
+<div class="game-container">
+  <h1>⏰ Time Conversion Master</h1>
+  <p class="subtitle">Fill in the blank with the correct number!</p>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <div id="gameArea">
+    <div class="item-counter" id="itemCounter">Item 1 of 24</div>
+
+    <div class="passage-box">
+      <span class="passage-text" id="passageText">Loading...</span>
+    </div>
+
+    <div class="question">🤔 What number fills the blank?</div>
+
+    <div class="choices-grid" id="choicesGrid"></div>
+
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextItem()">Next Item ➡️</button>
+    <div class="keyboard-hint">Press <kbd>→</kbd> for next item</div>
+  </div>
+
+  <div class="final-screen" id="finalScreen">
+    <div class="trophy">🏆</div>
+    <h1>🎉 Time Master!</h1>
+    <p>You conquered the clock!</p>
+    <div class="score-box" id="scoreBox">First-Try Stars: 0 / 24</div>
+    <button class="restart-btn" onclick="restartGame()">🔁 Play Again</button>
+  </div>
+</div>
+
+<!-- HINT OVERLAY MODAL -->
+<div class="hint-overlay" id="hintOverlay" onclick="closeHintOverlay(event)">
+  <div class="hint-modal" onclick="event.stopPropagation()">
+    <button class="close-hint-btn" onclick="toggleHintOverlay()">✖️</button>
+    <h2>💡 Conversion Cheat Sheet</h2>
+    <div class="conv-grid">
+      <div class="conv-item"><span class="icon">⏱️</span>60 seconds<br>= 1 minute</div>
+      <div class="conv-item"><span class="icon">⏰</span>60 minutes<br>= 1 hour</div>
+      <div class="conv-item"><span class="icon">🌅</span>24 hours<br>= 1 day</div>
+      <div class="conv-item"><span class="icon">📅</span>7 days<br>= 1 week</div>
+      <div class="conv-item"><span class="icon">🗓️</span>4 weeks<br>≈ 1 month*</div>
+      <div class="conv-item"><span class="icon">🎂</span>12 months<br>= 1 year</div>
+    </div>
+    <div style="margin-top: 16px; font-size: 0.95em; color: #00838f; text-align: center; font-weight: bold;">
+      *For this game, we use the math rule: 1 month = 4 weeks.
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== AUDIO CONTEXT =====
+  let audioCtx = null;
+
+  function playCorrectSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const start = now + i * 0.1;
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(0.25, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.01, start + 0.3);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + 0.35);
+      });
+    } catch(e) { console.log('Audio failed:', e); }
+  }
+
+  // Special triumphant sound for first-try correct (with star animation)
+  function playStarSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
+      
+      // Magical ascending scale with harmonics
+      const notes = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1318.51];
+      notes.forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const start = now + i * 0.08;
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(0.2, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.01, start + 0.4);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + 0.45);
+        
+        // Add shimmer harmonic
+        const osc2 = audioCtx.createOscillator();
+        const gain2 = audioCtx.createGain();
+        osc2.type = 'triangle';
+        osc2.frequency.value = freq * 2;
+        gain2.gain.setValueAtTime(0, start);
+        gain2.gain.linearRampToValueAtTime(0.08, start + 0.02);
+        gain2.gain.exponentialRampToValueAtTime(0.01, start + 0.3);
+        osc2.connect(gain2);
+        gain2.connect(audioCtx.destination);
+        osc2.start(start);
+        osc2.stop(start + 0.35);
+      });
+      
+      // Final triumphant chord
+      setTimeout(() => {
+        const chordTime = audioCtx.currentTime;
+        [1046.50, 1318.51, 1567.98].forEach(freq => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0, chordTime);
+          gain.gain.linearRampToValueAtTime(0.15, chordTime + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.01, chordTime + 0.8);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(chordTime);
+          osc.stop(chordTime + 0.9);
+        });
+      }, 500);
+      
+    } catch(e) { console.log('Audio failed:', e); }
+  }
+
+  function playWrongSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.exponentialRampToValueAtTime(110, now + 0.3);
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } catch(e) { console.log('Audio failed:', e); }
+  }
+
+  // ===== 24 ITEMS: Time Conversion =====
+  const originalItems = [
+    { passage: "120 seconds = <span class='blank'>____</span> minutes", choices: ["2", "12", "20", "120"], correctAnswer: "2", explanation: "60 seconds = 1 minute, so 120 ÷ 60 = 2 minutes." },
+    { passage: "3 minutes = <span class='blank'>____</span> seconds", choices: ["180", "30", "300", "18"], correctAnswer: "180", explanation: "1 minute = 60 seconds, so 3 × 60 = 180 seconds." },
+    { passage: "300 seconds = <span class='blank'>____</span> minutes", choices: ["5", "30", "50", "3"], correctAnswer: "5", explanation: "60 seconds = 1 minute, so 300 ÷ 60 = 5 minutes." },
+    { passage: "6 minutes = <span class='blank'>____</span> seconds", choices: ["360", "60", "600", "36"], correctAnswer: "360", explanation: "1 minute = 60 seconds, so 6 × 60 = 360 seconds." },
+    { passage: "120 minutes = <span class='blank'>____</span> hours", choices: ["2", "12", "20", "120"], correctAnswer: "2", explanation: "60 minutes = 1 hour, so 120 ÷ 60 = 2 hours." },
+    { passage: "3 hours = <span class='blank'>____</span> minutes", choices: ["180", "30", "300", "18"], correctAnswer: "180", explanation: "1 hour = 60 minutes, so 3 × 60 = 180 minutes." },
+    { passage: "240 minutes = <span class='blank'>____</span> hours", choices: ["4", "24", "40", "2"], correctAnswer: "4", explanation: "60 minutes = 1 hour, so 240 ÷ 60 = 4 hours." },
+    { passage: "5 hours = <span class='blank'>____</span> minutes", choices: ["300", "50", "500", "30"], correctAnswer: "300", explanation: "1 hour = 60 minutes, so 5 × 60 = 300 minutes." },
+    { passage: "48 hours = <span class='blank'>____</span> days", choices: ["2", "4", "48", "24"], correctAnswer: "2", explanation: "24 hours = 1 day, so 48 ÷ 24 = 2 days." },
+    { passage: "3 days = <span class='blank'>____</span> hours", choices: ["72", "30", "720", "3"], correctAnswer: "72", explanation: "1 day = 24 hours, so 3 × 24 = 72 hours." },
+    { passage: "72 hours = <span class='blank'>____</span> days", choices: ["3", "7", "72", "30"], correctAnswer: "3", explanation: "24 hours = 1 day, so 72 ÷ 24 = 3 days." },
+    { passage: "5 days = <span class='blank'>____</span> hours", choices: ["120", "50", "125", "15"], correctAnswer: "120", explanation: "1 day = 24 hours, so 5 × 24 = 120 hours." },
+    { passage: "14 days = <span class='blank'>____</span> weeks", choices: ["2", "14", "7", "21"], correctAnswer: "2", explanation: "7 days = 1 week, so 14 ÷ 7 = 2 weeks." },
+    { passage: "3 weeks = <span class='blank'>____</span> days", choices: ["21", "30", "37", "3"], correctAnswer: "21", explanation: "1 week = 7 days, so 3 × 7 = 21 days." },
+    { passage: "28 days = <span class='blank'>____</span> weeks", choices: ["4", "28", "7", "40"], correctAnswer: "4", explanation: "7 days = 1 week, so 28 ÷ 7 = 4 weeks." },
+    { passage: "5 weeks = <span class='blank'>____</span> days", choices: ["35", "50", "55", "30"], correctAnswer: "35", explanation: "1 week = 7 days, so 5 × 7 = 35 days." },
+    { passage: "8 weeks = <span class='blank'>____</span> months", choices: ["2", "8", "4", "32"], correctAnswer: "2", explanation: "4 weeks ≈ 1 month, so 8 ÷ 4 = 2 months." },
+    { passage: "3 months = <span class='blank'>____</span> weeks", choices: ["12", "30", "34", "3"], correctAnswer: "12", explanation: "1 month ≈ 4 weeks, so 3 × 4 = 12 weeks." },
+    { passage: "16 weeks = <span class='blank'>____</span> months", choices: ["4", "16", "8", "64"], correctAnswer: "4", explanation: "4 weeks ≈ 1 month, so 16 ÷ 4 = 4 months." },
+    { passage: "5 months = <span class='blank'>____</span> weeks", choices: ["20", "50", "54", "15"], correctAnswer: "20", explanation: "1 month ≈ 4 weeks, so 5 × 4 = 20 weeks." },
+    { passage: "24 months = <span class='blank'>____</span> years", choices: ["2", "24", "12", "240"], correctAnswer: "2", explanation: "12 months = 1 year, so 24 ÷ 12 = 2 years." },
+    { passage: "3 years = <span class='blank'>____</span> months", choices: ["36", "30", "300", "3"], correctAnswer: "36", explanation: "1 year = 12 months, so 3 × 12 = 36 months." },
+    { passage: "36 months = <span class='blank'>____</span> years", choices: ["3", "36", "12", "360"], correctAnswer: "3", explanation: "12 months = 1 year, so 36 ÷ 12 = 3 years." },
+    { passage: "5 years = <span class='blank'>____</span> months", choices: ["60", "50", "512", "15"], correctAnswer: "60", explanation: "1 year = 12 months, so 5 × 12 = 60 months." }
+  ];
+
+  let items = [];
+  let currentItem = 0;
+  let isLocked = false;
+  let correctCount = 0; 
+  let wrongAttempts = 0;
+  let currentCorrectIndex = 0;
+
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // ===== HINT OVERLAY =====
+  function toggleHintOverlay() {
+    const overlay = document.getElementById('hintOverlay');
+    overlay.classList.toggle('show');
+  }
+
+  function closeHintOverlay(event) {
+    if (event.target === document.getElementById('hintOverlay')) {
+      toggleHintOverlay();
+    }
+  }
+
+  // ===== FLYING STAR ANIMATION (Two-Phase) =====
+  function animateStarToScoreboard(buttonElement) {
+    const star = document.createElement('div');
+    star.className = 'flying-star';
+    star.textContent = '⭐';
+    document.body.appendChild(star);
+    
+    const startRect = buttonElement.getBoundingClientRect();
+    const endRect = document.getElementById('scoreBoard').getBoundingClientRect();
+    
+    const startX = startRect.left + startRect.width / 2 - 24; 
+    const startY = startRect.top + startRect.height / 2 - 24;
+    const endX = endRect.left + endRect.width / 2 - 24;
+    const endY = endRect.top + endRect.height / 2 - 24;
+    
+    star.style.left = startX + 'px';
+    star.style.top = startY + 'px';
+    
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
+    
+    // Phase 1: Spin and zoom at button location (400ms)
+    const phase1 = star.animate([
+      { transform: 'scale(1) rotate(0deg)', opacity: 1, offset: 0 },
+      { transform: 'scale(2.5) rotate(720deg)', opacity: 1, offset: 1 }
+    ], {
+      duration: 400,
+      easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+    });
+    
+    // Phase 2: Fly to scoreboard with arc (900ms)
+    phase1.onfinish = () => {
+      const phase2 = star.animate([
+        { transform: 'scale(2.5) rotate(720deg)', opacity: 1, offset: 0 },
+        { transform: `translate(${deltaX * 0.5}px, ${deltaY * 0.5 - 100}px) scale(2) rotate(1080deg)`, opacity: 1, offset: 0.4 },
+        { transform: `translate(${deltaX}px, ${deltaY}px) scale(0.5) rotate(1440deg)`, opacity: 0, offset: 1 }
+      ], {
+        duration: 900,
+        easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+      });
+      
+      phase2.onfinish = () => {
+        star.remove();
+        
+        correctCount++;
+        document.getElementById('scoreValue').textContent = correctCount;
+        
+        const board = document.getElementById('scoreBoard');
+        board.animate([
+          { transform: 'scale(1)' },
+          { transform: 'scale(1.3)' },
+          { transform: 'scale(1)' }
+        ], { duration: 400, easing: 'ease-out' });
+      };
+    };
+  }
+
+  function initGame() {
+    items = shuffleArray([...originalItems]);
+    currentItem = 0;
+    correctCount = 0;
+    document.getElementById('scoreValue').textContent = '0';
+    loadItem();
+  }
+
+  function loadItem() {
+    const item = items[currentItem];
+    document.getElementById('passageText').innerHTML = item.passage;
+    document.getElementById('itemCounter').textContent = `Item ${currentItem + 1} of ${items.length}`;
+    document.getElementById('progressFill').style.width = (currentItem / items.length) * 100 + '%';
+
+    const shuffledChoices = shuffleArray([...item.choices]);
+    currentCorrectIndex = shuffledChoices.indexOf(item.correctAnswer);
+
+    const choicesGrid = document.getElementById('choicesGrid');
+    choicesGrid.innerHTML = '';
+    shuffledChoices.forEach((choice) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.textContent = choice;
+      btn.dataset.value = choice;
+      btn.onclick = () => checkAnswer(btn);
+      choicesGrid.appendChild(btn);
+    });
+
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('feedback').className = 'feedback';
+    document.getElementById('nextBtn').classList.remove('show');
+    wrongAttempts = 0;
+    isLocked = false;
+  }
+
+  function checkAnswer(button) {
+    if (isLocked) return;
+    const item = items[currentItem];
+    const feedback = document.getElementById('feedback');
+
+    if (button.dataset.value === item.correctAnswer) {
+      isLocked = true;
+      button.classList.add('correct');
+      
+      if (wrongAttempts === 0) {
+        playStarSound();
+        animateStarToScoreboard(button);
+      } else {
+        playCorrectSound();
+      }
+      
+      feedback.innerHTML = `✅ Correct! <span style="font-size:0.9em; color:#555; display:block; margin-top:4px;">${item.explanation}</span>`;
+      feedback.className = 'feedback correct';
+      document.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = true);
+      setTimeout(() => document.getElementById('nextBtn').classList.add('show'), 600);
+    } else {
+      wrongAttempts++;
+      button.classList.add('wrong');
+      button.disabled = true;
+      playWrongSound();
+      feedback.textContent = '❌ Not quite. Check if you should multiply or divide!';
+      feedback.className = 'feedback wrong';
+      setTimeout(() => button.classList.remove('wrong'), 500);
+    }
+  }
+
+  function nextItem() {
+    currentItem++;
+    if (currentItem >= items.length) {
+      document.getElementById('gameArea').style.display = 'none';
+      document.getElementById('finalScreen').classList.add('active');
+      document.getElementById('progressFill').style.width = '100%';
+      document.getElementById('scoreBox').textContent = `First-Try Stars: ${correctCount} / ${items.length}`;
+      launchConfetti();
+      setTimeout(launchConfetti, 400);
+      setTimeout(launchConfetti, 800);
+    } else {
+      loadItem();
+    }
+  }
+
+  function restartGame() {
+    initGame();
+    document.getElementById('finalScreen').classList.remove('active');
+    document.getElementById('gameArea').style.display = 'block';
+  }
+
+  function launchConfetti() {
+    const colors = ['#ff6b9d', '#ffd93d', '#4ecdc4', '#a8edea', '#ff8e53', '#84fab0'];
+    for (let i = 0; i < 50; i++) {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.style.left = Math.random() * 100 + 'vw';
+      confetti.style.top = '-20px';
+      confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.animationDelay = Math.random() * 0.5 + 's';
+      confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+      confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+      document.body.appendChild(confetti);
+      setTimeout(() => confetti.remove(), 4000);
+    }
+  }
+
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'ArrowRight' || event.keyCode === 39) {
+      if (document.getElementById('nextBtn').classList.contains('show')) nextItem();
+    }
+  });
+
+  initGame();
+</script>
+
+</body>
+</html>

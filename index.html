@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Math Launcher | Grades 4-6</title>
+    <style>
+        :root {
+            --bg-main: #F1F5F9;
+            --bg-card: #FFFFFF;
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --border: #E2E8F0;
+            
+            --accent-navy: #1E3A8A;
+            --accent-brass: #D97706;
+            --accent-slate: #334155;
+            
+            --mod-present: #0284C7;
+            --mod-practice: #EA580C;
+            --mod-assess: #4F46E5;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .container { max-width: 1100px; width: 100%; }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 30px;
+            background: var(--bg-card);
+            padding: 24px 32px;
+            border-radius: 16px;
+            border-left: 6px solid var(--accent-brass);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-icon {
+            width: 56px; height: 56px;
+            background: var(--accent-navy);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            border: 3px solid var(--accent-brass);
+        }
+
+        .header-icon svg { width: 28px; height: 28px; stroke: var(--accent-brass); }
+
+        .header-text h1 { font-size: 1.8rem; font-weight: 700; color: var(--accent-navy); }
+        .header-text p { font-size: 1rem; color: var(--text-secondary); font-weight: 500; }
+
+        /* Back Button */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: var(--bg-card); color: var(--accent-navy); border-color: var(--accent-navy); }
+
+        /* Views */
+        .view { display: none; animation: fadeIn 0.3s ease; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Grid Layouts */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .grid-lessons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .card:hover:not(.locked) {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border-color: var(--accent-brass);
+        }
+
+        .card-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; color: var(--accent-navy); }
+        .card-desc { font-size: 0.95rem; color: var(--text-secondary); }
+
+        /* Locked State */
+        .card.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: #F8FAFC;
+        }
+        .card.locked:hover { transform: none; box-shadow: none; border-color: var(--border); }
+        
+        .lock-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #E2E8F0;
+            color: #64748B;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Lesson List Items */
+        .lesson-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            gap: 16px;
+        }
+        .lesson-card:hover {
+            border-color: var(--accent-brass);
+            background: #FFFBEB;
+            transform: translateX(4px);
+        }
+        .lesson-info { display: flex; flex-direction: column; flex-grow: 1; }
+        .lesson-week { font-size: 0.8rem; font-weight: 700; color: var(--accent-brass); text-transform: uppercase; margin-bottom: 4px; }
+        .lesson-title { font-size: 1.05rem; font-weight: 600; color: var(--text-primary); line-height: 1.4; }
+        .lesson-arrow { color: var(--accent-navy); font-size: 1.2rem; flex-shrink: 0; }
+
+        /* Module Launchers (Final Step) */
+        .mod-present::after, .mod-practice::after, .mod-assess::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; transition: height 0.3s ease;
+        }
+        .card:hover::after { height: 6px; }
+        
+        .mod-present::after { background: var(--mod-present); }
+        .mod-present .mod-icon { background: #E0F2FE; color: var(--mod-present); }
+        
+        .mod-practice::after { background: var(--mod-practice); }
+        .mod-practice .mod-icon { background: #FFEDD5; color: var(--mod-practice); }
+        
+        .mod-assess::after { background: var(--mod-assess); }
+        .mod-assess .mod-icon { background: #E0E7FF; color: var(--mod-assess); }
+
+        .mod-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
+        }
+        .mod-icon svg { width: 24px; height: 24px; }
+
+        .mod-action {
+            font-size: 0.9rem; font-weight: 600;
+            display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 16px;
+        }
+
+        .empty-state {
+            text-align: center; padding: 60px 20px; color: var(--text-secondary);
+            background: var(--bg-card); border-radius: 16px; border: 2px dashed var(--border);
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+            </div>
+            <div class="header-text">
+                <h1 id="main-title">Select Term</h1>
+                <p id="main-subtitle">Upper Primary Mathematics • Grades 4-6</p>
+            </div>
+        </header>
+
+        <!-- VIEW 1: TERMS -->
+        <div id="view-terms" class="view active">
+            <div class="grid-3">
+                <div class="card locked" onclick="alert('Term 1 is currently locked.')">
+                    <span class="lock-badge">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        LOCKED
+                    </span>
+                    <h2 class="card-title">Term 1</h2>
+                    <p class="card-desc">Coming soon. Curriculum mapping in progress.</p>
+                </div>
+                <div class="card" onclick="selectTerm('T2')">
+                    <h2 class="card-title">Term 2</h2>
+                    <p class="card-desc">Currently active. Select to view available grades and lessons.</p>
+                </div>
+                <div class="card locked" onclick="alert('Term 3 is currently locked.')">
+                    <span class="lock-badge">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        LOCKED
+                    </span>
+                    <h2 class="card-title">Term 3</h2>
+                    <p class="card-desc">Coming soon. Curriculum mapping in progress.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 2: GRADES -->
+        <div id="view-grades" class="view">
+            <button class="back-btn" onclick="showView('view-terms')">← Back to Terms</button>
+            <div class="grid-3">
+                <div class="card" onclick="selectGrade('4')">
+                    <h2 class="card-title">Grade 4</h2>
+                    <p class="card-desc">View all lessons and resources for Grade 4.</p>
+                </div>
+                <div class="card" onclick="selectGrade('5')">
+                    <h2 class="card-title">Grade 5</h2>
+                    <p class="card-desc">View all lessons and resources for Grade 5.</p>
+                </div>
+                <div class="card" onclick="selectGrade('6')">
+                    <h2 class="card-title">Grade 6</h2>
+                    <p class="card-desc">View all lessons and resources for Grade 6.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: LESSONS -->
+        <div id="view-lessons" class="view">
+            <button class="back-btn" onclick="showView('view-grades')">← Back to Grades</button>
+            <div id="lessons-list" class="grid-lessons">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- VIEW 4: MODULE LAUNCHER -->
+        <div id="view-modules" class="view">
+            <button class="back-btn" onclick="showView('view-lessons')">← Back to Lessons</button>
+            <div class="grid-3" id="modules-list">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ==========================================
+        // YOUR CSV DATA
+        // ==========================================
+        const csvRawData = `Subject,Grade level,Term,Week ,Topic,l,P,A
+MATH,4,T2,1,Represent situations involving one or more of the four operations using a number sentence,MATH4T21l,MATH4T21P,MATH4T21A
+MATH,4,T2,2,Perform two or more different operations by applying the MDAS rules.,MATH4T22l,MATH4T22P,MATH4T22A
+MATH,4,T2,3A,"Convert common units of measure from larger to smaller units, and vice versa: a. meter and centimeter b. kilometer and meter c. kilogram and gram d. gram and milligram e. liter and milliliter",MATH4T23Al,MATH4T23AP,MATH4T23AA
+MATH,4,T2,3B,"Convert time measures from smaller to larger units, and vice versa: a. seconds to minutes b. minutes to hours c. hours to days d. days to weeks e. weeks to months f. months to years",MATH4T23Bl,MATH4T23BP,MATH4T23BA
+MATH,4,T2,4,"Solve problems involving conversion of units of length, mass, capacity, and time, including problems involving elapsed time in hours and minutes.",MATH4T24l,MATH4T24P,MATH4T24A
+MATH,4,T2,5A,"Identify proper fractions, improper fractions, and mixed numbers.",MATH4T25Al,MATH4T25AP,MATH4T25AA
+MATH,4,T2,5B,"Rewrite improper fractions into mixed numbers, and vice versa.",MATH4T25Bl,MATH4T25BP,MATH4T25BA
+MATH,4,T2,5C,"Plot fraction (proper fractions, improper fractions, and mixed numbers) with denominators 2, 4, 5, and 10 on the number line.",MATH4T25Cl,MATH4T25CP,MATH4T25CA
+MATH,4,T2,6,Add and subtract similar fractions: a. two proper fractions b. two mixed numbers c. a mixed number and a proper fraction d. a whole number and a proper fraction e. a whole number and a mixed number,MATH4T26l,MATH4T26P,MATH4T26A
+MATH,4,T2,7A,"Represent dissimilar fractions, with denominators up to 10, using models.",MATH4T27Al,MATH4T27AP,MATH4T27AA
+MATH,4,T2,7B,"Compare dissimilar fractions using the symbols =, >, and <.",MATH4T27Bl,MATH4T27BP,MATH4T27BA
+MATH,4,T2,8A,"Order dissimilar fractions from smallest to largest, and vice versa.",MATH4T28Al,MATH4T28AP,MATH4T28AA
+MATH,4,T2,8B,Generate equivalent fractions using models.,MATH4T28Bl,MATH4T28BP,MATH4T28BA
+MATH,4,T2,9A,Determine equivalent fractions.,MATH4T29Al,MATH4T29AP,MATH4T29AA
+MATH,4,T2,9B,Identify the multiples of given numbers up to 100.,MATH4T29Bl,MATH4T29BP,MATH4T29BA
+MATH,4,T2,10A,Find all the factors of a given number up to 100.,MATH4T210Al,MATH4T210AP,MATH4T210AA
+MATH,4,T2,10B,Reduce fractions to simplest form.,MATH4T210Bl,MATH4T210BP,MATH4T210BA
+MATH,5,T2,1A,"Convert terminating decimals to fractions, and vice versa.",MATH5T21Al,MATH5T21AP,MATH5T21AA
+MATH,5,T2,1B,Compare and order decimal numbers with decimal parts to thousandths.,MATH5T21Bl,MATH5T21BP,MATH5T21BA
+MATH,5,T2,2A,Round decimal numbers to the nearest thousandths.,MATH5T22Al,MATH5T22AP,MATH5T22AA
+MATH,5,T2,2B,Add and subtract decimal numbers with decimal parts of up to 3 decimal places.,MATH5T22Bl,MATH5T22BP,MATH5T22BA
+MATH,5,T2,3,"Solve multi-step problems involving addition and/or subtraction of decimals, including problems involving money.",MATH5T23l,MATH5T23P,MATH5T23A
+MATH,5,T2,4,"Use divisibility rules to find common factors of numbers: a. divisibility rules for 2, 5, and 10 b. divisibility rules for 3, 6, and 9 c. divisibility rules for 4, 8, 11, and 12",MATH5T24l,MATH5T24P,MATH5T24A
+MATH,5,T2,5,Distinguish prime numbers from composite numbers using the Sieve of Eratosthenes.,MATH5T25l,MATH5T25P,MATH5T25A
+MATH,5,T2,6A,"Collects bivariate data from interview, questionnaire, and other appropriate sources.",MATH5T26Al,MATH5T26AP,MATH5T26AA
+MATH,5,T2,6B,Identify the appropriate graph (bar graph or line graph) to represent a given set of data.,MATH5T26Bl,MATH5T26BP,MATH5T26BA
+MATH,5,T2,7A,Identify the appropriate graph (bar graph or line graph) to represent a given set of data.,MATH5T27Al,MATH5T27AP,MATH5T27AA
+MATH,5,T2,7B,Interpret data presented in a double bar graph or a double line graph.,MATH5T27Bl,MATH5T27BP,MATH5T27BA
+MATH,5,T2,8,Draw conclusions or make inferences based on data presented in a double bar graph or a double line graph,MATH5T28l,MATH5T28P,MATH5T28A
+MATH,5,T2,9,Solve problems using data presented in a double bar graph or a double line graph.,MATH5T29l,MATH5T29P,MATH5T29A
+MATH,5,T2,10A,Describe probability as a measure of the chance of an event occurring.,MATH5T210Al,MATH5T210AP,MATH5T210AA
+MATH,5,T2,10B,Calculate the theoretical probability of a simple event by listing all possible outcomes.,MATH5T210Bl,MATH5T210BP,MATH5T210BA
+MATH,6,T2,1A,Illustrate ratio and proportion in given situations using tables and/or the double number line model.,MATH6T21Al,MATH6T21AP,MATH6T21AA
+MATH,6,T2,1B,"Find how many times one value is larger than another given their ratio, and vice versa.",MATH6T21Bl,MATH6T21BP,MATH6T21BA
+MATH,6,T2,2,Solve problems involving ratio and proportion.,MATH6T22l,MATH6T22P,MATH6T22A
+MATH,6,T2,3A,"Illustrate and explain the relationships between percentages, fractions, and decimals.",MATH6T23Al,MATH6T23AP,MATH6T23AA
+MATH,6,T2,3B,Identify and explain the uses of percentages.,MATH6T23Bl,MATH6T23BP,MATH6T23BA
+MATH,6,T2,4A,"Write numbers in exponential form e.g., 2 x 2 x 2 = 23 and vice versa, e.g. 23 = 2 x 2 x 2",MATH6T24Al,MATH6T24AP,MATH6T24AA
+MATH,6,T2,4B,Give the value of numbers expressed in exponential form.,MATH6T24Bl,MATH6T24BP,MATH6T24BA
+MATH,6,T2,5,Perform calculations involving numbers in exponential form by applying the GEMDAS rules.,MATH6T25l,MATH6T25P,MATH6T25A
+MATH,6,T2,6A,Determine appropriate units for measuring volume and capacity.,MATH6T26Al,MATH6T26AP,MATH6T26AA
+MATH,6,T2,6B,"Convert cu. cm to L, and vice versa. ",MATH6T26Bl,MATH6T26BP,MATH6T26BA
+MATH,6,T2,7A,Find the volume of a cube and of a rectangular prism using standard units of measurement.,MATH6T27Al,MATH6T27AP,MATH6T27AA
+MATH,6,T2,7B,Solve problems involving volumes of cubes and rectangular prisms.,MATH6T27Bl,MATH6T27BP,MATH6T27BA
+MATH,6,T2,8,Solve problems involving capacity.,MATH6T28l,MATH6T28P,MATH6T28A
+MATH,6,T2,9A,"Convert sq. cm to sq. m, and vice versa. ",MATH6T29Al,MATH6T29AP,MATH6T29AA
+MATH,6,T2,9B,"Find the area, in sq. m or sq. cm, of composite figures composed of triangles, squares, and 
+rectangles. ",MATH6T29Bl,MATH6T29BP,MATH6T29BA
+MATH,6,T2,10,"Solve problems involving the perimeter and area of triangles, parallelograms, trapezoids, and composite figures composed of triangles, squares, and rectangles.",MATH6T210l,MATH6T210P,MATH6T210A`;
+
+        // ==========================================
+        // APP LOGIC
+        // ==========================================
+        
+        // Robust CSV Parser (Handles commas and newlines inside quotes)
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') { inQuotes = !inQuotes; } 
+                else if (char === ',' && !inQuotes) { result.push(current); current = ''; } 
+                else { current += char; }
+            }
+            result.push(current);
+            return result;
+        }
+
+        function parseCSV(csv) {
+            const rows = [];
+            let currentRow = '';
+            let inQuotes = false;
+            csv = csv.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+            
+            for (let i = 0; i < csv.length; i++) {
+                const char = csv[i];
+                if (char === '"') { inQuotes = !inQuotes; currentRow += char; } 
+                else if (char === '\n' && !inQuotes) {
+                    if (currentRow.trim() !== '') rows.push(currentRow);
+                    currentRow = '';
+                } else { currentRow += char; }
+            }
+            if (currentRow.trim() !== '') rows.push(currentRow);
+            
+            if (rows.length === 0) return [];
+            const headers = parseCSVLine(rows[0]).map(h => h.trim().toUpperCase());
+            
+            return rows.slice(1).map(line => {
+                const values = parseCSVLine(line);
+                const obj = {};
+                headers.forEach((header, i) => { obj[header] = (values[i] || '').trim(); });
+                return obj;
+            });
+        }
+
+        const lessonsData = parseCSV(csvRawData);
+        
+        let state = { term: '', grade: '', currentLesson: null };
+
+        function showView(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            
+            const title = document.getElementById('main-title');
+            const subtitle = document.getElementById('main-subtitle');
+            
+            if(viewId === 'view-terms') {
+                title.innerText = 'Select Term';
+                subtitle.innerText = 'Upper Primary Mathematics • Grades 4-6';
+            } else if(viewId === 'view-grades') {
+                title.innerText = `Term ${state.term.replace('T', '')} - Select Grade`;
+                subtitle.innerText = 'Choose a grade level to view lessons.';
+            } else if(viewId === 'view-lessons') {
+                title.innerText = `Grade ${state.grade} - Select Lesson`;
+                subtitle.innerText = `Term ${state.term.replace('T', '')} • Week-by-week lesson launcher.`;
+            } else if(viewId === 'view-modules') {
+                title.innerText = state.currentLesson.TOPIC;
+                subtitle.innerText = `Grade ${state.grade} • Term ${state.term.replace('T', '')} • Week ${state.currentLesson.WEEK}`;
+            }
+        }
+
+        function selectTerm(term) {
+            if (term !== 'T2') {
+                alert(`${term.replace('T', 'Term ')} is currently locked.`);
+                return;
+            }
+            state.term = term;
+            showView('view-grades');
+        }
+
+        function selectGrade(grade) {
+            state.grade = grade;
+            renderLessons();
+            showView('view-lessons');
+        }
+
+        function renderLessons() {
+            const container = document.getElementById('lessons-list');
+            const filtered = lessonsData.filter(d => d.TERM === state.term && d['GRADE LEVEL'] === state.grade);
+            
+            if(filtered.length === 0) {
+                container.innerHTML = `<div class="empty-state">
+                    <h3>No lessons found</h3>
+                    <p>There are no lessons mapped for Grade ${state.grade}, Term ${state.term.replace('T', '')} yet.</p>
+                </div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map((lesson, index) => `
+                <div class="lesson-card" onclick="selectLesson(${index})">
+                    <div class="lesson-info">
+                        <span class="lesson-week">Week ${lesson.WEEK}</span>
+                        <span class="lesson-title">${lesson.TOPIC}</span>
+                    </div>
+                    <span class="lesson-arrow">→</span>
+                </div>
+            `).join('');
+            
+            window._filteredLessons = filtered;
+        }
+
+        function selectLesson(index) {
+            state.currentLesson = window._filteredLessons[index];
+            renderModules();
+            showView('view-modules');
+        }
+
+        function renderModules() {
+            const container = document.getElementById('modules-list');
+            const lesson = state.currentLesson;
+
+            const createCard = (title, desc, file, colorClass, iconSvg) => {
+                if(!file) return `<div class="card locked" style="cursor: not-allowed;">
+                    <span class="lock-badge">NO FILE</span>
+                    <div class="mod-icon" style="background:#f1f5f9; color:#94a3b8;">${iconSvg}</div>
+                    <h2 class="card-title" style="color:#94a3b8;">${title}</h2>
+                    <p class="card-desc">Resource not yet uploaded.</p>
+                </div>`;
+
+                return `<a href="${file}" target="_blank" class="card ${colorClass}">
+                    <div class="mod-icon">${iconSvg}</div>
+                    <h2 class="card-title">${title}</h2>
+                    <p class="card-desc">${desc}</p>
+                    <span class="mod-action">
+                        Launch ${title}
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </span>
+                </a>`;
+            };
+
+            const icons = {
+                present: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>',
+                practice: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>',
+                assess: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"></path><rect x="9" y="3" width="6" height="4" rx="1"></rect><path d="M9 14l2 2 4-4"></path></svg>'
+            };
+
+            // Append .html to filenames
+            const lFile = lesson.L ? lesson.L + '.html' : '';
+            const pFile = lesson.P ? lesson.P + '.html' : '';
+            const aFile = lesson.A ? lesson.A + '.html' : '';
+
+            container.innerHTML = 
+                createCard('Lesson Presentation', 'Direct instruction and visual models.', lFile, 'mod-present', icons.present) +
+                createCard('Interactive Practice', 'Guided exercises and problem-solving.', pFile, 'mod-practice', icons.practice) +
+                createCard('Automated Assessment', 'Independent evaluation and feedback.', aFile, 'mod-assess', icons.assess);
+        }
+
+    </script>
+</body>
+</html>

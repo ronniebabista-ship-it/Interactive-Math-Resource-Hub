@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math 6 T2 W2 — How Many Times? | Cosmic Comparison Museum</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#eaf2ff; --mut:#a8b6dd; --card:#171f4a; --card2:#1d2757; --line:#35408a; --bg:#0b1030;
+  --cyan:#35e0ff; --yel:#ffd45e; --org:#ff8a4c; --grn:#58e6a8; --pur:#b08bff; --pink:#ff6fa5; --red:#ff7b7b;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#05081f;overflow:hidden;font-family:'Nunito',sans-serif}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform:translate(-50%,-50%);
+  background-image:radial-gradient(#ffffff22 1.5px,transparent 2px),radial-gradient(#ffffff15 1px,transparent 1.5px),
+    linear-gradient(180deg,#101743,#0b1030);
+  background-size:140px 140px,90px 90px,100% 100%;
+  color:var(--ink);overflow:hidden}
+#fx{position:absolute;inset:0;z-index:1;pointer-events:none}
+#fx span{position:absolute;font-family:'Fredoka';font-weight:700;opacity:.14;animation:float 9s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-30px) rotate(6deg)}}
+
+[data-anim]{opacity:0}
+.on[data-anim],.on [data-anim]{animation:var(--an,popIn) .8s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d,0s)}
+@keyframes popIn{0%{opacity:0;transform:scale(.4)}70%{opacity:1;transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+@keyframes riseIn{from{opacity:0;transform:translateY(60px)}to{opacity:1;transform:none}}
+@keyframes slideL{from{opacity:0;transform:translateX(-80px)}to{opacity:1;transform:none}}
+@keyframes slideR{from{opacity:0;transform:translateX(80px)}to{opacity:1;transform:none}}
+@keyframes zoomIn{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:scale(1)}}
+@keyframes flipIn{from{opacity:0;transform:perspective(900px) rotateY(65deg)}to{opacity:1;transform:none}}
+@keyframes bounceIn{0%{opacity:0;transform:translateY(70px) scale(.85)}60%{opacity:1;transform:translateY(-14px) scale(1.05)}100%{opacity:1;transform:none}}
+@keyframes iconB{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes confFall{0%{transform:translateY(-60px) rotate(0)}100%{transform:translateY(1150px) rotate(720deg);opacity:0}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-14px)}40%{transform:translateX(12px)}60%{transform:translateX(-9px)}80%{transform:translateX(6px)}}
+@keyframes winSpin{0%{transform:scale(1) rotate(0deg)}35%{transform:scale(1.16) rotate(-4deg)}65%{transform:scale(1.08) rotate(4deg)}100%{transform:scale(1) rotate(0deg)}}
+
+#progress{position:absolute;top:0;left:0;height:8px;width:0;z-index:60;
+  background:linear-gradient(90deg,var(--cyan),var(--yel),var(--grn));transition:width .5s}
+#tag{position:absolute;top:24px;left:84px;z-index:50;font:700 17px 'Fredoka';letter-spacing:3px;color:var(--cyan)}
+#voiceChip{position:absolute;top:22px;right:84px;z-index:110;font:800 14px 'Nunito';color:var(--mut);
+  border:3px solid var(--line);border-radius:999px;padding:8px 18px;background:#1b2452;cursor:pointer}
+body.lesson #voiceChip{pointer-events:none;opacity:.55}
+#starChip{position:absolute;top:70px;right:84px;z-index:70;display:none;align-items:center;gap:10px;
+  font:900 20px 'Nunito';color:var(--yel);background:#2a2f5e;border:3px solid var(--line);border-radius:999px;
+  padding:6px 20px;box-shadow:0 4px 0 #05081f}
+body.lesson #starChip,body.preview #starChip{display:flex}
+#starChip.bump{animation:pulse .5s}
+#recChip{position:absolute;top:118px;right:84px;z-index:70;display:none;align-items:center;gap:10px;
+  font:900 16px 'Nunito';color:#fff;background:#ff5a4eE6;border:3px solid #fff;border-radius:999px;
+  padding:6px 18px;box-shadow:0 4px 0 #05081f}
+#recChip.on{display:flex}
+#recChip .rdot{width:12px;height:12px;border-radius:50%;background:#fff;animation:blink 1s infinite}
+#counter{position:absolute;bottom:18px;right:84px;z-index:50;font:700 20px 'Fredoka';color:#7f8cc0}
+#hints{position:absolute;bottom:18px;left:84px;z-index:50;font:800 13px 'Nunito';color:#7f8cc0}
+#hints b{color:var(--yel)}
+#confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:40}
+#confetti i{position:absolute;top:0;border-radius:3px;animation:confFall linear both}
+
+#mcTimer{position:absolute;top:96px;left:50%;transform:translateX(-50%);z-index:85;display:none;align-items:center;gap:16px;
+  background:#0b1030F2;border:4px solid var(--yel);border-radius:999px;padding:8px 38px;box-shadow:0 8px 0 #05081f}
+#mcTimer.on{display:flex}
+#mcTimerN{font:700 64px/1 'Fredoka';color:var(--yel)}
+#mcTimer small{font:800 22px 'Nunito';color:var(--ink)}
+
+#codeOv{position:absolute;inset:0;z-index:90;display:none;align-items:center;justify-content:center;pointer-events:none}
+#codeOv.on{display:flex}
+#codeOv .box{background:#0b1030F0;border:5px solid var(--yel);border-radius:30px;padding:30px 70px;text-align:center;animation:popIn .5s both}
+#codeOv .lbl{font:700 30px 'Fredoka';color:var(--yel);letter-spacing:4px}
+#codeOv .dig{font:700 150px/1.1 'Fredoka';color:#fff}
+
+.slide{position:absolute;inset:0;z-index:2;padding:64px 84px 64px;display:flex;flex-direction:column;
+  justify-content:center;align-items:stretch;gap:28px;
+  opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s;
+  overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#35408a transparent;scroll-behavior:smooth}
+.slide::-webkit-scrollbar{width:10px}
+.slide::-webkit-scrollbar-thumb{background:#35408a;border-radius:999px}
+.slide.active{opacity:1;visibility:visible}
+.slide>.row[style*="flex:1"],.slide>.card[style*="flex:1"]{flex:0 0 auto !important}
+[data-step]{opacity:0;transform:translateY(30px);transition:all .8s cubic-bezier(.2,.7,.2,1)}
+[data-step].on{opacity:1;transform:none}
+.kicker{font:700 20px 'Fredoka';letter-spacing:5px;color:var(--yel)}
+h1{font:700 62px/1.15 'Fredoka';max-width:1000px}
+h2{font:700 58px/1.15 'Fredoka'}
+.hlc{background:linear-gradient(90deg,var(--cyan),var(--grn));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hly{background:linear-gradient(90deg,var(--yel),var(--org));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hlp{background:linear-gradient(90deg,var(--pur),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+.card{background:linear-gradient(160deg,var(--card2),var(--card));border:4px solid var(--line);border-radius:28px;
+  box-shadow:0 9px 0 #05081f;padding:24px 34px}
+.card h3{font:700 38px 'Fredoka';margin-bottom:8px}
+.txt{color:var(--mut);font-size:36px;font-weight:800;line-height:1.35}
+.big{font-size:44px;font-weight:900;line-height:1.28;color:var(--ink)}
+.row{display:flex;gap:26px;align-items:stretch}
+.half{flex:1}
+.chain{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap}
+.chipq{display:inline-flex;align-items:center;gap:10px;border-radius:999px;padding:10px 28px;font:900 32px 'Nunito';
+  background:#1b2452;border:4px solid var(--line);color:var(--ink);box-shadow:0 5px 0 #05081f}
+.chipq.cy{background:rgba(53,224,255,.15);border-color:var(--cyan);color:var(--cyan)}
+.chipq.yl{background:rgba(255,212,94,.15);border-color:var(--yel);color:var(--yel)}
+.chipq.gr{background:rgba(88,230,168,.15);border-color:var(--grn);color:var(--grn)}
+.chipq.pu{background:rgba(176,139,255,.15);border-color:var(--pur);color:var(--pur)}
+.chipq.pk{background:rgba(255,111,165,.15);border-color:var(--pink);color:var(--pink)}
+.obj{font:800 32px 'Nunito';padding:16px 28px}
+.heroframe{width:760px;height:600px;border-radius:30px;overflow:hidden;border:5px solid var(--line);
+  box-shadow:0 10px 0 #05081f;background:#171f4a;position:relative;flex-shrink:0}
+.heroframe::before{content:'🚀';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:150px;opacity:.25}
+.heroframe img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#s1{flex-direction:row;gap:44px;align-items:center;justify-content:center}
+#s1 .left{flex:1;display:flex;flex-direction:column;gap:22px;justify-content:center}
+
+.cups{display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap}
+.emo{font-size:84px;line-height:1}
+.emo.vs{font:700 56px 'Fredoka';color:var(--yel)}
+
+.rtable{display:grid;grid-template-columns:1fr 1fr;border:5px solid var(--line);border-radius:22px;overflow:hidden;max-width:800px;margin:0 auto}
+.rt-h{font:700 36px 'Fredoka';padding:10px;text-align:center;color:#06281a}
+.rt-h.m{background:var(--cyan)}.rt-h.w{background:var(--org);color:#2a1206}
+.rt-c{font:700 44px 'Fredoka';padding:8px;text-align:center;background:#1b2452;border-top:5px solid var(--line);color:var(--ink)}
+
+.dnl{position:relative;height:186px;max-width:1300px;margin:0 auto}
+.dnl .line{position:absolute;left:20px;right:20px;height:7px;background:#dfe7ff;border-radius:4px}
+.line.top{top:56px}.line.bot{top:128px}
+.tick{position:absolute;width:7px;height:26px;background:#dfe7ff;transform:translateX(-50%);border-radius:3px}
+.tick.top{top:43px}.tick.bot{top:115px}
+.tlab{position:absolute;transform:translateX(-50%);font:700 34px 'Fredoka'}
+.tlab.top{top:4px;color:var(--cyan)}
+.tlab.bot{top:146px;color:var(--org)}
+
+.pl{border-radius:50%;display:inline-block;box-shadow:0 0 40px #35e0ff33}
+.pl.mars{width:100px;height:100px;background:radial-gradient(circle at 35% 30%,#ffb199,#d1553a 60%,#8a2d1c)}
+.pl.earth{width:200px;height:200px;background:radial-gradient(circle at 35% 30%,#7fd0ff,#2f80ed 60%,#1b4fa0)}
+
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:1500px;margin:0 auto;width:100%}
+.opt{font:900 38px 'Nunito';color:var(--ink);background:#1b2452;border:5px solid var(--line);border-radius:22px;
+  padding:16px 26px;cursor:pointer;box-shadow:0 6px 0 #05081f;transition:all .2s;text-align:left;
+  display:flex;align-items:center;gap:18px;opacity:1}
+.opt b{font:700 36px 'Fredoka';background:rgba(176,139,255,.2);border-radius:12px;padding:4px 16px;color:var(--pur)}
+.opt:hover{transform:translateY(-3px)}
+.opt.good{opacity:1;background:rgba(88,230,168,.16);border-color:var(--grn);color:var(--grn);
+  animation:winSpin .7s cubic-bezier(.2,.7,.2,1);box-shadow:0 0 0 8px #58e6a833,0 6px 0 #05081f}
+.opt.good b{background:var(--grn);color:#06281a}
+.opt.bad{opacity:.55;background:rgba(255,123,123,.12);border-color:var(--red);color:var(--red);pointer-events:none;animation:shake .4s}
+.opt.reveal{opacity:1;background:rgba(88,230,168,.16);border-color:var(--grn);color:var(--grn);
+  animation:winSpin .7s cubic-bezier(.2,.7,.2,1);box-shadow:0 0 0 8px #58e6a833,0 6px 0 #05081f}
+.opt.reveal b{background:var(--grn);color:#06281a}
+body.preview .opt{pointer-events:none}
+.fb{font:700 34px 'Fredoka';text-align:center;min-height:110px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.fb .why{display:block;font:800 28px/1.3 'Nunito';margin-top:6px;opacity:.95}
+.fb.g{color:var(--grn)}.fb.r{color:var(--red)}
+.qbig{font:700 50px/1.25 'Fredoka';text-align:center}
+
+.master{font:700 72px 'Fredoka';color:var(--yel);text-align:center}
+#overlay{position:absolute;inset:0;z-index:100;background:#0b1030F5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;text-align:center}
+#overlay .ttl{font:700 60px 'Fredoka';color:var(--cyan)}
+#overlay .sub{font:800 25px 'Nunito';color:var(--ink);max-width:1200px}
+.modeBtns{display:flex;gap:30px}
+.modeBtns button{font:700 32px 'Fredoka';border-radius:26px;border:5px solid var(--line);padding:24px 38px;cursor:pointer;
+  box-shadow:0 8px 0 #05081f;transition:transform .15s;color:#06281a}
+.modeBtns button:hover{transform:translateY(-4px)}
+.modeBtns small{display:block;font:800 19px 'Nunito';margin-top:8px}
+#btnPreview{background:var(--yel)}
+#btnLesson{background:var(--cyan)}
+#passPanel{display:none;flex-direction:column;gap:20px;align-items:center}
+.pslots{display:flex;gap:16px}
+.pslot{width:82px;height:100px;border-radius:18px;border:5px solid var(--line);background:#1b2452;
+  font:700 54px 'Fredoka';display:flex;align-items:center;justify-content:center;color:var(--cyan)}
+#passPanel.err .pslot{animation:shake .4s;border-color:var(--red)}
+#passMsg{font:800 23px 'Nunito';color:var(--yel);min-height:28px}
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="fx"></div>
+<div id="confetti"></div>
+<div id="progress"></div>
+<div id="tag">🚀 MATH 6 • TERM 2 • WEEK 2</div>
+<div id="voiceChip">🔊 loading voices…</div>
+<div id="starChip">⭐ <span id="starN">0</span> / 9</div>
+<div id="recChip"><span class="rdot"></span>⏺ PREVIEW • AUTO</div>
+<div id="mcTimer"><span id="mcTimerN">5</span><small>⏳ answer reveal in…</small></div>
+<div id="codeOv"><div class="box"><div class="lbl" id="codeLbl">PASSCODE DIGIT 1/5</div><div class="dig" id="codeDig">4</div></div></div>
+
+<!-- 1 TITLE -->
+<section class="slide" id="s1">
+  <div class="left">
+    <div data-step="0" style="display:flex;flex-direction:column;gap:20px">
+      <div class="kicker" data-anim style="--an:slideL">WELCOME TO THE COSMIC COMPARISON MUSEUM!</div>
+      <h1 data-anim style="--an:riseIn;--d:.12s">Mission: <span class="hly">How Many Times?</span> 🚀</h1>
+      <p class="txt" data-anim style="--an:riseIn;--d:.28s" style="font-size:34px">Given a ratio, find how many times one value is larger than another — and vice versa!</p>
+    </div>
+    <div data-step="1" style="display:flex;flex-direction:column;gap:14px">
+      <div class="card obj" data-anim style="--an:popIn;--d:.1s">🚀 Use division to find "how many times" from a ratio.</div>
+      <div class="card obj" data-anim style="--an:popIn;--d:.3s">🔄 Turn "times" sentences back into ratios.</div>
+      <div class="card obj" data-anim style="--an:popIn;--d:.5s">🪐 Express the smaller value as a fraction of the larger.</div>
+    </div>
+  </div>
+  <div class="heroframe" data-step="0" data-anim style="--an:zoomIn;--d:.2s"><img src="space-hero.png" alt="" onerror="this.style.display='none'"></div>
+</section>
+
+<!-- 2 WARM-UP -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">WARM-UP, CADET!</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Ratios Compare by <span class="hlc">Multiplication!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn" style="text-align:center">
+    <div class="cups">
+      <span class="emo" data-anim style="--an:bounceIn;--d:.2s">☄️</span>
+      <span class="emo" data-anim style="--an:bounceIn;--d:.35s">☄️</span>
+      <span class="emo vs" data-anim style="--an:popIn;--d:.5s">:</span>
+      <span class="emo" data-anim style="--an:bounceIn;--d:.6s">🌠</span>
+      <span class="emo" data-anim style="--an:bounceIn;--d:.7s">🌠</span>
+      <span class="emo" data-anim style="--an:bounceIn;--d:.8s">🌠</span>
+      <span class="emo" data-anim style="--an:bounceIn;--d:.9s">🌠</span>
+      <span class="emo" data-anim style="--an:bounceIn;--d:1s">🌠</span>
+      <span class="emo" data-anim style="--an:bounceIn;--d:1.1s">🌠</span>
+    </div>
+    <p class="big" style="margin-top:14px">2 comets : 6 meteors — the meteors make <b style="color:var(--grn)">3 groups of 2</b>!</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq yl">6 ÷ 2 = 3</span><span class="chipq gr">meteors = 3 × comets</span></div>
+    <p class="txt" style="text-align:center;margin-top:10px">"For every" and "how many times" are the SAME idea — multiplicative comparison!</p>
+  </div>
+</section>
+
+<!-- 3 KEY IDEA -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">KEY IDEA 🔑</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">HOW MANY TIMES = <span class="hly">DIVIDE!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:flipIn">
+    <p class="big" style="text-align:center">Compared quantity ÷ base quantity = <b style="color:var(--yel)">TIMES</b></p>
+    <div class="chain" style="margin-top:12px"><span class="chipq cy">6 meteors</span><span style="font:700 50px 'Fredoka';color:var(--yel)">÷</span><span class="chipq cy">2 comets</span><span style="font:700 50px 'Fredoka';color:var(--grn)">=</span><span class="chipq gr">3 times</span></div>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:flipIn">
+    <p class="big" style="text-align:center">Read the question first: <b style="color:var(--pink)">"how many times A is B"</b> means B ÷ A — order decides the division!</p>
+  </div>
+</section>
+
+<!-- 4 TABLE + DNL -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">EXHIBIT 1 🤖</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Astronauts & Robots — <span class="hlc">4 Times!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn">
+    <div class="rtable">
+      <span class="rt-h m">🧑🚀 ASTRONAUTS</span><span class="rt-h w">🤖 ROBOTS</span>
+      <span class="rt-c" data-anim style="--an:popIn;--d:.2s">1</span><span class="rt-c" data-anim style="--an:popIn;--d:.2s">4</span>
+      <span class="rt-c" data-anim style="--an:popIn;--d:.5s">2</span><span class="rt-c" data-anim style="--an:popIn;--d:.5s">8</span>
+      <span class="rt-c" data-anim style="--an:popIn;--d:.8s">3</span><span class="rt-c" data-anim style="--an:popIn;--d:.8s">12</span>
+    </div>
+    <p class="txt" style="text-align:center;margin-top:10px">Every row: robots ÷ astronauts = <b style="color:var(--grn)">4</b> → robots are 4 times the astronauts!</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="dnl">
+      <i class="tick top" style="left:0%"></i><i class="tick top" style="left:33.3%"></i><i class="tick top" style="left:66.6%"></i><i class="tick top" style="left:100%"></i>
+      <i class="tick bot" style="left:0%"></i><i class="tick bot" style="left:33.3%"></i><i class="tick bot" style="left:66.6%"></i><i class="tick bot" style="left:100%"></i>
+      <span class="tlab top" style="left:0%" data-anim style="--an:popIn;--d:.2s">0</span>
+      <span class="tlab top" style="left:33.3%" data-anim style="--an:popIn;--d:.4s">1</span>
+      <span class="tlab top" style="left:66.6%" data-anim style="--an:popIn;--d:.6s">2</span>
+      <span class="tlab top" style="left:100%" data-anim style="--an:popIn;--d:.8s">3</span>
+      <span class="tlab bot" style="left:0%" data-anim style="--an:popIn;--d:.3s">0</span>
+      <span class="tlab bot" style="left:33.3%" data-anim style="--an:popIn;--d:.5s">4</span>
+      <span class="tlab bot" style="left:66.6%" data-anim style="--an:popIn;--d:.7s">8</span>
+      <span class="tlab bot" style="left:100%" data-anim style="--an:popIn;--d:.9s">12</span>
+    </div>
+    <p class="txt" style="text-align:center">Each jump of 1 astronaut lines up with a jump of 4 robots — same multiplier every time!</p>
+  </div>
+</section>
+
+<!-- 5 VICE VERSA -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">VICE VERSA 🔄</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">"Times" Sentence → <span class="hlp">Ratio!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:flipIn">
+    <p class="big" style="text-align:center">"The 🔭 telescope is <b style="color:var(--yel)">4 times</b> as long as the 🔬 microscope."</p>
+    <div class="chain" style="margin-top:12px"><span class="chipq pu">telescope : microscope</span><span style="font:700 50px 'Fredoka';color:var(--grn)">=</span><span class="chipq gr">4 : 1</span></div>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:flipIn">
+    <div class="chain"><span class="chipq pu">microscope : telescope</span><span style="font:700 50px 'Fredoka';color:var(--grn)">=</span><span class="chipq gr">1 : 4</span></div>
+    <p class="txt" style="text-align:center;margin-top:10px">Vice versa FLIPS the ratio — the smaller quantity becomes 1 part of the bigger one's 4!</p>
+  </div>
+</section>
+
+<!-- 6 FRACTION SIDE -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">VICE VERSA 2 🪐</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">The <span class="hlc">Fraction Side!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn" style="text-align:center">
+    <div class="chain"><span class="pl mars" data-anim style="--an:zoomIn;--d:.2s"></span><span class="emo vs">:</span><span class="pl earth" data-anim style="--an:zoomIn;--d:.4s"></span></div>
+    <p class="big" style="margin-top:14px">Mars : Earth = <b style="color:var(--org)">1 : 2</b></p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq pk">Mars = ½ (0.5×) of Earth</span><span class="chipq gr">Earth = 2 × Mars</span></div>
+    <p class="txt" style="text-align:center;margin-top:10px">Smaller ÷ bigger = the FRACTION side • bigger ÷ smaller = the TIMES side!</p>
+  </div>
+</section>
+
+<!-- 7 SITUATION A -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SITUATION A ☄️</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Star Chart — <span class="hly">3 Times!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:flipIn">
+    <p class="big" style="text-align:center">5 comets : 15 meteors → 15 ÷ 5 = <b style="color:var(--yel)">3</b> → meteors are 3 times the comets!</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:flipIn">
+    <div class="chain"><span class="chipq pk">comets = 5/15 = 1/3 of meteors</span><span class="chipq gr">meteors = 3 × comets</span></div>
+    <p class="txt" style="text-align:center;margin-top:10px">Times and fractions are two sides of the SAME ratio!</p>
+  </div>
+</section>
+
+<!-- 8 SITUATION B -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SITUATION B 🛢️</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Fuel Check — <span class="hlc">4 Times!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:flipIn">
+    <p class="big" style="text-align:center">Small tanks : big tanks = 2 : 8 → 8 ÷ 2 = <b style="color:var(--yel)">4</b> → a big tank holds 4 times as much!</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:flipIn">
+    <div class="chain"><span class="chipq pk">small = 2/8 = 1/4 of big</span><span class="chipq gr">big = 4 × small</span></div>
+    <p class="txt" style="text-align:center;margin-top:10px">Same ratio, two stories — times side and fraction side!</p>
+  </div>
+</section>
+
+<!-- 9-12 PRACTICE MC -->
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 1 🖐️</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Comets to meteors is 2:6. How many times more meteors than comets?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 2</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 4</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 12</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 2 🖐️</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Jupiter's width is 11 times Earth's width. What is the ratio Earth : Jupiter?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 11 : 1</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 1 : 11</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 1 : 10</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 10 : 1</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 3 🖐️</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Red stars to blue stars is 4:1. Which sentence is TRUE?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> Blue is 4 times red</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> Red is 4 times blue</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Red is ¼ of blue</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Red is 5 times blue</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 4 🖐️</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">The Moon's width is ¼ of Earth's width. What is the ratio Moon : Earth?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 4 : 1</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 1 : 4</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 1 : 3</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 3 : 1</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- 13 HAZARDS -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">MISSION HAZARDS!</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Watch Out, <span class="hly">Cadet!</span> 🕳️</h2></div>
+  <div class="row" data-step="0">
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center" data-anim style="--an:flipIn"><h3>Hazard 1 • ÷ not −</h3>
+      <p class="txt">6 is 4 <b style="color:var(--red)">MORE</b> than 2, but <b style="color:var(--grn)">3 TIMES</b> 2 — "how many times" means DIVIDE!</p></div>
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center" data-anim style="--an:flipIn;--d:.25s"><h3>Hazard 2 • Order</h3>
+      <p class="txt">"A is 4 times B" → A:B = <b style="color:var(--grn)">4:1</b>, NOT 1:4 — the "times" quantity gets the bigger part!</p></div>
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center" data-anim style="--an:flipIn;--d:.5s"><h3>Hazard 3 • Flip = fraction</h3>
+      <p class="txt">If big = 4 × small, then small = <b style="color:var(--grn)">¼</b> of big — vice versa flips ratio AND gives the fraction side!</p></div>
+  </div>
+</section>
+
+<!-- 14-18 QUIZ MC -->
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">QUIZ 1 🧠</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Small rockets to big rockets is 3:9. Big is how many times small?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 2</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 6</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 27</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">QUIZ 2 🧠</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">The satellite dish is 5 times as wide as the antenna. Ratio dish : antenna?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 1 : 5</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 5 : 1</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 4 : 1</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 5 : 5</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">QUIZ 3 🧠</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Green aliens to purple aliens is 6:2. Purple is what FRACTION of green?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 1/3</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 1/2</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 3</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 2</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">QUIZ 4 🧠</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Ratio 8:2 — the first value is how many times the second?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 4</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 6</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 10</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 16</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">QUIZ 5 🧠</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">If A : B = 2 : 8, which sentence is TRUE?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> B is 4 times A</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> A is 4 times B</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> B is 6 times A</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> A is 8 times B</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- 19 SUMMARY -->
+<section class="slide" style="align-items:center;justify-content:center;text-align:center">
+  <div data-step="0" style="display:flex;flex-direction:column;gap:26px;align-items:center">
+    <div class="kicker" data-anim style="--an:slideL">MISSION COMPLETE 🔔</div>
+    <div class="chain" data-anim style="--an:riseIn;--d:.15s">
+      <span class="chipq yl">TIMES = ÷</span><span class="chipq pu">"times" sentence → ratio</span><span class="chipq pk">flip → fraction side</span>
+    </div>
+    <div class="master" data-anim style="--an:zoomIn;--d:.4s"><span class="inf-b">🚀</span> COSMIC COMPARISON COMMANDER!</div>
+    <p class="big" data-anim style="--an:riseIn;--d:.6s" id="starLine">Keep asking "how many times?" — see you at the next mission!</p>
+  </div>
+</section>
+
+<div id="hints"><b>→</b> Next &nbsp; <b>←</b> Back &nbsp; <b>F</b> Fullscreen &nbsp; <b>🖱️</b> click answers (Lesson) &nbsp; <b>V/M</b> Preview only</div>
+<div id="counter">01 / 19</div>
+
+<div id="overlay">
+  <div class="ttl">🚀 COSMIC COMPARISON MUSEUM</div>
+  <div class="sub">Math 6 • Term 2 • Week 2 — How Many Times One Value is Larger (and vice versa)</div>
+  <div class="sub" style="font-size:21px;color:var(--yel)">🎙️ <b>V</b> = audition voice • <b>F</b> = fullscreen • M & V disabled inside Lesson Mode.</div>
+  <div class="modeBtns" id="modeBtns">
+    <button id="btnPreview">🎬 PREVIEW MODE<small>auto-play • 5s countdown • answers spoken ONLY after reveal</small></button>
+    <button id="btnLesson">🎓 LESSON MODE<small>interactive + ⭐ big star on first-try correct • needs 5-digit passcode</small></button>
+  </div>
+  <div id="passPanel">
+    <div class="sub">Enter the 5-digit passcode you collected from the Preview video 👀</div>
+    <div class="pslots"><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div></div>
+    <div id="passMsg">Type digits • Enter = unlock • Esc = back</div>
+  </div>
+</div>
+</div>
+
+<script>
+/* ============================================================
+    YOUTUBE LINK SLOT — paste your lesson video URL inside the quotes.
+   If a link is present, PREVIEW MODE opens the YouTube video.
+   If left empty (""), the built-in preview presentation runs normally.
+   Example: var YOUTUBE_LINK = "https://youtu.be/AbCdEf12345";
+============================================================ */
+var YOUTUBE_LINK = "https://www.youtube.com/watch?v=OcPX0QeU0GE";
+
+var PASS=[4,8,1,5,9];
+
+/* WHY bank: [questionIndex][optionIndex] */
+var WHY=[
+ ["2 would mean 2×2=4 meteors, but there are 6.",
+  "6÷2 = 3 — the meteors make 3 groups of the comets!",
+  "4 would mean 4×2=8 meteors, not 6.",
+  "12 is 6×2 — you multiplied instead of dividing."],
+ ["11:1 says Earth is 11 times Jupiter — backwards!",
+  "Jupiter = 11 parts, Earth = 1 part; Earth first → 1:11!",
+  "1:10 uses 10, but the times value is 11.",
+  "10:1 mixes wrong numbers — the times value is 11, not 10."],
+ ["Blue is 1 part vs red 4 — blue is ¼ of red, not 4 times.",
+  "4÷1 = 4 — red stars are 4 times the blue stars!",
+  "Red is the BIGGER quantity (4 parts), so it can't be ¼ of blue.",
+  "5 times would need ratio 5:1, not 4:1."],
+ ["4:1 says Moon is 4 times Earth — backwards!",
+  "Moon = ¼ of Earth → 1 part to 4 parts → 1:4!",
+  "1:3 would mean Moon is one-THIRD of Earth.",
+  "3:1 would mean Moon is 3 times Earth."],
+ ["2×3=6? No — 9÷3=3, not 2.",
+  "9÷3 = 3 — big rockets are 3 times the small ones!",
+  "6 is 9−3 (the difference), not the times value.",
+  "27 is 9×3 — you multiplied instead of dividing."],
+ ["1:5 flips it — that says the antenna is 5 times the dish.",
+  "'Dish is 5 times antenna' → dish 5 parts, antenna 1 part → 5:1!",
+  "4:1 would mean 4 times, but the sentence says 5 times.",
+  "5:5 means equal sizes (1:1), not 5 times."],
+ ["Purple 2 ÷ green 6 = 2/6 = 1/3 — purple is one-third of green!",
+  "1/2 would need ratio 6:3, not 6:2.",
+  "3 is how many times GREEN is purple — the question asks the fraction side.",
+  "2 would mean purple is twice green — but purple is the smaller quantity."],
+ ["8÷2 = 4 — the first value is 4 times the second!",
+  "6 is 8−2 (difference), not the times value.",
+  "10 is 8+2 (sum), not the times value.",
+  "16 is 8×2 — wrong operation order."],
+ ["8÷2 = 4, and B is the bigger term — B is 4 times A!",
+  "A is the smaller term (2 parts) — it can't be 4 times B.",
+  "6 is 8−2 (difference), not the times value.",
+  "8 times would need ratio 1:8, not 2:8."]
+];
+
+/* MC narrations use "QUESTION ||| ANSWER" — in Preview the voice reads
+   only the QUESTION first; the ANSWER is spoken AFTER the timer reveals it. */
+var NARR=[
+["Welcome to Grade 6 Math, Term 2, Week 2 — Mission: How Many Times? Today we will use ratios to find how many times one value is larger than another — and go backwards from 'times' sentences to ratios!",
+ "Mission goals: one, use division to find 'how many times' from a ratio; two, turn 'times' sentences back into ratios; three, express the smaller value as a fraction of the larger. Blast off!"],
+["Warm-up, cadet! A ratio compares two quantities by multiplication — not addition. Two colon six means for every 2 comets there are 6 meteors.",
+ "And that 'for every' idea is exactly what 'how many times' means: six meteors is three groups of two comets — so the meteors are THREE TIMES the comets!"],
+["Key idea: to find HOW MANY TIMES one value is the other, DIVIDE! Compared quantity divided by base quantity: six divided by two equals three — meteors are three times the comets.",
+ "Read the question first: 'how many times A is B' means B divided by A — the order decides the division!"],
+["Look at the mission table: astronauts 1, 2, 3; robots 4, 8, 12. Every row: robots divided by astronauts equals four — the robots are FOUR TIMES the astronauts!",
+ "The double number line shows it too: every jump of 1 astronaut lines up with a jump of 4 robots. Same multiplier, every time — that is multiplicative comparison!"],
+["Now the vice versa: 'The telescope is 4 times as long as the microscope.' Times sentence to ratio: telescope to microscope equals four to one!",
+ "And backwards: microscope to telescope equals one to four — because the smaller one is 1 part of the bigger one's 4 parts. Vice versa FLIPS the ratio!"],
+["Vice versa also means fractions! Mars width to Earth width is one to two — so Mars is one-half, or zero point five times, Earth's width…",
+ "…and Earth is TWO TIMES Mars. Remember: smaller over bigger gives the fraction side; bigger over smaller gives the 'how many times' side!"],
+["Situation A: the star chart shows 5 comets to 15 meteors. How many times? Fifteen divided by five equals three — the meteors are three times the comets.",
+ "Vice versa: the comets are five-fifteenths, or one-third, of the meteors. Times and fractions are two sides of the same ratio!"],
+["Situation B: fuel check — small tanks to big tanks is 2 to 8. Big divided by small: eight divided by two equals four — a big tank holds FOUR TIMES as much!",
+ "And the small tank is two-eighths, or one-fourth, of the big tank. Same ratio, two stories!"],
+["Practice one: comets to meteors is 2:6. How many times more meteors than comets? Think…|||Six divided by two equals three — the meteors are THREE TIMES the comets!"],
+["Practice two: Jupiter's width is eleven times Earth's width. Write the ratio Earth to Jupiter…|||Earth first: ONE TO ELEVEN — Jupiter gets the eleven parts!"],
+["Practice three: red stars to blue stars is 4:1. Which sentence is true?|||RED IS FOUR TIMES BLUE — four divided by one equals four!"],
+["Practice four: the Moon's width is one-fourth of Earth's width. Ratio Moon to Earth?|||ONE TO FOUR — the Moon is one part, Earth four parts!"],
+["Mission hazards! Hazard one: 'how many times' is division, not subtraction — six is four MORE than two, but THREE TIMES two. Hazard two: order matters — 'A is 4 times B' means A to B is four to one, not one to four. Hazard three: vice versa means flip — if big is 4 times small, small is one-fourth of big!"],
+["Quiz one: small rockets to big rockets is 3:9. Big is how many times small?|||Nine divided by three equals THREE — three times!"],
+["Quiz two: the satellite dish is 5 times as wide as the antenna. Ratio dish to antenna?|||Dish five parts, antenna one part — FIVE TO ONE!"],
+["Quiz three: green aliens to purple aliens is 6:2. Purple is what fraction of green?|||Two sixths simplifies to ONE-THIRD — purple is one-third of green!"],
+["Quiz four: ratio 8:2 — the first value is how many times the second?|||Eight divided by two equals FOUR — four times!"],
+["Quiz five: if A to B equals 2:8, which sentence is true?|||B IS FOUR TIMES A — eight divided by two equals four!"],
+["Mission complete! How many times = divide the compared quantity by the base quantity; a 'times' sentence becomes a ratio; and flipping the ratio gives the fraction side. You can now compare multiplicatively in both directions!",
+ "%STARS% You are a Cosmic Comparison Commander! Keep asking 'how many times?' — see you at the next mission!"]
+];
+
+var slides=[].slice.call(document.querySelectorAll('.slide'));
+var mcList=[].slice.call(document.querySelectorAll('.slide.mc'));
+shuffleChoicesOnce();
+
+var si=0,step=-1,started=false,mode=null,muted=false;
+var starCount=0,firstWrong=false,answered=false;
+var mcState=slides.map(function(){return {answered:false,firstWrong:false,wrongs:{}};});
+var synth=window.speechSynthesis||null,voices=[],voiceIdx=-1;
+var chip=document.getElementById('voiceChip');
+var recChip=document.getElementById('recChip'),starChip=document.getElementById('starChip');
+var stageEl=document.getElementById('stage');
+
+if(YOUTUBE_LINK && YOUTUBE_LINK.trim()){
+  var bp=document.getElementById('btnPreview');
+  if(bp)bp.querySelector('small').textContent='opens your YouTube video link (set inside the HTML)';
+}
+
+function getWhy(sl,i){
+  var mi=mcList.indexOf(sl);
+  var w=WHY[mi];
+  if(w&&w[i])return w[i];
+  return (i===+sl.getAttribute('data-ans'))?'This choice matches the multiplicative comparison rule.':'This choice breaks the multiplicative comparison rule — check the division or the order.';
+}
+function setFB(sl,type,html){
+  var fb=sl.querySelector('.fb'); if(!fb)return;
+  fb.innerHTML=html;
+  fb.classList.remove('g','r');
+  if(type==='g')fb.classList.add('g');
+  if(type==='r')fb.classList.add('r');
+}
+
+var stepStart=[],T=0;slides.forEach(function(s,i){stepStart.push(T);T+=NARR[i].length;});
+var digitAt={};[.15,.37,.57,.76,.93].forEach(function(p,k){digitAt[Math.min(T-1,Math.round(T*p))]=PASS[k];});
+var shownDigits={};
+
+var passOpen=false,passBuf=[];
+var modeBtns=document.getElementById('modeBtns'),passPanel=document.getElementById('passPanel');
+document.getElementById('btnPreview').onclick=function(e){e.stopPropagation();startPreview();};
+document.getElementById('btnLesson').onclick=function(e){e.stopPropagation();openPass();};
+function openPass(){passOpen=true;modeBtns.style.display='none';passPanel.style.display='flex';passBuf=[];renderPass();}
+function renderPass(){var sl=passPanel.querySelectorAll('.pslot');
+  sl.forEach(function(s,i){s.textContent=passBuf[i]!==undefined?passBuf[i]:'';});}
+function tryPass(){var ok=passBuf.length===5&&passBuf.every(function(d,i){return d===PASS[i];});
+  if(ok){startLesson();}else{passPanel.classList.add('err');
+    document.getElementById('passMsg').textContent='❌ Wrong code! Watch the Preview video to collect the 5 digits.';
+    setTimeout(function(){passPanel.classList.remove('err');},600);passBuf=[];renderPass();}}
+function startPreview(){
+  if(YOUTUBE_LINK && YOUTUBE_LINK.trim()){window.open(YOUTUBE_LINK.trim(),'_blank');return;}
+  mode='preview';started=true;document.body.classList.add('preview');
+  recChip.classList.add('on');document.getElementById('overlay').style.display='none';goTo(0);}
+function startLesson(){mode='lesson';started=true;passOpen=false;document.body.classList.add('lesson');
+  document.getElementById('overlay').style.display='none';goTo(0);}
+
+var recTimer=null;
+function clearRec(){if(recTimer){clearTimeout(recTimer);recTimer=null;}}
+function scheduleNext(ms){clearRec();recTimer=setTimeout(function(){recTimer=null;if(mode==='preview'&&started)next();},ms);}
+
+var mcTimerInt=null,mcCounting=false;
+var mcTimerEl=document.getElementById('mcTimer'),mcTimerN=document.getElementById('mcTimerN');
+function clearMcTimer(){if(mcTimerInt){clearInterval(mcTimerInt);mcTimerInt=null;}
+  mcTimerEl.classList.remove('on');mcCounting=false;}
+function startMCCountdown(){mcCounting=true;var n=5;
+  mcTimerN.textContent=n;mcTimerEl.classList.add('on');tone(980,0,.09,'square',.12);
+  mcTimerInt=setInterval(function(){n--;
+    if(n<=0){clearInterval(mcTimerInt);mcTimerInt=null;mcTimerEl.classList.remove('on');mcCounting=false;
+      revealMC();speakAnswer();}
+    else{mcTimerN.textContent=n;tone(980,0,.09,'square',.12);}
+  },1000);}
+function autoAfter(){if(mode!=='preview'||!started)return;if(si>=slides.length-1)return;
+  if(slides[si].classList.contains('mc')){if(!answered&&!mcCounting)startMCCountdown();}
+  else scheduleNext(2000);}
+
+/* speaks ONLY the answer part, AFTER the reveal; then advances */
+function speakAnswer(){
+  var full=NARR[si][step]||'';
+  var parts=full.split('|||');
+  var ans=parts[1]||'';
+  if(mode!=='preview'||!ans||!synth||muted){scheduleNext(2600);return;}
+  synth.cancel();
+  var u=new SpeechSynthesisUtterance(ans);
+  var v=pickVoice();if(v){u.voice=v;u.lang=v.lang;}
+  u.rate=1.0;u.pitch=1.0;u.volume=1;
+  u.onend=u.onerror=function(){scheduleNext(2200);};
+  synth.speak(u);
+}
+
+var AC=null;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}
+  if(AC&&AC.state==='suspended')AC.resume();return AC;}
+function tone(f,t0,dur,type,vol,slide){if(muted)return;var c=ac();if(!c)return;
+  var t=c.currentTime+t0,o=c.createOscillator(),g=c.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(f,t);
+  if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+dur);
+  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol||.2,t+.02);
+  g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+.05);}
+function sPop(){tone(520,0,.12,'triangle',.22,900);}
+function sWhoosh(){if(muted)return;var c=ac();if(!c)return;
+  var dur=.35,buf=c.createBuffer(1,c.sampleRate*dur,c.sampleRate),d=buf.getChannelData(0);
+  for(var i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);
+  var src=c.createBufferSource();src.buffer=buf;var f=c.createBiquadFilter();f.type='bandpass';
+  f.frequency.setValueAtTime(300,c.currentTime);f.frequency.exponentialRampToValueAtTime(2400,c.currentTime+dur);
+  var g=c.createGain();g.gain.value=.15;src.connect(f);f.connect(g);g.connect(c.destination);src.start();}
+function sCorrect(){tone(660,0,.14,'triangle',.3);tone(880,.13,.14,'triangle',.3);tone(1100,.26,.4,'triangle',.3);}
+function sWrong(){tone(170,0,.25,'sawtooth',.18,120);}
+function sCode(){tone(784,0,.15,'triangle',.3);tone(1175,.16,.3,'triangle',.3);}
+function sFanfare(){[523,659,784,1047].forEach(function(f,i){tone(f,i*.12,.28,'triangle',.3);});tone(1319,.55,.7,'triangle',.3);}
+
+function starBurst(fromEl){
+  var sr=stageEl.getBoundingClientRect();
+  var sc=sr.width/1920;
+  var fr=fromEl.getBoundingClientRect();
+  var fx0=(fr.left+fr.width/2-sr.left)/sc;
+  var fy0=(fr.top+fr.height/2-sr.top)/sc;
+  var cr=starChip.getBoundingClientRect();
+  var tx=(cr.left+cr.width/2-sr.left)/sc, ty=(cr.top+cr.height/2-sr.top)/sc;
+  var s=document.createElement('span');
+  s.textContent='⭐';
+  s.style.cssText='position:absolute;z-index:95;pointer-events:none;left:'+fx0+'px;top:'+fy0+'px;'+
+    'font-size:72px;transform:translate(-50%,-50%) scale(0);text-shadow:0 0 30px #ffd45e,0 0 70px #ff8a4c;';
+  stageEl.appendChild(s);
+  var a1=s.animate([
+    {transform:'translate(-50%,-50%) scale(0) rotate(0deg)',opacity:1},
+    {transform:'translate(-50%,-50%) scale(2.5) rotate(540deg)',opacity:1,offset:.55},
+    {transform:'translate(-50%,-50%) scale(2.0) rotate(720deg)',opacity:1}
+  ],{duration:800,easing:'cubic-bezier(.2,.7,.2,1)'});
+  a1.onfinish=function(){
+    var dx=tx-fx0, dy=ty-fy0;
+    var a2=s.animate([
+      {transform:'translate(-50%,-50%) scale(2.0) rotate(720deg)',opacity:1},
+      {transform:'translate(calc(-50% + '+dx+'px), calc(-50% + '+dy+'px)) scale(.35) rotate(1080deg)',opacity:.95}
+    ],{duration:800,easing:'cubic-bezier(.4,0,.7,1)'});
+    a2.onfinish=function(){s.remove();
+      starChip.classList.remove('bump');void starChip.offsetWidth;starChip.classList.add('bump');
+      tone(1318,0,.18,'triangle',.28);};
+  };
+}
+
+function refreshVoices(){if(!synth)return;voices=synth.getVoices();label();}
+if(synth){refreshVoices();synth.onvoiceschanged=refreshVoices;}
+function pickVoice(){
+  if(!voices.length)return null;
+  var en=voices.filter(function(v){return v.lang.toLowerCase().indexOf('en')===0;});
+  if(voiceIdx>=0&&en.length)return en[voiceIdx%en.length];
+  var ph=voices.filter(function(v){return /en[-_]ph/i.test(v.lang);});
+  if(ph.length){var m=ph.filter(function(v){return /james|male/i.test(v.name);})[0];return m||ph[0];}
+  var ph2=voices.filter(function(v){return /philippines|filipino/i.test(v.name);})[0]; if(ph2)return ph2;
+  var nat=en.filter(function(v){return /natural|online|neural/i.test(v.name);});
+  var male=['james','guy','davis','ryan','daniel','david','mark','alex','george','arthur','fred','eric','brian','matthew','male'];
+  for(var i=0;i<male.length;i++){var f=nat.filter(function(v){return v.name.toLowerCase().indexOf(male[i])>-1;})[0]
+    ||en.filter(function(v){return v.name.toLowerCase().indexOf(male[i])>-1;})[0]; if(f)return f;}
+  return nat[0]||en[0]||voices[0];}
+function label(){var v=pickVoice();var ph=v&&(/en[-_]ph/i.test(v.lang)||/philippines|filipino/i.test(v.name));
+  chip.textContent=(muted?'🔇 Muted':(ph?'🇵🇭 ':'🔊 '))+(v?v.name.replace('Microsoft','MS').replace('Online (Natural)','Natural'):'no voice');}
+function testVoice(){if(mode==='lesson')return;
+  var en=voices.filter(function(v){return v.lang.toLowerCase().indexOf('en')===0;});
+  if(en.length){voiceIdx=(voiceIdx+1)%en.length;}
+  label();
+  if(muted||!synth)return;
+  synth.cancel();
+  var u=new SpeechSynthesisUtterance('Kumusta! This is your lesson voice. Press V again to audition other voices!');
+  var v=pickVoice();if(v){u.voice=v;u.lang=v.lang;} u.rate=1.0;u.pitch=1.0;
+  synth.speak(u);}
+chip.addEventListener('click',function(e){e.stopPropagation();testVoice();});
+
+function speak(t){
+  if(mode==='lesson')return;
+  if(!synth){autoAfter();return;}
+  synth.cancel();
+  if(muted){autoAfter();return;}
+  /* In Preview MC slides: speak ONLY the question part (before |||) */
+  if(slides[si]&&slides[si].classList.contains('mc')){t=t.split('|||')[0];}
+  var u=new SpeechSynthesisUtterance(t.replace('%STARS%','Play Lesson Mode to earn stars!')),v=pickVoice();
+  if(v){u.voice=v;u.lang=v.lang;} u.rate=1.0;u.pitch=1.0;u.volume=1;
+  u.onend=u.onerror=function(){autoAfter();};
+  synth.speak(u);}
+
+var codeOv=document.getElementById('codeOv');
+function showCode(k,d){document.getElementById('codeLbl').textContent='PASSCODE DIGIT '+(k+1)+'/5 — WRITE IT DOWN!';
+  document.getElementById('codeDig').textContent=d;codeOv.classList.add('on');sCode();
+  setTimeout(function(){codeOv.classList.remove('on');},3000);}
+
+function shuffleChoicesOnce(){
+  document.querySelectorAll('.slide.mc .opts').forEach(function(box){
+    var btns=[].slice.call(box.children);
+    for(var i=btns.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=btns[i];btns[i]=btns[j];btns[j]=t;}
+    btns.forEach(function(btn,idx){var b=btn.querySelector('b');if(b)b.textContent=String.fromCharCode(65+idx);box.appendChild(btn);});
+  });
+}
+function getMCState(sl){return mcState[slides.indexOf(sl)];}
+
+function resetMC(sl){
+  var st=getMCState(sl);
+  answered=!!st.answered; firstWrong=!!st.firstWrong;
+  sl.querySelectorAll('.opt').forEach(function(o){
+    o.classList.remove('good','bad','reveal'); o.disabled=false;
+    if(st.wrongs[+o.getAttribute('data-i')])o.classList.add('bad');
+  });
+  if(st.answered){
+    var a=+sl.getAttribute('data-ans');
+    var correct=sl.querySelector('.opt[data-i="'+a+'"]');
+    if(correct)correct.classList.add('good');
+    setFB(sl,'g','✔ Correct!'+(st.firstWrong?' (no star — missed first try)':' +1 ⭐')+
+      '<span class="why">'+getWhy(sl,a)+'</span>');
+  }else if(Object.keys(st.wrongs).length>0){
+    setFB(sl,'r','Continue — choose the correct answer to proceed!<span class="why">Read each choice carefully.</span>');
+  }else{
+    setFB(sl,'','');
+  }
+}
+function revealMC(){
+  var sl=slides[si]; if(answered)return;
+  answered=true;
+  var st=getMCState(sl); if(st)st.answered=true;
+  var a=+sl.getAttribute('data-ans');
+  var o=sl.querySelector('.opt[data-i="'+a+'"]');
+  if(o){o.classList.add('reveal');
+    starCount++;document.getElementById('starN').textContent=starCount;
+    starBurst(o); sCorrect();}
+  if(o){setFB(sl,'g','✔ Answer: '+o.textContent.replace(/^[A-D]/,'').trim()+
+    '<span class="why">'+getWhy(sl,a)+'</span>');}
+}
+function clickOpt(btn){
+  if(mode!=='lesson'||answered)return;
+  var sl=btn.closest('.slide'); var st=getMCState(sl);
+  var a=+sl.getAttribute('data-ans'); var i=+btn.getAttribute('data-i');
+  var why=getWhy(sl,i);
+  if(i===a){
+    answered=true; st.answered=true; st.firstWrong=firstWrong;
+    btn.classList.add('good');
+    if(!firstWrong){
+      starCount++;document.getElementById('starN').textContent=starCount;
+      starBurst(btn);
+      setFB(sl,'g','✔ Correct! +1 ⭐<span class="why">'+why+'</span>');
+      sCorrect();
+    }else{
+      setFB(sl,'g','✔ Correct! (no star — missed first try)<span class="why">'+why+'</span>');
+      sCorrect();
+    }
+  }else{
+    firstWrong=true; st.firstWrong=true; st.wrongs[i]=true;
+    btn.classList.add('bad');
+    setFB(sl,'r','✘ Not quite — try again!<span class="why">'+why+'</span>');
+    sWrong();
+  }
+}
+document.addEventListener('click',function(e){var b=e.target.closest('.opt');if(b){clickOpt(b);return;}
+  if(mode==='lesson'&&started)next();});
+
+function confetti(){var host=document.getElementById('confetti');if(!host)return;host.innerHTML='';
+  var cols=['#35e0ff','#ffd45e','#58e6a8','#b08bff','#ff6fa5','#ffffff'];
+  for(var i=0;i<90;i++){var s=document.createElement('i');
+    s.style.left=(Math.random()*100)+'%';s.style.background=cols[i%cols.length];
+    s.style.width=(8+Math.random()*10)+'px';s.style.height=(10+Math.random()*12)+'px';
+    s.style.animationDuration=(2.4+Math.random()*2)+'s';s.style.animationDelay=(Math.random()*.9)+'s';
+    host.appendChild(s);}
+  setTimeout(function(){host.innerHTML='';},5500);}
+
+function toggleFS(){
+  if(!document.fullscreenElement){if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen();}
+  else if(document.exitFullscreen){document.exitFullscreen();}
+}
+
+function updateHud(){
+  document.getElementById('counter').textContent=('0'+(si+1)).slice(-2)+' / '+slides.length;
+  document.getElementById('progress').style.width=((si+(step+1)/NARR[si].length)/slides.length*100)+'%';}
+function setStep(s){step=s;clearRec();clearMcTimer();
+  var els=slides[si].querySelectorAll('[data-step]'),newly=[];
+  for(var i=0;i<els.length;i++){var on=+els[i].getAttribute('data-step')<=s;
+    els[i].classList.toggle('on',on);
+    if(on&&+els[i].getAttribute('data-step')===s)newly.push(els[i]);}
+  newly.slice(0,5).forEach(function(el,idx){setTimeout(sPop,180*idx+120);});
+  if(slides[si].classList.contains('mc')&&s===0)resetMC(slides[si]);
+  var g=stepStart[si]+s;
+  if(mode==='preview'&&digitAt[g]!==undefined&&!shownDigits[g]){shownDigits[g]=1;showCode(PASS.indexOf(digitAt[g]),digitAt[g]);}
+  if(si===18&&s===0){
+    var sl2=document.getElementById('starLine');
+    if(sl2)sl2.textContent=(mode==='lesson'?('You earned '+starCount+' of 9 stars! ⭐ '):'Play Lesson Mode to earn stars! ')+'Keep asking "how many times?" — see you at the next mission!';
+    if(mode==='lesson'){confetti();sFanfare();}
+  }
+  speak(NARR[si][s]||'');updateHud();}
+function goTo(i){clearRec();clearMcTimer();slides[si].classList.remove('active');si=i;slides[si].classList.add('active');
+  slides[si].scrollTop=0;sWhoosh();setStep(0);}
+function next(){
+  if(!started)return;
+  if(mode==='lesson'&&slides[si].classList.contains('mc')){
+    var st=getMCState(slides[si]);
+    if(!st||!st.answered){
+      setFB(slides[si],'r','Answer correctly first to continue! ⭐<span class="why">Divide or flip the ratio — check the rule.</span>');
+      sWrong();return;
+    }
+  }
+  if(step<NARR[si].length-1)setStep(step+1); else if(si<slides.length-1)goTo(si+1);}
+function prev(){clearRec();clearMcTimer();if(si>0)goTo(si-1);}
+
+document.addEventListener('keydown',function(e){var k=e.key;
+  if(k==='f'||k==='F'){e.preventDefault();toggleFS();return;}
+  if(!started){
+    if(k==='v'||k==='V'){e.preventDefault();testVoice();return;}
+    if(k==='m'||k==='M'){muted=!muted;if(muted)synth&&synth.cancel();label();return;}
+    if(passOpen){
+      if(/^[0-9]$/.test(k)&&passBuf.length<5){passBuf.push(+k);renderPass();sPop();}
+      else if(k==='Backspace'){passBuf.pop();renderPass();}
+      else if(k==='Enter'){tryPass();}
+      else if(k==='Escape'){passOpen=false;passPanel.style.display='none';modeBtns.style.display='flex';}
+      e.preventDefault();return;}
+    if(k==='p'||k==='P')startPreview();
+    if(k==='l'||k==='L')openPass();
+    return;}
+  if(mode==='lesson'){
+    if(k==='m'||k==='M'||k==='v'||k==='V'){e.preventDefault();return;}
+    if(k==='ArrowRight'||k===' '||k==='Enter'||k==='PageDown'){e.preventDefault();next();}
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){e.preventDefault();prev();}
+    return;}
+  if(k==='m'||k==='M'){muted=!muted;if(muted)synth&&synth.cancel();label();return;}
+  if(k==='v'||k==='V'){testVoice();return;}});
+
+var fx=document.getElementById('fx'),sym=['🚀','','⭐','✨','×','÷','∶','?'];
+for(var i=0;i<14;i++){var s=document.createElement('span');s.textContent=sym[i%sym.length];
+  s.style.left=(Math.random()*94)+'%';s.style.top=(Math.random()*86)+'%';
+  s.style.fontSize=(28+Math.random()*48)+'px';s.style.color=(i%3?'#35e0ff':'#ffd45e');
+  s.animationDelay=(Math.random()*6)+'s';fx.appendChild(s);}
+function fit(){var sc=Math.min(innerWidth/1920,innerHeight/1080);
+  stageEl.style.transform='translate(-50%,-50%) scale('+sc+')';}
+addEventListener('resize',fit);fit();label();
+</script>
+</body>
+</html>
