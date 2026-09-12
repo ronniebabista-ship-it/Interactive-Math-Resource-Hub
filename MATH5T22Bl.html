@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math 5 T2 W3 — Stack &amp; Snack! | The Decimal Diner</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#3a2a24; --mut:#8b7268; --card:#fffdf7; --card2:#fff4e2; --line:#efd9c2; --bg:#eafaf1;
+  --cyan:#0ea87a; --yel:#f5a800; --org:#e5484d; --grn:#199d4c; --pur:#8a63d2; --pink:#ff7bac; --red:#d93036;
+  --shd:#d8ecdf;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#cfe6d8;overflow:hidden;font-family:'Nunito',sans-serif}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform:translate(-50%,-50%);
+  background-image:repeating-conic-gradient(rgba(14,168,122,.05) 0% 25%, transparent 0% 50%),
+    linear-gradient(180deg,#f4fdf8,#e4f6ec);
+  background-size:72px 72px,100% 100%;
+  color:var(--ink);overflow:hidden}
+#fx{position:absolute;inset:0;z-index:1;pointer-events:none}
+#fx span{position:absolute;font-family:'Fredoka';font-weight:700;opacity:.13;animation:float 9s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-30px) rotate(6deg)}}
+
+[data-anim]{opacity:0}
+.on[data-anim],.on [data-anim]{animation:var(--an,popIn) .8s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d,0s)}
+@keyframes popIn{0%{opacity:0;transform:scale(.4)}70%{opacity:1;transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+@keyframes riseIn{from{opacity:0;transform:translateY(60px)}to{opacity:1;transform:none}}
+@keyframes slideL{from{opacity:0;transform:translateX(-80px)}to{opacity:1;transform:none}}
+@keyframes slideR{from{opacity:0;transform:translateX(80px)}to{opacity:1;transform:none}}
+@keyframes zoomIn{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:scale(1)}}
+@keyframes flipIn{from{opacity:0;transform:perspective(900px) rotateY(65deg)}to{opacity:1;transform:none}}
+@keyframes bounceIn{0%{opacity:0;transform:translateY(70px) scale(.85)}60%{opacity:1;transform:translateY(-14px) scale(1.05)}100%{opacity:1;transform:none}}
+@keyframes iconB{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes confFall{0%{transform:translateY(-60px) rotate(0)}100%{transform:translateY(1150px) rotate(720deg);opacity:0}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-14px)}40%{transform:translateX(12px)}60%{transform:translateX(-9px)}80%{transform:translateX(6px)}}
+@keyframes winSpin{0%{transform:scale(1) rotate(0deg)}35%{transform:scale(1.16) rotate(-4deg)}65%{transform:scale(1.08) rotate(4deg)}100%{transform:scale(1) rotate(0deg)}}
+@keyframes arrowB{0%,100%{transform:translateX(0);opacity:1}50%{transform:translateX(14px);opacity:.6}}
+@keyframes shakeLoop{0%,8%{transform:translateX(0)}12%{transform:translateX(-12px)}16%{transform:translateX(10px)}20%{transform:translateX(-7px)}24%{transform:translateX(5px)}28%,100%{transform:translateX(0)}}
+@keyframes zeroLoop{0%,25%{opacity:0;transform:scale(.3) translateY(-30px)}40%,80%{opacity:1;transform:none}95%,100%{opacity:0;transform:scale(.3)}}
+@keyframes colSweep{0%,100%{background:transparent}6%,18%{background:rgba(245,168,0,.25)}}
+@keyframes carryLoop{0%,6%{opacity:0;transform:scale(.3)}12%,42%{opacity:1;transform:scale(1)}55%,100%{opacity:0}}
+@keyframes sumLoop{0%,6%{opacity:0;transform:translateY(24px)}14%,86%{opacity:1;transform:none}96%,100%{opacity:0}}
+@keyframes dotDrop{0%,15%{opacity:0;transform:translateY(-70px)}30%,75%{opacity:1;transform:translateY(0)}90%,100%{opacity:0;transform:translateY(0)}}
+@keyframes stampLoop{0%,45%{opacity:0;transform:scale(2.2) rotate(-25deg)}60%,85%{opacity:1;transform:scale(1) rotate(-8deg)}95%,100%{opacity:0;transform:scale(1) rotate(-8deg)}}
+@keyframes markDrop{from{opacity:0;transform:translate(-50%,-36px)}to{opacity:1;transform:translate(-50%,0)}}
+
+#progress{position:absolute;top:0;left:0;height:8px;width:0;z-index:60;
+  background:linear-gradient(90deg,var(--org),var(--yel),var(--cyan));transition:width .5s}
+#tag{position:absolute;top:24px;left:84px;z-index:50;font:700 19px 'Fredoka';letter-spacing:3px;color:var(--cyan)}
+#voiceChip{position:absolute;top:22px;right:84px;z-index:110;font:800 15px 'Nunito';color:var(--mut);
+  border:3px solid var(--line);border-radius:999px;padding:8px 18px;background:#fff;cursor:pointer}
+body.lesson #voiceChip,body.preview #voiceChip{display:none}
+#starChip{position:absolute;top:70px;right:84px;z-index:70;display:none;align-items:center;gap:10px;
+  font:900 22px 'Nunito';color:#b07700;background:#fff;border:3px solid var(--line);border-radius:999px;
+  padding:6px 20px;box-shadow:0 4px 0 var(--shd)}
+body.lesson #starChip,body.preview #starChip{display:flex}
+#starChip.bump{animation:pulse .5s}
+#recChip{position:absolute;top:118px;right:84px;z-index:70;display:none;align-items:center;gap:10px;
+  font:900 16px 'Nunito';color:#fff;background:#e5484dE6;border:3px solid #fff;border-radius:999px;
+  padding:6px 18px;box-shadow:0 4px 0 var(--shd)}
+#recChip.on{display:flex}
+#recChip .rdot{width:12px;height:12px;border-radius:50%;background:#fff;animation:blink 1s infinite}
+#counter{position:absolute;bottom:18px;right:84px;z-index:50;font:700 22px 'Fredoka';color:#9ab5a5}
+#hints{position:absolute;bottom:18px;left:84px;z-index:50;font:800 14px 'Nunito';color:#9ab5a5}
+#hints b{color:#b07700}
+#confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:40}
+#confetti i{position:absolute;top:0;border-radius:3px;animation:confFall linear both}
+
+#mcTimer{position:absolute;top:96px;left:50%;transform:translateX(-50%);z-index:85;display:none;align-items:center;gap:16px;
+  background:#ffffffF2;border:4px solid var(--yel);border-radius:999px;padding:8px 38px;box-shadow:0 8px 0 var(--shd)}
+#mcTimer.on{display:flex}
+#mcTimerN{font:700 64px/1 'Fredoka';color:#b07700}
+#mcTimer small{font:800 24px 'Nunito';color:var(--ink)}
+
+#codeOv{position:absolute;inset:0;z-index:90;display:none;align-items:center;justify-content:center;pointer-events:none}
+#codeOv.on{display:flex}
+#codeOv .box{background:#ffffffF5;border:5px solid var(--yel);border-radius:30px;padding:30px 70px;text-align:center;animation:popIn .5s both;box-shadow:0 10px 0 var(--shd)}
+#codeOv .lbl{font:700 32px 'Fredoka';color:#b07700;letter-spacing:4px}
+#codeOv .dig{font:700 150px/1.1 'Fredoka';color:var(--ink)}
+
+/* ---- 10-SECOND INTRO BUMPER ---- */
+#introOverlay{position:absolute;inset:0;z-index:200;background:radial-gradient(ellipse at top,#f4fdf8 0%,#e4f6ec 70%);
+  display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s}
+#introOverlay.active{opacity:1;visibility:visible}
+.intro-box{display:flex;flex-direction:column;gap:28px;align-items:center;max-width:1320px;text-align:center;padding:0 60px}
+#introOverlay.active .free-chip{animation:bounceIn .8s cubic-bezier(.2,.7,.2,1) both,pulse 2s infinite .9s}
+#introOverlay.active h1{animation:riseIn .8s .3s both}
+#introOverlay.active .comment-box{animation:slideR .8s .6s both}
+#introOverlay.active .instructions{animation:flipIn .8s .9s both}
+#introOverlay.active .countdown-box{animation:popIn .8s 1.2s both}
+.free-chip{font:900 38px 'Nunito';color:#fff;background:linear-gradient(90deg,var(--grn),var(--cyan));
+  padding:16px 44px;border-radius:999px;box-shadow:0 8px 0 var(--shd)}
+.comment-box{display:flex;align-items:center;gap:20px;font:800 40px 'Nunito';color:var(--ink);background:#fff;
+  padding:22px 46px;border-radius:24px;border:4px solid var(--cyan);box-shadow:0 7px 0 var(--shd)}
+.pin-icon{font-size:56px;animation:iconB 2s infinite}
+.instructions h3{font:700 48px 'Fredoka';margin-bottom:10px}
+.instructions .txt{font-size:34px;max-width:1060px}
+.countdown-box{font:800 34px 'Nunito';color:var(--mut);margin-top:8px}
+#introCount{font:700 80px 'Fredoka';color:#b07700;display:inline-block;min-width:90px}
+
+.slide{position:absolute;inset:0;z-index:2;padding:64px 84px 64px;display:flex;flex-direction:column;
+  justify-content:center;align-items:stretch;gap:28px;
+  opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s;
+  overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#efd9c2 transparent;scroll-behavior:smooth}
+.slide::-webkit-scrollbar{width:10px}
+.slide::-webkit-scrollbar-thumb{background:#efd9c2;border-radius:999px}
+.slide.active{opacity:1;visibility:visible}
+.slide>.row[style*="flex:1"],.slide>.card[style*="flex:1"]{flex:0 0 auto !important}
+[data-step]{opacity:0;transform:translateY(30px);transition:all .8s cubic-bezier(.2,.7,.2,1)}
+[data-step].on{opacity:1;transform:none}
+.kicker{font:700 26px 'Fredoka';letter-spacing:4px;color:var(--red)}
+.itemno{display:inline-block;background:linear-gradient(90deg,var(--org),var(--yel));color:#fff;border-radius:14px;
+  padding:4px 18px;font-size:30px;letter-spacing:2px;box-shadow:0 4px 0 var(--shd);vertical-align:middle}
+h1{font:700 68px/1.15 'Fredoka';max-width:1000px}
+h2{font:700 64px/1.15 'Fredoka'}
+.hlc{background:linear-gradient(90deg,#0ea87a,#2f6fed);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hly{background:linear-gradient(90deg,#f5a800,#e5484d);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hlp{background:linear-gradient(90deg,#8a63d2,#ff7bac);-webkit-background-clip:text;background-clip:text;color:transparent}
+.card{background:linear-gradient(160deg,var(--card),var(--card2));border:4px solid var(--line);border-radius:28px;
+  box-shadow:0 9px 0 var(--shd);padding:24px 34px}
+.card h3{font:700 42px 'Fredoka';margin-bottom:8px}
+.txt{color:var(--mut);font-size:40px;font-weight:800;line-height:1.35}
+.big{font-size:50px;font-weight:900;line-height:1.28;color:var(--ink)}
+.row{display:flex;gap:26px;align-items:stretch}
+.half{flex:1}
+.chain{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap}
+.chipq{display:inline-flex;align-items:center;gap:10px;border-radius:999px;padding:12px 30px;font:900 36px 'Nunito';
+  background:#fff;border:4px solid var(--line);color:var(--ink);box-shadow:0 5px 0 var(--shd)}
+.chipq.cy{background:rgba(14,168,122,.12);border-color:var(--cyan);color:#0b7f5c}
+.chipq.yl{background:rgba(245,168,0,.14);border-color:var(--yel);color:#b07700}
+.chipq.gr{background:rgba(25,157,76,.12);border-color:var(--grn);color:#177a3d}
+.chipq.pu{background:rgba(138,99,210,.12);border-color:var(--pur);color:#6a48b0}
+.chipq.pk{background:rgba(255,123,172,.14);border-color:var(--pink);color:#d64f86}
+.obj{font:800 36px 'Nunito';padding:16px 28px}
+.heroframe{width:760px;height:600px;border-radius:30px;overflow:hidden;border:5px solid var(--line);
+  box-shadow:0 10px 0 var(--shd);background:#fff;position:relative;flex-shrink:0}
+.heroframe::before{content:'🍔';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:150px;opacity:.25}
+.heroframe img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#s1{flex-direction:row;gap:44px;align-items:center;justify-content:center}
+#s1 .left{flex:1;display:flex;flex-direction:column;gap:22px;justify-content:center}
+
+/* ---- DINER VISUALS ---- */
+.fact{font:700 42px 'Fredoka';color:var(--ink);text-align:center;margin-top:12px}
+.flowrow{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.arr{font:700 40px 'Fredoka';color:#b07700;animation:arrowB 1.4s ease-in-out infinite;white-space:nowrap}
+
+.tags{display:flex;gap:26px;justify-content:center;align-items:center}
+.tagcol{display:flex;flex-direction:column;align-items:center;gap:10px}
+.tagcol .cup{font-size:88px}
+.price{font:700 46px 'Fredoka';background:#fff;border:4px solid var(--line);border-radius:16px;padding:8px 24px;box-shadow:0 6px 0 var(--shd);color:var(--ink)}
+.price b{color:var(--org)}
+.eqs{font:700 56px 'Fredoka';color:#b07700}
+
+.stacks{display:flex;gap:110px;justify-content:center;align-items:flex-start}
+.stk{position:relative;display:flex;flex-direction:column;gap:4px;font:700 62px 'Fredoka';color:var(--ink)}
+.stk .badge{font:700 26px 'Fredoka';text-align:center;border-radius:999px;padding:4px 18px;margin-bottom:10px}
+.stk.wrong .badge{background:rgba(217,48,54,.12);color:var(--red);border:3px solid var(--red)}
+.stk.right .badge{background:rgba(25,157,76,.12);color:var(--grn);border:3px solid var(--grn)}
+.num{display:grid;grid-template-columns:110px 34px 190px;align-items:center;line-height:1.15}
+.num .i{text-align:right}
+.num .p{text-align:center;color:var(--red)}
+.num .f{text-align:left;letter-spacing:2px}
+.stk.wrong .num .f{text-align:right}
+.stk.wrong .num .i{text-align:left}
+.on .stk.wrong{animation:shakeLoop 2.4s ease-in-out infinite}
+.stk.right::after{content:'';position:absolute;left:124px;top:-6px;bottom:-6px;width:6px;border-radius:3px;
+  background:var(--grn);box-shadow:0 0 16px rgba(25,157,76,.6);animation:pulse 1.6s infinite}
+
+.seats{display:flex;gap:8px;justify-content:center;align-items:center;font:700 84px 'Fredoka';color:var(--ink)}
+.seat{width:92px;height:104px;border-radius:16px;background:#fff;border:4px dashed var(--yel);display:flex;align-items:center;justify-content:center}
+.seat.filled{border-style:solid;border-color:var(--line)}
+.seat i{font-style:normal;color:var(--org);opacity:0}
+.on .seat i{animation:zeroLoop 3.2s ease-in-out infinite}
+
+.addgrid{display:grid;grid-template-columns:96px 40px 96px 96px 96px;gap:2px 6px;justify-content:center;
+  font:700 68px 'Fredoka';color:var(--ink)}
+.addgrid span{display:flex;align-items:center;justify-content:center;border-radius:10px}
+.addgrid .line{grid-column:1/-1;height:6px;background:var(--ink);border-radius:3px;margin:6px 0}
+.addgrid .carry{font-size:34px;color:var(--red);opacity:0}
+.addgrid .z{font-style:normal;color:var(--org)}
+.on .addgrid .sw{animation:colSweep 4.2s linear infinite;animation-delay:var(--cd,0s)}
+.on .addgrid .sum{animation:sumLoop 4.2s ease-in-out infinite;animation-delay:var(--cd,0s)}
+.on .addgrid .carry{animation:carryLoop 4.2s ease-in-out infinite;animation-delay:var(--cd,0s)}
+.on .addgrid .z{animation:zeroLoop 4.2s ease-in-out infinite}
+
+.droprow{display:flex;gap:26px;justify-content:center;align-items:center;font:700 92px 'Fredoka';color:var(--ink)}
+.dropdot{color:var(--red);display:inline-block;opacity:0}
+.on .dropdot{animation:dotDrop 3.4s ease-in-out infinite}
+.digitsbox{background:#fff;border:4px solid var(--line);border-radius:18px;padding:6px 26px;box-shadow:0 6px 0 var(--shd);letter-spacing:4px;display:flex}
+.stamp{font:700 40px 'Fredoka';color:var(--grn);border:6px solid var(--grn);border-radius:16px;padding:8px 26px;opacity:0}
+.on .stamp{animation:stampLoop 3.4s ease-in-out infinite}
+
+/* ---- MC SLIDES (ENLARGED) ---- */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:26px;max-width:1560px;margin:0 auto;width:100%}
+.opt{font:900 48px 'Nunito';color:var(--ink);background:#fff;border:5px solid var(--line);border-radius:24px;
+  padding:22px 30px;cursor:pointer;box-shadow:0 6px 0 var(--shd);transition:all .2s;text-align:left;
+  display:flex;align-items:center;gap:20px;opacity:1}
+.opt b{font:700 44px 'Fredoka';background:rgba(138,99,210,.14);border-radius:12px;padding:6px 18px;color:#6a48b0}
+.opt:hover{transform:translateY(-3px)}
+.opt.good{opacity:1;background:rgba(25,157,76,.12);border-color:var(--grn);color:#177a3d;
+  animation:winSpin .7s cubic-bezier(.2,.7,.2,1);box-shadow:0 0 0 8px #199d4c33,0 6px 0 var(--shd)}
+.opt.good b{background:var(--grn);color:#fff}
+.opt.bad{opacity:.55;background:rgba(217,48,54,.10);border-color:var(--red);color:var(--red);pointer-events:none;animation:shake .4s}
+.opt.reveal{opacity:1;background:rgba(25,157,76,.12);border-color:var(--grn);color:#177a3d;
+  animation:winSpin .7s cubic-bezier(.2,.7,.2,1);box-shadow:0 0 0 8px #199d4c33,0 6px 0 var(--shd)}
+.opt.reveal b{background:var(--grn);color:#fff}
+body.preview .opt{pointer-events:none}
+.fb{font:700 44px 'Fredoka';text-align:center;min-height:120px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.fb .why{display:block;font:800 34px/1.3 'Nunito';margin-top:6px;opacity:.95}
+.fb.g{color:var(--grn)}.fb.r{color:var(--red)}
+.qbig{font:700 60px/1.25 'Fredoka';text-align:center;max-width:1560px;margin:0 auto}
+
+.master{font:700 80px 'Fredoka';color:#b07700;text-align:center}
+#overlay{position:absolute;inset:0;z-index:100;background:#eafaf1F7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;text-align:center}
+#overlay .ttl{font:700 60px 'Fredoka';color:var(--cyan)}
+#overlay .sub{font:800 26px 'Nunito';color:var(--ink);max-width:1250px}
+.modeBtns{display:flex;gap:30px}
+.modeBtns button{font:700 32px 'Fredoka';border-radius:26px;border:5px solid var(--line);padding:24px 38px;cursor:pointer;
+  box-shadow:0 8px 0 var(--shd);transition:transform .15s;color:#fff}
+.modeBtns button:hover{transform:translateY(-4px)}
+.modeBtns small{display:block;font:800 19px 'Nunito';margin-top:8px}
+#btnPreview{background:var(--yel)}
+#btnLesson{background:var(--cyan)}
+#passPanel{display:none;flex-direction:column;gap:20px;align-items:center}
+.pslots{display:flex;gap:16px}
+.pslot{width:82px;height:100px;border-radius:18px;border:5px solid var(--line);background:#fff;
+  font:700 54px 'Fredoka';display:flex;align-items:center;justify-content:center;color:var(--cyan)}
+#passPanel.err .pslot{animation:shake .4s;border-color:var(--red)}
+#passMsg{font:800 24px 'Nunito';color:#b07700;min-height:28px}
+#passBack{font:700 26px 'Fredoka';color:var(--ink);background:#fff4e2;border:4px solid var(--line);border-radius:16px;
+  padding:10px 38px;cursor:pointer;box-shadow:0 6px 0 var(--shd);transition:transform .15s}
+#passBack:hover{transform:translateY(-3px)}
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="fx"></div>
+<div id="confetti"></div>
+<div id="progress"></div>
+<div id="tag">🍔 MATH 5 • TERM 2 • WEEK 3</div>
+<div id="voiceChip">🔊 loading voices…</div>
+<div id="starChip">⭐ <span id="starN">0</span> / 35</div>
+<div id="recChip"><span class="rdot"></span>⏺ PREVIEW • AUTO</div>
+<div id="mcTimer"><span id="mcTimerN">5</span><small>⏳ answer reveal in…</small></div>
+<div id="codeOv"><div class="box"><div class="lbl" id="codeLbl">PASSCODE DIGIT 1/5</div><div class="dig" id="codeDig">5</div></div></div>
+
+<!-- 10-SECOND INTRO BUMPER (preview only) -->
+<div id="introOverlay">
+  <div class="intro-box">
+    <div class="free-chip">🎁 FREE INTERACTIVE PRESENTATION</div>
+    <h1><span class="hly">Automated Assessment &amp; Interactive Assessment!</span></h1>
+    <div class="comment-box">
+      <span class="pin-icon">📌</span>
+      <span>Get them ALL in the <b style="color:var(--cyan)">PINNED COMMENTS</b>!</span>
+    </div>
+    <div class="instructions">
+      <h3 class="hlc">HOW TO UNLOCK LESSON MODE 🔓</h3>
+      <p class="txt">Watch this video and write down the <b style="color:var(--grn)">5 SECRET DIGITS</b> that pop up on screen — then type them to unlock the interactive lesson, answer the questions, and earn ⭐ stars!</p>
+    </div>
+    <div class="countdown-box"><span id="introCount">10</span> seconds until the diner opens…</div>
+  </div>
+</div>
+
+<!-- 1 TITLE -->
+<section class="slide" id="s1">
+  <div class="left">
+    <div data-step="0" style="display:flex;flex-direction:column;gap:20px">
+      <div class="kicker" data-anim style="--an:slideL">WELCOME TO THE DECIMAL DINER!</div>
+      <h1 data-anim style="--an:riseIn;--d:.12s">Mission: <span class="hly">Add It Up!</span> 🍔</h1>
+      <p class="txt" data-anim style="--an:riseIn;--d:.28s;font-size:38px">Add and subtract decimals with decimal parts up to 3 decimal places — the diner way!</p>
+    </div>
+    <div data-step="1" style="display:flex;flex-direction:column;gap:14px">
+      <div class="card obj" data-anim style="--an:popIn;--d:.1s">🧾 STACK IT: line up the decimal points before computing!</div>
+      <div class="card obj" data-anim style="--an:popIn;--d:.3s">➕➖ ADD &amp; SUBTRACT up to 3 decimal places — carries &amp; borrows included!</div>
+      <div class="card obj" data-anim style="--an:popIn;--d:.5s">✅ FILL empty seats with zeros &amp; drop the point straight down!</div>
+    </div>
+  </div>
+  <div class="heroframe" data-step="0" data-anim style="--an:zoomIn;--d:.2s"><img src="diner-hero.png" alt="" onerror="this.style.display='none'"></div>
+</section>
+
+<!-- 2 WARM-UP -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">WARM-UP, SOUS-CHEF!</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Same Smoothie, <span class="hlc">Three Labels!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="tags">
+      <div class="tagcol" data-anim style="--an:bounceIn;--d:.2s"><span class="cup">🥤</span><span class="price">0.5</span></div>
+      <span class="eqs" data-anim style="--an:popIn;--d:.45s">=</span>
+      <div class="tagcol" data-anim style="--an:bounceIn;--d:.5s"><span class="cup">🥤</span><span class="price">0.5<b>0</b></span></div>
+      <span class="eqs" data-anim style="--an:popIn;--d:.75s">=</span>
+      <div class="tagcol" data-anim style="--an:bounceIn;--d:.8s"><span class="cup">🥤</span><span class="price">0.5<b>00</b></span></div>
+    </div>
+    <p class="txt" style="text-align:center;margin-top:14px">Different labels, SAME smoothie — zeros on the right never change the value!</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq yl">zeros fill empty seats</span><span class="chipq cy">columns stay honest</span><span class="chipq pk">up to 3 decimal places!</span></div>
+    <p class="txt" style="text-align:center;margin-top:10px">Placeholder zeros are our secret ingredient for perfect adding and subtracting!</p>
+  </div>
+</section>
+
+<!-- 3 UNIT 1: STACK -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 1 🧾</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Stack It Straight — <span class="hlc">Points in a Line!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="stacks">
+      <div class="stk wrong">
+        <span class="badge">✘ crooked — last digits lined</span>
+        <div class="num"><span class="i">3.4</span><span class="p"></span><span class="f"></span></div>
+        <div class="num"><span class="i">+0.215</span><span class="p"></span><span class="f"></span></div>
+      </div>
+      <div class="stk right">
+        <span class="badge">✔ straight — points lined</span>
+        <div class="num"><span class="i">3</span><span class="p">.</span><span class="f">4</span></div>
+        <div class="num"><span class="i">+0</span><span class="p">.</span><span class="f">215</span></div>
+      </div>
+    </div>
+    <p class="fact">line up the <b style="color:var(--red)">decimal points</b> — tenths under tenths, hundredths under hundredths!</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq gr">points first, always</span><span class="chipq pk">never stack by last digits</span><span class="chipq yl">every seat matches its place!</span></div>
+  </div>
+</section>
+
+<!-- P1 SET -->
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🧾 <span class="itemno">Q1/5</span> • FILL THE SEATS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Written with 3 decimal places, 3.4 becomes…?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 3.400</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3.040</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 3.004</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 34.00</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🧾 <span class="itemno">Q2/5</span> • FILL THE SEATS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Written with 3 decimal places, 7 becomes…?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 7.003</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 7.000</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 0.007</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 70.00</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🧾 <span class="itemno">Q3/5</span> • FILL THE SEATS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Written with 3 decimal places, 0.25 becomes…?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 0.205</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 0.025</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 0.250</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 2.500</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🧾 <span class="itemno">Q4/5</span> • FILL THE SEATS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Stacking 4.5 + 0.125 — what must line up vertically?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> the last digits</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> the decimal points</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> the first digits</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> the zeros</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🧾 <span class="itemno">Q5/5</span> • FILL THE SEATS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Written with 3 decimal places, 12.08 becomes…?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 12.800</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 12.080</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 12.008</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 1.208</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- 4 UNIT 2: ZEROS -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 2 🪑</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Fill the Empty Seats — <span class="hly">Placeholder Zeros!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="seats">
+      <span>3</span><span style="color:var(--red)">.</span>
+      <span class="seat filled">4</span>
+      <span class="seat"><i>0</i></span>
+      <span class="seat"><i style="animation-delay:.4s">0</i></span>
+      <span class="arr">➜</span>
+      <span class="chipq gr">3.400</span>
+    </div>
+    <p class="fact">zeros fly into the empty hundredths &amp; thousandths seats — <b style="color:var(--grn)">value unchanged!</b></p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq yl">3.4 = 3.40 = 3.400</span><span class="chipq cy">same value, full seats</span><span class="chipq pk">columns stay honest!</span></div>
+  </div>
+</section>
+
+<!-- P2 SET -->
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ➕ <span class="itemno">Q1/5</span> • ADD IT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">1.234 + 0.321 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 1.545</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 1.555</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 4.554</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 1.655</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ➕ <span class="itemno">Q2/5</span> • ADD IT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">2.5 + 0.125 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 2.375</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 2.625</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 2.512</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 3.625</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ➕ <span class="itemno">Q3/5</span> • ADD IT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">0.75 + 0.255 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 1.005</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 1.050</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 1.505</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 0.995</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ➕ <span class="itemno">Q4/5</span> • ADD IT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">3.08 + 0.9 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 3.17</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3.98</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 4.88</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 3.89</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ➕ <span class="itemno">Q5/5</span> • ADD IT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">0.045 + 0.06 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 0.105</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 0.150</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 1.050</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 0.051</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- 5 UNIT 3: ADD GRID -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 3 ➕</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Add Column by Column — <span class="hlc">Right to Left!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="addgrid">
+      <span></span><span></span><span></span><span class="carry" style="--cd:.2s">1</span><span></span>
+      <span class="sw" style="--cd:2.1s">2</span><span style="color:var(--red)">.</span><span class="sw" style="--cd:1.4s">3</span><span class="sw" style="--cd:.7s">4</span><span class="sw" style="--cd:0s">5</span>
+      <span class="sw" style="--cd:2.1s">+1</span><span style="color:var(--red)">.</span><span class="sw" style="--cd:1.4s">2</span><span class="sw" style="--cd:.7s">3</span><span class="sw" style="--cd:0s">7</span>
+      <span class="line"></span>
+      <span class="sum" style="--cd:2.1s">3</span><span style="color:var(--red)">.</span><span class="sum" style="--cd:1.4s">5</span><span class="sum" style="--cd:.7s">8</span><span class="sum" style="--cd:0s">2</span>
+    </div>
+    <p class="fact">5+7=12 → write 2, <b style="color:var(--red)">carry 1</b> — sweep right to left → <b style="color:var(--grn)">3.582!</b></p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="flowrow"><span class="chipq yl">2.345 + 1.237</span><span class="arr">➜ column sweep ➜</span><span class="chipq gr">3.582 ✔</span></div>
+    <p class="txt" style="text-align:center;margin-top:8px">Carries cross the seats just like whole numbers — the point never moves the columns!</p>
+  </div>
+</section>
+
+<!-- P3 SET -->
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ➖ <span class="itemno">Q1/5</span> • SUBTRACT IT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">4.5 − 1.235 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 3.265</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3.365</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 3.735</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 2.265</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ➖ <span class="itemno">Q2/5</span> • SUBTRACT IT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">6.789 − 2.34 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 4.549</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 4.449</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 4.4449</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 3.449</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ➖ <span class="itemno">Q3/5</span> • SUBTRACT IT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">9 − 0.125 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 8.875</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 9.125</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 8.125</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 8.750</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ➖ <span class="itemno">Q4/5</span> • SUBTRACT IT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">5.06 − 0.4 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 4.66</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 5.46</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 4.64</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 4.06</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ➖ <span class="itemno">Q5/5</span> • SUBTRACT IT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">0.9 − 0.455 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 0.555</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 0.445</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 0.455</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 0.545</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- 6 UNIT 4: BORROW -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 4 ➖</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Borrow Across Seats — <span class="hlp">Chain Reaction!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="addgrid">
+      <span></span><span></span><span></span><span class="carry" style="--cd:.7s">9</span><span class="carry" style="--cd:0s">10</span>
+      <span class="sw" style="--cd:2.1s">5</span><span style="color:var(--red)">.</span><span class="sw" style="--cd:1.4s">2</span><span class="sw" style="--cd:.7s"><i class="z">0</i></span><span class="sw" style="--cd:0s"><i class="z">0</i></span>
+      <span class="sw" style="--cd:2.1s">−2</span><span style="color:var(--red)">.</span><span class="sw" style="--cd:1.4s">1</span><span class="sw" style="--cd:.7s">4</span><span class="sw" style="--cd:0s">5</span>
+      <span class="line"></span>
+      <span class="sum" style="--cd:2.1s">3</span><span style="color:var(--red)">.</span><span class="sum" style="--cd:1.4s">0</span><span class="sum" style="--cd:.7s">5</span><span class="sum" style="--cd:0s">5</span>
+    </div>
+    <p class="fact">fill seats first: 5.200 — then <b style="color:var(--pur)">borrow</b> down the chain → <b style="color:var(--grn)">3.055!</b></p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="flowrow"><span class="chipq pk">5.2 − 2.145</span><span class="arr">➜ 5.200 − 2.145 ➜</span><span class="chipq gr">3.055 ✔</span></div>
+    <p class="txt" style="text-align:center;margin-top:8px">Borrow chains cross the decimal point just like everywhere else — keep the chain going!</p>
+  </div>
+</section>
+
+<!-- P4 SET -->
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🍔 <span class="itemno">Q1/5</span> • DINER WORD PROBLEMS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A milkshake uses 0.375 L of milk and 0.25 L of cream. How many liters in all?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 0.625 L</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 0.525 L</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 0.675 L</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 0.125 L</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🍔 <span class="itemno">Q2/5</span> • DINER WORD PROBLEMS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A 2.5 m ribbon is cut by 0.755 m. How much is left?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 2.255 m</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 1.745 m</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 1.845 m</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 1.755 m</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🍔 <span class="itemno">Q3/5</span> • DINER WORD PROBLEMS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">The chef mixes 1.08 kg of flour and 0.9 kg of sugar. Total mass?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 1.98 kg</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 1.17 kg</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 2.88 kg</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 1.89 kg</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🍔 <span class="itemno">Q4/5</span> • DINER WORD PROBLEMS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A jug holds 3.408 L of juice; 0.6 L is served. How much is left?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 3.348 L</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 2.808 L</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 2.880 L</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 2.088 L</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE 🍔 <span class="itemno">Q5/5</span> • DINER WORD PROBLEMS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Two toppings weigh 0.045 kg and 0.09 kg. Combined weight?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 0.145 kg</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 0.135 kg</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 0.540 kg</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 0.014 kg</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- 7 UNIT 5: DROP & CHECK -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">UNIT 5 ✅</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Drop the Point — <span class="hlc">Then Check!</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="droprow">
+      <span class="digitsbox"><span>3</span><span class="dropdot">.</span><span>582</span></span>
+      <span class="stamp">≈ 3 ✔ REASONABLE!</span>
+    </div>
+    <p class="fact">the point drops <b style="color:var(--red)">STRAIGHT DOWN</b> from the stacked points → 3.582!</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq yl">2.345 ≈ 2</span><span class="chipq yl">1.237 ≈ 1</span><span class="chipq gr">about 3 → 3.582 is reasonable!</span></div>
+    <p class="txt" style="text-align:center;margin-top:10px">Never serve an answer without tasting it first — estimate, then check!</p>
+  </div>
+</section>
+
+<!-- P5 SET -->
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⭐ <span class="itemno">Q1/5</span> • CARRY &amp; BORROW BOSSES</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">0.999 + 0.001 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 1.000</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 0.100</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 1.001</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 0.991</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⭐ <span class="itemno">Q2/5</span> • CARRY &amp; BORROW BOSSES</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">5.2 − 2.145 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 3.155</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3.055</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 3.065</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 2.945</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⭐ <span class="itemno">Q3/5</span> • CARRY &amp; BORROW BOSSES</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">12.345 + 7.655 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 19.000</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 20.000</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 19.900</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 20.100</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⭐ <span class="itemno">Q4/5</span> • CARRY &amp; BORROW BOSSES</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">10 − 0.007 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 9.007</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 9.993</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 9.930</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 10.007</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE ⭐ <span class="itemno">Q5/5</span> • CARRY &amp; BORROW BOSSES</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">3.505 − 1.5 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 2.050</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 2.005</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 2.500</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 1.995</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- HAZARDS -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">DINER HAZARDS! ⚠️</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Don't Burn <span class="hly">the Order!</span> 🔥</h2></div>
+  <div class="row" data-step="0">
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center" data-anim style="--an:flipIn"><h3>Hazard 1 • Crooked Stack</h3>
+      <p class="txt">Line up the <b style="color:var(--red)">DECIMAL POINTS</b>, never the last digits! 3.4 + 0.215 stacks as 3.400 over 0.215.</p></div>
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center" data-anim style="--an:flipIn;--d:.25s"><h3>Hazard 2 • Empty Seats</h3>
+      <p class="txt">Fill placeholder zeros FIRST or your borrows grab the wrong seat: 5.2 becomes <b style="color:var(--org)">5.200</b> before subtracting 2.145!</p></div>
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center" data-anim style="--an:flipIn;--d:.5s"><h3>Hazard 3 • Lost Point</h3>
+      <p class="txt">The answer's point drops STRAIGHT down: 2.345 + 1.237 = <b style="color:var(--grn)">3.582</b> — never 3582!</p></div>
+  </div>
+</section>
+
+<!-- FINAL QUIZ (10) -->
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q1/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">2.45 + 0.555 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 3.005</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3.055</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 2.995</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 3.505</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q2/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">7.02 − 3.416 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 3.614</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3.604</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 4.604</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 3.396</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q3/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">FIRST step when adding 4.7 + 0.089?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> Stack by the last digits</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> Line up the decimal points</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Add from the left</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Remove the decimal points</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q4/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">0.6 + 0.6 + 0.6 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 1.8</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 0.18</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 18.0</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 1.08</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q5/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">8.125 − 8.025 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 0.1</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 0.01</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 1.1</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 0.11</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q6/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">15.004 + 0.996 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 15.100</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 16</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 16.100</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 15.900</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q7/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">5.3 − 0.045 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 5.345</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 5.255</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 5.245</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 4.255</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q8/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">0.008 + 0.02 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 0.108</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 0.028</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 0.082</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 0.280</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q9/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">The diner uses 0.85 kg of rice in the morning and 0.675 kg in the afternoon. How many kg in all?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 1.425 kg</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 1.525 kg</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 1.535 kg</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 0.175 kg</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">FINAL QUIZ 🧠 <span class="itemno">Q10/10</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">6 − 2.75 = <span style="color:#b07700">?</span></div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 4.25</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3.25</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 3.75</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 3.35</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- SUMMARY -->
+<section class="slide" style="align-items:center;justify-content:center;text-align:center">
+  <div data-step="0" style="display:flex;flex-direction:column;gap:26px;align-items:center">
+    <div class="kicker" data-anim style="--an:slideL">DINER COMPLETE 🔔</div>
+    <div class="chain" data-anim style="--an:riseIn;--d:.15s">
+      <span class="chipq cy">1 • stack the points</span><span class="chipq yl">2 • fill empty seats</span><span class="chipq pu">3 • add/subtract right→left</span><span class="chipq gr">4 • drop the point</span><span class="chipq pk">5 • estimate-check!</span>
+    </div>
+    <div class="chain" data-anim style="--an:riseIn;--d:.3s">
+      <span class="chipq gr">2.345 + 1.237 = 3.582</span><span class="chipq cy">5.200 − 2.145 = 3.055</span><span class="chipq yl">3.4 = 3.400</span>
+    </div>
+    <div class="master" data-anim style="--an:zoomIn;--d:.45s">🍔 DECIMAL DINER MASTER CHEF!</div>
+    <p class="big" data-anim style="--an:riseIn;--d:.6s" id="starLine">Keep stacking those points — see you at the next order!</p>
+  </div>
+</section>
+
+<div id="hints"><b>→</b> Next &nbsp; <b>←</b> Back &nbsp; <b>F</b> Fullscreen &nbsp; <b>🖱️</b> click answers (Lesson)</div>
+<div id="counter">01 / 44</div>
+
+<div id="overlay">
+  <div class="ttl">🍔 THE DECIMAL DINER</div>
+  <div class="sub">Math 5 • Term 2 • Week 3 — Add and subtract decimal numbers with decimal parts up to 3 decimal places: stack, fill, compute, drop the point!</div>
+  <div class="modeBtns" id="modeBtns">
+    <button id="btnPreview">🎬 PREVIEW MODE<small>opens YouTube video link (Watch for the 5 Digit Code)</small></button>
+    <button id="btnLesson">🎓 LESSON MODE<small>interactive + ⭐ big star on first-try correct • needs 5-digit passcode</small></button>
+  </div>
+  <div id="passPanel">
+    <div class="sub">Enter the 5-digit passcode you collected from the Preview video 👀</div>
+    <div class="pslots"><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div></div>
+    <div id="passMsg">Type digits • Enter = unlock</div>
+    <button id="passBack">← BACK</button>
+  </div>
+</div>
+</div>
+
+<script>
+/* ============================================================
+    YOUTUBE LINK SLOT — LEAVE EMPTY ("") WHILE YOU SCREEN-RECORD.
+    AFTER uploading, paste the new video URL and redistribute:
+    var YOUTUBE_LINK = "https://youtu.be/YourNewVideo";
+============================================================ */
+var YOUTUBE_LINK = "https://youtu.be/FZfpzlsn-7c";
+
+var PASS=[5,2,3,4,7];
+
+/* WHY bank: [mcQuestionIndex][optionIndex] — 25 practice + 10 quiz = 35 */
+var WHY=[
+/* P1 fill the seats */
+["3.400 — zeros fill the hundredths and thousandths seats, value unchanged!","3.040 moves the 4 to hundredths — different value!","3.004 moves the 4 to thousandths — different value!","34.00 shifts the whole number — ten times bigger!"],
+["7.003 adds value — placeholder zeros must be 0!","7.000 — a point plus three zeros, still exactly seven!","0.007 is seven thousandths, not seven ones!","70.00 is ten times seven!"],
+["0.205 shuffles the digits — keep 2 and 5 in their seats!","0.025 shifts everything right — ten times smaller!","0.250 — one placeholder zero at the end, value unchanged!","2.500 is ten times bigger!"],
+["Last-digit stacking crooks every column — points first!","The DECIMAL POINTS line up vertically so every seat matches!","First digits ignore place value entirely.","Zeros are filled after stacking, not before!"],
+["12.800 moves the 8 to tenths — wrong seat!","12.080 — the placeholder zero keeps 8 in hundredths!","12.008 drops the 8 to thousandths — wrong seat!","1.208 is ten times smaller!"],
+/* P2 add */
+["1.545 mis-added a column — sweep right to left again.","Column by column: 1.234 + 0.321 = 1.555!","4.554 stacked crooked by the last digits.","1.655 mis-added the tenths column."],
+["2.375 subtracted instead of added!","2.500 + 0.125 = 2.625 — seats filled first!","2.512 glued the digits without stacking.","3.625 mis-added the ones column."],
+["0.750 + 0.255 = 1.005 — the carry crosses into the ones!","1.050 dropped the thousandths carry.","1.505 stacked crooked by last digits.","0.995 subtracted instead of added."],
+["3.17 stacked crooked by the last digits.","3.080 + 0.900 = 3.980 = 3.98!","4.88 mis-added the ones column.","3.89 swapped tenths and hundredths."],
+["0.045 + 0.060 = 0.105 — hundredths 4+6 carries into tenths!","0.150 forgot the thousandths seat.","1.050 shifted the point one seat left.","0.051 stacked crooked by last digits."],
+/* P3 subtract */
+["4.500 − 1.235 = 3.265 — borrow chain done right!","3.365 forgot a borrow in the hundredths.","3.735 subtracted top from bottom in some columns.","2.265 mis-subtracted the ones column."],
+["4.549 mis-subtracted the tenths column.","6.789 − 2.340 = 4.449!","4.4449 glued extra digits into the answer.","3.449 mis-subtracted the ones column."],
+["9.000 − 0.125 = 8.875 — full borrow chain across the point!","9.125 added instead of subtracted.","8.125 borrowed only once instead of chaining.","8.750 dropped a borrow in the hundredths."],
+["5.060 − 0.400 = 4.660 = 4.66!","5.46 stacked crooked by the last digits.","4.64 subtracted the hundredths wrongly.","4.06 dropped the tenths borrow."],
+["0.555 subtracted bottom from top in some seats.","0.900 − 0.455 = 0.445!","0.455 forgot the hundredths borrow.","0.545 swapped the borrow seats."],
+/* P4 word */
+["0.375 + 0.250 = 0.625 liters — order up!","0.525 missed the hundredths carry (7+5=12).","0.675 added an extra 5 in the thousandths.","0.125 subtracted instead of added."],
+["2.255 forgot the borrow chain entirely.","2.500 − 0.755 = 1.745 meters!","1.845 missed the hundredths borrow.","1.755 missed the thousandths borrow."],
+["1.080 + 0.900 = 1.980 = 1.98 kilograms!","1.17 stacked crooked by the last digits.","2.88 mis-added the ones column.","1.89 swapped tenths and hundredths."],
+["3.348 added instead of subtracted.","3.408 − 0.600 = 2.808 liters!","2.880 dropped the thousandths seat.","2.088 borrowed from the wrong seat."],
+["0.145 mis-added the hundredths (4+9=13).","0.045 + 0.090 = 0.135 kilograms!","0.540 stacked crooked by the last digits.","0.014 shifted the decimal point."],
+/* P5 bosses */
+["0.999 + 0.001 = 1.000 — every seat carries into a whole one!","0.100 dropped two of the carries.","1.001 added without carrying at all.","0.991 subtracted instead of added."],
+["3.155 forgot the tenths borrow result.","5.200 − 2.145 = 3.055 — borrow chain complete!","3.065 missed the hundredths borrow.","2.945 borrowed one seat too many."],
+["19.000 dropped the carries entirely.","12.345 + 7.655 = 20.000 — a clean carry sweep!","19.900 missed two carries.","20.100 carried one seat too far."],
+["9.007 subtracted digits from the wrong seats.","10.000 − 0.007 = 9.993 — full borrow chain!","9.930 dropped a borrow in the hundredths.","10.007 added instead of subtracted."],
+["2.050 dropped the thousandths seat.","3.505 − 1.500 = 2.005!","2.500 ignored the hundredths and thousandths.","1.995 borrowed when no borrow was needed."],
+/* QUIZ 1-10 */
+["2.450 + 0.555 = 3.005 — carries cross the decimal point!","3.055 missed the hundredths carry.","2.995 subtracted instead of added.","3.505 stacked crooked by last digits."],
+["3.614 forgot the hundredths borrow.","7.020 − 3.416 = 3.604 — borrow chain complete!","4.604 forgot the tenths borrow.","3.396 subtracted top from bottom wrongly."],
+["Last-digit stacking crooks every column before you start.","Points first — then fill the empty seats with zeros!","Adding always starts at the RIGHT, after stacking.","Removing points turns decimals into whole numbers — wrong value!"],
+["0.6 + 0.6 + 0.6 = 1.8 — eighteen tenths regroup to 1 one 8 tenths!","0.18 misplaced the decimal point.","18.0 dropped the decimal point.","1.08 shuffled the digits."],
+["8.125 − 8.025 = 0.100 = 0.1 — trailing zeros drop away!","0.01 is one hundredth — ten times too small.","1.1 kept a wrong ones difference.","0.11 added an extra hundredth."],
+["15.100 dropped the carries entirely.","15.004 + 0.996 = 16.000 = 16 — full carry sweep!","16.100 carried one seat too far.","15.900 missed two carries."],
+["5.345 subtracted without borrowing at all.","5.300 − 0.045 = 5.255 — borrow chain complete!","5.245 missed the hundredths borrow.","4.255 borrowed from the ones wrongly."],
+["0.108 stacked crooked by the last digits.","0.008 + 0.020 = 0.028!","0.082 shuffled the digits.","0.280 shifted the point one seat left."],
+["1.425 missed the hundredths carry.","0.850 + 0.675 = 1.525 kilograms!","1.535 added an extra carry.","0.175 subtracted instead of added."],
+["4.25 forgot the tenths borrow.","6.00 − 2.75 = 3.25!","3.75 subtracted the hundredths wrongly.","3.35 missed a borrow in the chain."]
+];
+
+/* MC narrations: "QUESTION ||| ANSWER" — 35 entries in slide order. */
+var NARR=[
+/* 0 title */
+["Welcome to Grade 5 Math, Term 2, Week 3 — welcome to THE DECIMAL DINER! This week's mission: add and subtract decimal numbers with decimal parts up to three decimal places!",
+ "Our goals: stack numbers by lining up the decimal points; fill empty seats with placeholder zeros; add and subtract column by column with carries and borrows; and drop the decimal point straight down into the answer. Order up!"],
+/* 1 warm-up */
+["Warm-up, sous-chef! Look at these smoothie tags: zero point five, zero point five zero, zero point five zero zero — different labels, SAME smoothie! Adding zeros to the right of a decimal never changes its value.",
+ "That is our secret ingredient: placeholder zeros! They keep every seat filled so our columns line up perfectly when we add and subtract. Up to three decimal places — no seat left empty!"],
+/* 2 unit 1 */
+["Rule one: STACK IT STRAIGHT! When we add or subtract decimals, we line up the DECIMAL POINTS — one under the other — so tenths sit under tenths, hundredths under hundredths, thousandths under thousandths.",
+ "Never stack by the last digits! If the points are not in one straight vertical line, every column after it is wrong. Points first, always!"],
+/* 3-7 practice 1 */
+["Practice: written with three decimal places, 3.4 becomes what?|||Add placeholder zeros: THREE POINT FOUR ZERO ZERO — same value, full seats!"],
+["Practice: written with three decimal places, 7 becomes what?|||A whole number gets a point and three zeros: SEVEN POINT ZERO ZERO ZERO!"],
+["Practice: written with three decimal places, 0.25 becomes what?|||One placeholder zero: ZERO POINT TWO FIVE ZERO!"],
+["Practice: when stacking 4.5 plus 0.125, what must line up vertically?|||The DECIMAL POINTS — one straight under the other!"],
+["Practice: written with three decimal places, 12.08 becomes what?|||One placeholder zero: TWELVE POINT ZERO EIGHT ZERO!"],
+/* 8 unit 2 */
+["Rule two: FILL THE EMPTY SEATS! Before computing, give every number three decimal places. 3.4 becomes 3.400 — watch the zeros fly into the empty hundredths and thousandths seats!",
+ "Placeholder zeros change nothing about the value — but they keep our columns honest. 3.4, 3.40, 3.400 — same smoothie, full seats!"],
+/* 9-13 practice 2 */
+["Practice: 1.234 plus 0.321 equals what?|||Stack the points and add: ONE POINT FIVE FIVE FIVE!"],
+["Practice: 2.5 plus 0.125 equals what?|||Fill the seats: 2.500 plus 0.125 — TWO POINT SIX TWO FIVE!"],
+["Practice: 0.75 plus 0.255 equals what?|||0.750 plus 0.255 — ONE POINT ZERO ZERO FIVE!"],
+["Practice: 3.08 plus 0.9 equals what?|||3.080 plus 0.900 — THREE POINT NINE EIGHT!"],
+["Practice: 0.045 plus 0.06 equals what?|||0.045 plus 0.060 — ZERO POINT ONE ZERO FIVE!"],
+/* 14 unit 3 */
+["Rule three: ADD COLUMN BY COLUMN, right to left! 2.345 plus 1.237: thousandths, 5 plus 7 is 12 — write 2, carry 1. Hundredths, 4 plus 3 plus 1 is 8. Tenths, 3 plus 2 is 5. Ones, 2 plus 1 is 3.",
+ "2.345 plus 1.237 equals 3.582! Carries cross the seats just like whole numbers — the decimal point never moves the columns!"],
+/* 15-19 practice 3 */
+["Practice: 4.5 minus 1.235 equals what?|||Fill the seats: 4.500 minus 1.235 — THREE POINT TWO SIX FIVE!"],
+["Practice: 6.789 minus 2.34 equals what?|||6.789 minus 2.340 — FOUR POINT FOUR FOUR NINE!"],
+["Practice: 9 minus 0.125 equals what?|||9.000 minus 0.125 — EIGHT POINT EIGHT SEVEN FIVE!"],
+["Practice: 5.06 minus 0.4 equals what?|||5.060 minus 0.400 — FOUR POINT SIX SIX!"],
+["Practice: 0.9 minus 0.455 equals what?|||0.900 minus 0.455 — ZERO POINT FOUR FOUR FIVE!"],
+/* 20 unit 4 */
+["Rule four: BORROW ACROSS SEATS! 5.2 minus 2.145 — first fill the seats: 5.200. Thousandths: 0 minus 5 — borrow! 10 minus 5 is 5. Hundredths: 9 minus 4 is 5. Tenths: 1 minus 1 is 0. Ones: 5 minus 2 is 3.",
+ "5.200 minus 2.145 equals 3.055! Borrow chains cross the decimal point just like everywhere else — keep the chain going!"],
+/* 21-25 practice 4 */
+["Practice: a milkshake uses 0.375 liters of milk and 0.25 liters of cream. How many liters in all?|||0.375 plus 0.250 — ZERO POINT SIX TWO FIVE liters!"],
+["Practice: a ribbon 2.5 meters long is cut by 0.755 meters. How much is left?|||2.500 minus 0.755 — ONE POINT SEVEN FOUR FIVE meters!"],
+["Practice: the chef mixes 1.08 kilograms of flour and 0.9 kilograms of sugar. Total mass?|||1.080 plus 0.900 — ONE POINT NINE EIGHT kilograms!"],
+["Practice: a jug holds 3.408 liters of juice; 0.6 liters is served. How much is left?|||3.408 minus 0.600 — TWO POINT EIGHT ZERO EIGHT liters!"],
+["Practice: two toppings weigh 0.045 kilograms and 0.09 kilograms. Combined weight?|||0.045 plus 0.090 — ZERO POINT ONE THREE FIVE kilograms!"],
+/* 26 unit 5 */
+["Rule five: DROP THE POINT — and check! The answer's decimal point falls STRAIGHT DOWN from the stacked points. 2.345 plus 1.237 gives digits 3582 — drop the point: 3.582!",
+ "Then check with an estimate: about 2 plus about 1 is about 3 — and 3.582 is near 3. Reasonable! Order served!"],
+/* 27-31 practice 5 */
+["Practice: 0.999 plus 0.001 equals what?|||Every seat carries: ONE POINT ZERO ZERO ZERO — exactly one whole!"],
+["Practice: 5.2 minus 2.145 equals what?|||Fill the seats then borrow: THREE POINT ZERO FIVE FIVE!"],
+["Practice: 12.345 plus 7.655 equals what?|||All columns carry: TWENTY POINT ZERO ZERO ZERO — exactly twenty!"],
+["Practice: 10 minus 0.007 equals what?|||10.000 minus 0.007 — NINE POINT NINE NINE THREE!"],
+["Practice: 3.505 minus 1.5 equals what?|||3.505 minus 1.500 — TWO POINT ZERO ZERO FIVE!"],
+/* 32 hazards */
+["Diner hazards, don't burn the order! Hazard one: crooked stack — line up the DECIMAL POINTS, never the last digits; 3.4 plus 0.215 stacks as 3.400 over 0.215! Hazard two: empty seats — fill placeholder zeros first or your borrows grab the wrong seat: 5.2 becomes 5.200! Hazard three: lost point — the answer's decimal point drops straight down: 2.345 plus 1.237 is 3.582, never 3582!"],
+/* 33-42 final quiz */
+["Quiz one: 2.45 plus 0.555 equals what?|||2.450 plus 0.555 — THREE POINT ZERO ZERO FIVE!"],
+["Quiz two: 7.02 minus 3.416 equals what?|||7.020 minus 3.416 — THREE POINT SIX ZERO FOUR!"],
+["Quiz three: what is the FIRST step when adding 4.7 and 0.089?|||Line up the DECIMAL POINTS — then fill the empty seats!"],
+["Quiz four: 0.6 plus 0.6 plus 0.6 equals what?|||Six tenths three times is eighteen tenths — ONE POINT EIGHT!"],
+["Quiz five: 8.125 minus 8.025 equals what?|||The difference is ZERO POINT ONE — the trailing zeros drop away!"],
+["Quiz six: 15.004 plus 0.996 equals what?|||Every seat carries: SIXTEEN exactly!"],
+["Quiz seven: 5.3 minus 0.045 equals what?|||5.300 minus 0.045 — FIVE POINT TWO FIVE FIVE!"],
+["Quiz eight: 0.008 plus 0.02 equals what?|||0.008 plus 0.020 — ZERO POINT ZERO TWO EIGHT!"],
+["Quiz nine: the diner uses 0.85 kilograms of rice in the morning and 0.675 kilograms in the afternoon. How many kilograms in all?|||0.850 plus 0.675 — ONE POINT FIVE TWO FIVE kilograms!"],
+["Quiz ten: 6 minus 2.75 equals what?|||6.00 minus 2.75 — THREE POINT TWO FIVE!"],
+/* 43 summary */
+["Diner complete! Stack the points, fill the empty seats, add or subtract column by column from the right, drop the decimal point straight down, and check with an estimate. That is adding and subtracting decimals up to three decimal places!",
+ "%STARS% You are a certified DECIMAL DINER MASTER CHEF! Keep stacking those points — see you at the next order!"]
+];
+
+var slides=[].slice.call(document.querySelectorAll('.slide'));
+var mcList=[].slice.call(document.querySelectorAll('.slide.mc'));
+shuffleChoicesOnce();
+
+var si=0,step=-1,started=false,mode=null,muted=false;
+var starCount=0,firstWrong=false,answered=false;
+var mcState=slides.map(function(){return {answered:false,firstWrong:false,wrongs:{}};});
+var synth=window.speechSynthesis||null,voices=[],voiceIdx=-1;
+/* Chrome keep-alive: speechSynthesis auto-pauses long utterances (~15s bug) */
+if(synth){setInterval(function(){if(synth.speaking){try{synth.resume();}catch(e){}}},8000);}
+var chip=document.getElementById('voiceChip');
+var recChip=document.getElementById('recChip'),starChip=document.getElementById('starChip');
+var stageEl=document.getElementById('stage');
+
+function getWhy(sl,i){
+  var mi=mcList.indexOf(sl);
+  var w=WHY[mi];
+  if(w&&w[i])return w[i];
+  return (i===+sl.getAttribute('data-ans'))?'This choice follows the stacking rule.':'This choice breaks the stacking rule — check the points, the zeros, or the carries.';
+}
+function setFB(sl,type,html){
+  var fb=sl.querySelector('.fb'); if(!fb)return;
+  fb.innerHTML=html;
+  fb.classList.remove('g','r');
+  if(type==='g')fb.classList.add('g');
+  if(type==='r')fb.classList.add('r');
+}
+
+var stepStart=[],T=0;slides.forEach(function(s,i){stepStart.push(T);T+=NARR[i].length;});
+var digitAt={};[.15,.37,.57,.76,.93].forEach(function(p,k){digitAt[Math.min(T-1,Math.round(T*p))]=PASS[k];});
+var shownDigits={};
+
+var passOpen=false,passBuf=[];
+var modeBtns=document.getElementById('modeBtns'),passPanel=document.getElementById('passPanel');
+document.getElementById('btnPreview').onclick=function(e){e.stopPropagation();startPreview();};
+document.getElementById('btnLesson').onclick=function(e){e.stopPropagation();openPass();};
+document.getElementById('passBack').onclick=function(e){e.stopPropagation();closePass();};
+function openPass(){passOpen=true;modeBtns.style.display='none';passPanel.style.display='flex';passBuf=[];renderPass();
+  document.getElementById('passMsg').textContent='Type digits • Enter = unlock';}
+function closePass(){passOpen=false;passPanel.style.display='none';modeBtns.style.display='flex';}
+function renderPass(){var sl=passPanel.querySelectorAll('.pslot');
+  sl.forEach(function(s,i){s.textContent=passBuf[i]!==undefined?passBuf[i]:'';});}
+function tryPass(){var ok=passBuf.length===5&&passBuf.every(function(d,i){return d===PASS[i];});
+  if(ok){startLesson();}else{passPanel.classList.add('err');
+    document.getElementById('passMsg').textContent='❌ Wrong code! Watch the Preview video to collect the 5 digits.';
+    setTimeout(function(){passPanel.classList.remove('err');},600);passBuf=[];renderPass();}}
+function startPreview(){
+  if(YOUTUBE_LINK && YOUTUBE_LINK.trim()){window.open(YOUTUBE_LINK.trim(),'_blank');return;}
+  mode='preview';started=true;document.body.classList.add('preview');
+  recChip.classList.add('on');document.getElementById('overlay').style.display='none';
+  showIntroSlide();
+}
+/* 10-second animated bumper before the auto-lesson starts */
+function showIntroSlide(){
+  var intro=document.getElementById('introOverlay');
+  intro.classList.add('active');
+  var countEl=document.getElementById('introCount');
+  var timeLeft=10;
+  countEl.textContent=timeLeft;
+  tone(660,0,.2,'triangle',.3);tone(880,.2,.2,'triangle',.3);
+  var timer=setInterval(function(){
+    timeLeft--;
+    countEl.textContent=timeLeft;
+    if(timeLeft>0)tone(880,0,.08,'square',.15);
+    if(timeLeft<=0){
+      clearInterval(timer);
+      intro.classList.remove('active');
+      goTo(0);
+    }
+  },1000);
+}
+function startLesson(){mode='lesson';started=true;passOpen=false;document.body.classList.add('lesson');
+  document.getElementById('overlay').style.display='none';goTo(0);}
+
+var recTimer=null;
+function clearRec(){if(recTimer){clearTimeout(recTimer);recTimer=null;}}
+function scheduleNext(ms){clearRec();recTimer=setTimeout(function(){recTimer=null;if(mode==='preview'&&started)next();},ms);}
+
+var mcTimerInt=null,mcCounting=false;
+var mcTimerEl=document.getElementById('mcTimer'),mcTimerN=document.getElementById('mcTimerN');
+function clearMcTimer(){if(mcTimerInt){clearInterval(mcTimerInt);mcTimerInt=null;}
+  mcTimerEl.classList.remove('on');mcCounting=false;}
+function startMCCountdown(){mcCounting=true;var n=5;
+  mcTimerN.textContent=n;mcTimerEl.classList.add('on');tone(980,0,.09,'square',.12);
+  mcTimerInt=setInterval(function(){n--;
+    if(n<=0){clearInterval(mcTimerInt);mcTimerInt=null;mcTimerEl.classList.remove('on');mcCounting=false;
+      revealMC();speakAnswer();}
+    else{mcTimerN.textContent=n;tone(980,0,.09,'square',.12);}
+  },1000);}
+function autoAfter(){if(mode!=='preview'||!started)return;if(si>=slides.length-1)return;
+  if(slides[si].classList.contains('mc')){if(!answered&&!mcCounting)startMCCountdown();}
+  else scheduleNext(2000);}
+
+/* ---- ANTI-STALL TTS: sentence-chunked speech + per-chunk watchdog ---- */
+var spToken=0,wd=null;
+function splitSent(t){
+  var parts=t.match(/[^.!?]+[.!?]*/g)||[t];
+  var out=[],cur='';
+  for(var i=0;i<parts.length;i++){
+    if((cur+parts[i]).length>150&&cur){out.push(cur);cur=parts[i];}
+    else cur+=parts[i];
+  }
+  if(cur)out.push(cur);
+  return out.length?out:[t];
+}
+function speakChunks(ch,i,onDone,token){
+  if(token!==spToken)return;
+  if(wd){clearTimeout(wd);wd=null;}
+  if(i>=ch.length){onDone();return;}
+  var done=false;
+  var u=new SpeechSynthesisUtterance(ch[i]);
+  var v=pickVoice();if(v){u.voice=v;u.lang=v.lang;}
+  u.rate=1.0;u.pitch=1.0;u.volume=1;
+  u.onend=u.onerror=function(){if(done||token!==spToken)return;done=true;
+    if(wd){clearTimeout(wd);wd=null;}speakChunks(ch,i+1,onDone,token);};
+  try{if(synth.paused)synth.resume();}catch(e){}
+  setTimeout(function(){if(token!==spToken)return;synth.speak(u);},60);
+  var words=ch[i].split(/\s+/).length;
+  wd=setTimeout(function(){if(done||token!==spToken)return;done=true;
+    try{synth.cancel();}catch(e){}speakChunks(ch,i+1,onDone,token);},8000+words*430);
+}
+function speakAnswer(){
+  var full=NARR[si][step]||'';
+  var ans=full.split('|||')[1]||'';
+  if(mode!=='preview'||!ans||!synth||muted){scheduleNext(2600);return;}
+  synth.cancel();spToken++;
+  speakChunks(splitSent(ans),0,function(){scheduleNext(2200);},spToken);
+}
+function speak(t){
+  if(mode==='lesson')return;
+  if(!synth){autoAfter();return;}
+  synth.cancel();
+  if(muted){autoAfter();return;}
+  if(slides[si]&&slides[si].classList.contains('mc')){t=t.split('|||')[0];}
+  t=t.replace('%STARS%','Play Lesson Mode to earn stars!');
+  spToken++;
+  speakChunks(splitSent(t),0,autoAfter,spToken);
+}
+
+var AC=null;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}
+  if(AC&&AC.state==='suspended')AC.resume();return AC;}
+function tone(f,t0,dur,type,vol,slide){if(muted)return;var c=ac();if(!c)return;
+  var t=c.currentTime+t0,o=c.createOscillator(),g=c.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(f,t);
+  if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+dur);
+  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol||.2,t+.02);
+  g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+.05);}
+function sPop(){tone(520,0,.12,'triangle',.22,900);}
+function sWhoosh(){if(muted)return;var c=ac();if(!c)return;
+  var dur=.35,buf=c.createBuffer(1,c.sampleRate*dur,c.sampleRate),d=buf.getChannelData(0);
+  for(var i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);
+  var src=c.createBufferSource();src.buffer=buf;var f=c.createBiquadFilter();f.type='bandpass';
+  f.frequency.setValueAtTime(300,c.currentTime);f.frequency.exponentialRampToValueAtTime(2400,c.currentTime+dur);
+  var g=c.createGain();g.gain.value=.15;src.connect(f);f.connect(g);g.connect(c.destination);src.start();}
+function sCorrect(){tone(660,0,.14,'triangle',.3);tone(880,.13,.14,'triangle',.3);tone(1100,.26,.4,'triangle',.3);}
+function sWrong(){tone(170,0,.25,'sawtooth',.18,120);}
+function sCode(){tone(784,0,.15,'triangle',.3);tone(1175,.16,.3,'triangle',.3);}
+function sFanfare(){[523,659,784,1047].forEach(function(f,i){tone(f,i*.12,.28,'triangle',.3);});tone(1319,.55,.7,'triangle',.3);}
+
+/* Star counter only increments when the flying star LANDS on the score chip */
+function starBurst(fromEl){
+  var sr=stageEl.getBoundingClientRect();
+  var sc=sr.width/1920;
+  var fr=fromEl.getBoundingClientRect();
+  var fx0=(fr.left+fr.width/2-sr.left)/sc;
+  var fy0=(fr.top+fr.height/2-sr.top)/sc;
+  var cr=starChip.getBoundingClientRect();
+  var tx=(cr.left+cr.width/2-sr.left)/sc, ty=(cr.top+cr.height/2-sr.top)/sc;
+  var s=document.createElement('span');
+  s.textContent='⭐';
+  s.style.cssText='position:absolute;z-index:95;pointer-events:none;left:'+fx0+'px;top:'+fy0+'px;'+
+    'font-size:72px;transform:translate(-50%,-50%) scale(0);text-shadow:0 0 30px #f5a800,0 0 70px #e5484d;';
+  stageEl.appendChild(s);
+  var a1=s.animate([
+    {transform:'translate(-50%,-50%) scale(0) rotate(0deg)',opacity:1},
+    {transform:'translate(-50%,-50%) scale(2.5) rotate(540deg)',opacity:1,offset:.55},
+    {transform:'translate(-50%,-50%) scale(2.0) rotate(720deg)',opacity:1}
+  ],{duration:800,easing:'cubic-bezier(.2,.7,.2,1)'});
+  a1.onfinish=function(){
+    var dx=tx-fx0, dy=ty-fy0;
+    var a2=s.animate([
+      {transform:'translate(-50%,-50%) scale(2.0) rotate(720deg)',opacity:1},
+      {transform:'translate(calc(-50% + '+dx+'px), calc(-50% + '+dy+'px)) scale(.35) rotate(1080deg)',opacity:.95}
+    ],{duration:800,easing:'cubic-bezier(.4,0,.7,1)'});
+    a2.onfinish=function(){s.remove();
+      starCount++;document.getElementById('starN').textContent=starCount;
+      starChip.classList.remove('bump');void starChip.offsetWidth;starChip.classList.add('bump');
+      tone(1318,0,.18,'triangle',.28);};
+  };
+}
+
+function refreshVoices(){if(!synth)return;voices=synth.getVoices();label();}
+if(synth){refreshVoices();synth.onvoiceschanged=refreshVoices;}
+function pickVoice(){
+  if(!voices.length)return null;
+  var en=voices.filter(function(v){return v.lang.toLowerCase().indexOf('en')===0;});
+  if(voiceIdx>=0&&en.length)return en[voiceIdx%en.length];
+  var ph=voices.filter(function(v){return /en[-_]ph/i.test(v.lang);});
+  if(ph.length){var m=ph.filter(function(v){return /james|male/i.test(v.name);})[0];return m||ph[0];}
+  var ph2=voices.filter(function(v){return /philippines|filipino/i.test(v.name);})[0]; if(ph2)return ph2;
+  var nat=en.filter(function(v){return /natural|online|neural/i.test(v.name);});
+  var male=['james','guy','davis','ryan','daniel','david','mark','alex','george','arthur','fred','eric','brian','matthew','male'];
+  for(var i=0;i<male.length;i++){var f=nat.filter(function(v){return v.name.toLowerCase().indexOf(male[i])>-1;})[0]
+    ||en.filter(function(v){return v.name.toLowerCase().indexOf(male[i])>-1;})[0]; if(f)return f;}
+  return nat[0]||en[0]||voices[0];}
+function label(){var v=pickVoice();var ph=v&&(/en[-_]ph/i.test(v.lang)||/philippines|filipino/i.test(v.name));
+  chip.textContent=(muted?'🔇 Muted':(ph?'🇵🇭 ':'🔊 '))+(v?v.name.replace('Microsoft','MS').replace('Online (Natural)','Natural'):'no voice');}
+function testVoice(){if(mode==='lesson')return;
+  var en=voices.filter(function(v){return v.lang.toLowerCase().indexOf('en')===0;});
+  if(en.length){voiceIdx=(voiceIdx+1)%en.length;}
+  label();
+  if(muted||!synth)return;
+  synth.cancel();
+  var u=new SpeechSynthesisUtterance('Kumusta! This is your lesson voice. Press V again to audition other voices!');
+  var v=pickVoice();if(v){u.voice=v;u.lang=v.lang;} u.rate=1.0;u.pitch=1.0;
+  synth.speak(u);}
+chip.addEventListener('click',function(e){e.stopPropagation();testVoice();});
+
+var codeOv=document.getElementById('codeOv');
+function showCode(k,d){document.getElementById('codeLbl').textContent='PASSCODE DIGIT '+(k+1)+'/5 — WRITE IT DOWN!';
+  document.getElementById('codeDig').textContent=d;codeOv.classList.add('on');sCode();
+  setTimeout(function(){codeOv.classList.remove('on');},3000);}
+
+function shuffleChoicesOnce(){
+  document.querySelectorAll('.slide.mc .opts').forEach(function(box){
+    var btns=[].slice.call(box.children);
+    for(var i=btns.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=btns[i];btns[i]=btns[j];btns[j]=t;}
+    btns.forEach(function(btn,idx){var b=btn.querySelector('b');if(b)b.textContent=String.fromCharCode(65+idx);box.appendChild(btn);});
+  });
+}
+function getMCState(sl){return mcState[slides.indexOf(sl)];}
+
+function resetMC(sl){
+  var st=getMCState(sl);
+  answered=!!st.answered; firstWrong=!!st.firstWrong;
+  sl.querySelectorAll('.opt').forEach(function(o){
+    o.classList.remove('good','bad','reveal'); o.disabled=false;
+    if(st.wrongs[+o.getAttribute('data-i')])o.classList.add('bad');
+  });
+  if(st.answered){
+    var a=+sl.getAttribute('data-ans');
+    var correct=sl.querySelector('.opt[data-i="'+a+'"]');
+    if(correct)correct.classList.add('good');
+    setFB(sl,'g','✔ Correct!'+(st.firstWrong?' (no star — missed first try)':' +1 ⭐')+
+      '<span class="why">'+getWhy(sl,a)+'</span>');
+  }else if(Object.keys(st.wrongs).length>0){
+    setFB(sl,'r','Continue — choose the correct answer to proceed!<span class="why">Read each choice carefully.</span>');
+  }else{
+    setFB(sl,'','');
+  }
+}
+function revealMC(){
+  var sl=slides[si]; if(answered)return;
+  answered=true;
+  var st=getMCState(sl); if(st)st.answered=true;
+  var a=+sl.getAttribute('data-ans');
+  var o=sl.querySelector('.opt[data-i="'+a+'"]');
+  if(o){o.classList.add('reveal');
+    starBurst(o); sCorrect();}
+  if(o){setFB(sl,'g','✔ Answer: '+o.textContent.replace(/^[A-D]/,'').trim()+
+    '<span class="why">'+getWhy(sl,a)+'</span>');}
+}
+function clickOpt(btn){
+  if(mode!=='lesson'||answered)return;
+  var sl=btn.closest('.slide'); var st=getMCState(sl);
+  var a=+sl.getAttribute('data-ans'); var i=+btn.getAttribute('data-i');
+  var why=getWhy(sl,i);
+  if(i===a){
+    answered=true; st.answered=true; st.firstWrong=firstWrong;
+    btn.classList.add('good');
+    if(!firstWrong){
+      starBurst(btn);
+      setFB(sl,'g','✔ Correct! +1 ⭐<span class="why">'+why+'</span>');
+      sCorrect();
+    }else{
+      setFB(sl,'g','✔ Correct! (no star — missed first try)<span class="why">'+why+'</span>');
+      sCorrect();
+    }
+  }else{
+    firstWrong=true; st.firstWrong=true; st.wrongs[i]=true;
+    btn.classList.add('bad');
+    setFB(sl,'r','✘ Not quite — try again!<span class="why">'+why+'</span>');
+    sWrong();
+  }
+}
+document.addEventListener('click',function(e){var b=e.target.closest('.opt');if(b){clickOpt(b);return;}
+  if(mode==='lesson'&&started)next();});
+
+function confetti(){var host=document.getElementById('confetti');if(!host)return;host.innerHTML='';
+  var cols=['#e5484d','#f5a800','#0ea87a','#8a63d2','#ff7bac','#3a2a24'];
+  for(var i=0;i<90;i++){var s=document.createElement('i');
+    s.style.left=(Math.random()*100)+'%';s.style.background=cols[i%cols.length];
+    s.style.width=(8+Math.random()*10)+'px';s.style.height=(10+Math.random()*12)+'px';
+    s.style.animationDuration=(2.4+Math.random()*2)+'s';s.style.animationDelay=(Math.random()*.9)+'s';
+    host.appendChild(s);}
+  setTimeout(function(){host.innerHTML='';},5500);}
+
+function toggleFS(){
+  if(!document.fullscreenElement){if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen();}
+  else if(document.exitFullscreen){document.exitFullscreen();}
+}
+
+function updateHud(){
+  document.getElementById('counter').textContent=('0'+(si+1)).slice(-2)+' / '+slides.length;
+  document.getElementById('progress').style.width=((si+(step+1)/NARR[si].length)/slides.length*100)+'%';}
+function setStep(s){step=s;clearRec();clearMcTimer();
+  var els=slides[si].querySelectorAll('[data-step]'),newly=[];
+  for(var i=0;i<els.length;i++){var on=+els[i].getAttribute('data-step')<=s;
+    els[i].classList.toggle('on',on);
+    if(on&&+els[i].getAttribute('data-step')===s)newly.push(els[i]);}
+  newly.slice(0,5).forEach(function(el,idx){setTimeout(sPop,180*idx+120);});
+  if(slides[si].classList.contains('mc')&&s===0)resetMC(slides[si]);
+  var g=stepStart[si]+s;
+  if(mode==='preview'&&digitAt[g]!==undefined&&!shownDigits[g]){shownDigits[g]=1;showCode(PASS.indexOf(digitAt[g]),digitAt[g]);}
+  if(si===slides.length-1&&s===0){
+    var sl2=document.getElementById('starLine');
+    if(sl2)sl2.textContent=(mode==='lesson'?('You earned '+starCount+' of 35 stars! ⭐ '):'Play Lesson Mode to earn stars! ')+'Keep stacking those points — see you at the next order!';
+    if(mode==='lesson'){confetti();sFanfare();}
+  }
+  speak(NARR[si][s]||'');updateHud();}
+function goTo(i){clearRec();clearMcTimer();slides[si].classList.remove('active');si=i;slides[si].classList.add('active');
+  slides[si].scrollTop=0;sWhoosh();setStep(0);}
+function next(){
+  if(!started)return;
+  if(mode==='lesson'&&slides[si].classList.contains('mc')){
+    var st=getMCState(slides[si]);
+    if(!st||!st.answered){
+      setFB(slides[si],'r','Answer correctly first to continue! ⭐<span class="why">Stack the points, fill the seats, then compute.</span>');
+      sWrong();return;
+    }
+  }
+  if(step<NARR[si].length-1)setStep(step+1); else if(si<slides.length-1)goTo(si+1);}
+function prev(){clearRec();clearMcTimer();if(si>0)goTo(si-1);}
+
+document.addEventListener('keydown',function(e){var k=e.key;
+  if(k==='f'||k==='F'){e.preventDefault();toggleFS();return;}
+  if(!started){
+    if(k==='v'||k==='V'){e.preventDefault();testVoice();return;}
+    if(k==='m'||k==='M'){muted=!muted;if(muted)synth&&synth.cancel();label();return;}
+    if(passOpen){
+      if(/^[0-9]$/.test(k)&&passBuf.length<5){passBuf.push(+k);renderPass();sPop();}
+      else if(k==='Backspace'){passBuf.pop();renderPass();}
+      else if(k==='Enter'){tryPass();}
+      else if(k==='Escape'){closePass();}
+      e.preventDefault();return;}
+    if(k==='p'||k==='P')startPreview();
+    if(k==='l'||k==='L')openPass();
+    return;}
+  if(mode==='lesson'){
+    if(k==='m'||k==='M'||k==='v'||k==='V'){e.preventDefault();return;}
+    if(k==='ArrowRight'||k===' '||k==='Enter'||k==='PageDown'){e.preventDefault();next();}
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){e.preventDefault();prev();}
+    return;}
+  if(k==='m'||k==='M'){muted=!muted;if(muted)synth&&synth.cancel();label();return;}
+  if(k==='v'||k==='V'){testVoice();return;}});
+
+var fx=document.getElementById('fx'),sym=['🍔','','','🧾','','➖','.','0','1','★','🍒','⭐'];
+for(var i=0;i<14;i++){var s=document.createElement('span');s.textContent=sym[i%sym.length];
+  s.style.left=(Math.random()*94)+'%';s.style.top=(Math.random()*86)+'%';
+  s.style.fontSize=(28+Math.random()*48)+'px';s.style.color=(i%3?'#0ea87a':'#f5a800');
+  s.animationDelay=(Math.random()*6)+'s';fx.appendChild(s);}
+function fit(){var sc=Math.min(innerWidth/1920,innerHeight/1080);
+  stageEl.style.transform='translate(-50%,-50%) scale('+sc+')';}
+addEventListener('resize',fit);fit();label();
+</script>
+</body>
+</html>
