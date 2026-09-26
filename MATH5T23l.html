@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math 5 T2 W3 — Multi-Step Decimal Problems | The Decimal Ledger</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#22301c; --mut:#6e7660; --card:#fffdf4; --card2:#f7f1de; --line:#c4c9a8; --bg:#efe7cf;
+  --cyan:#1e6f50; --yel:#b98a2e; --org:#9e3b2f; --grn:#2e7d4f; --pur:#4a5d8a; --pink:#a34a6b; --red:#9e3b2f;
+  --shd:#d8cfb4;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#ddd3b6;overflow:hidden;font-family:'Nunito',sans-serif}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform:translate(-50%,-50%);
+  background-image:repeating-linear-gradient(180deg,transparent 0 43px,rgba(30,111,80,.10) 43px 44px),
+    linear-gradient(90deg,transparent 76px,rgba(158,59,47,.28) 76px 78px,rgba(158,59,47,.28) 80px,transparent 82px),
+    linear-gradient(180deg,#f4ecd8,#ece3c9);
+  background-size:100% 44px,100% 100%,100% 100%;
+  color:var(--ink);overflow:hidden}
+#fx{position:absolute;inset:0;z-index:1;pointer-events:none}
+#fx span{position:absolute;font-family:'Fredoka';font-weight:700;opacity:.12;animation:float 9s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-26px) rotate(4deg)}}
+
+[data-anim]{opacity:0}
+.on[data-anim],.on [data-anim]{animation:var(--an,popIn) .8s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d,0s)}
+@keyframes popIn{0%{opacity:0;transform:scale(.4)}70%{opacity:1;transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+@keyframes riseIn{from{opacity:0;transform:translateY(60px)}to{opacity:1;transform:none}}
+@keyframes slideL{from{opacity:0;transform:translateX(-80px)}to{opacity:1;transform:none}}
+@keyframes slideR{from{opacity:0;transform:translateX(80px)}to{opacity:1;transform:none}}
+@keyframes zoomIn{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:scale(1)}}
+@keyframes flipIn{from{opacity:0;transform:perspective(900px) rotateY(65deg)}to{opacity:1;transform:none}}
+@keyframes bounceIn{0%{opacity:0;transform:translateY(70px) scale(.85)}60%{opacity:1;transform:translateY(-14px) scale(1.05)}100%{opacity:1;transform:none}}
+@keyframes iconB{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes confFall{0%{transform:translateY(-60px) rotate(0)}100%{transform:translateY(1150px) rotate(720deg);opacity:0}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-14px)}40%{transform:translateX(12px)}60%{transform:translateX(-9px)}80%{transform:translateX(6px)}}
+@keyframes winSpin{0%{transform:scale(1) rotate(0deg)}35%{transform:scale(1.16) rotate(-4deg)}65%{transform:scale(1.08) rotate(4deg)}100%{transform:scale(1) rotate(0deg)}}
+@keyframes arrowB{0%,100%{transform:translateX(0);opacity:1}50%{transform:translateX(12px);opacity:.6}}
+@keyframes glowLoop{0%,100%{box-shadow:0 6px 0 var(--shd)}50%{box-shadow:0 6px 0 var(--shd),0 0 26px rgba(30,111,80,.35)}}
+@keyframes rowGlow{0%,100%{background:transparent}50%{background:rgba(185,138,46,.14)}}
+@keyframes printIn{0%{opacity:0;transform:translateY(14px)}12%,88%{opacity:1;transform:none}100%{opacity:0;transform:none}}
+@keyframes dashPulse{0%,100%{box-shadow:0 0 0 rgba(158,59,47,0)}50%{box-shadow:0 0 22px rgba(158,59,47,.35)}}
+@keyframes stampIn{0%,35%{opacity:0;transform:scale(1.9) rotate(-18deg)}50%,85%{opacity:1;transform:scale(1) rotate(-6deg)}100%{opacity:0;transform:scale(1) rotate(-6deg)}}
+@keyframes segPulse{0%,100%{filter:none}50%{filter:brightness(1.15) drop-shadow(0 0 12px rgba(46,125,79,.5))}}
+
+#progress{position:absolute;top:0;left:0;height:8px;width:0;z-index:60;
+  background:linear-gradient(90deg,var(--cyan),var(--yel),var(--org));transition:width .5s}
+#tag{position:absolute;top:24px;left:104px;z-index:50;font:700 19px 'Fredoka';letter-spacing:3px;color:var(--cyan)}
+#voiceChip{position:absolute;top:22px;right:84px;z-index:110;font:800 15px 'Nunito';color:var(--mut);
+  border:3px solid var(--line);border-radius:999px;padding:8px 18px;background:#fffdf4;cursor:pointer}
+body.lesson #voiceChip,body.preview #voiceChip{display:none}
+#starChip{position:absolute;top:70px;right:84px;z-index:70;display:none;align-items:center;gap:10px;
+  font:900 22px 'Nunito';color:#8a6a1f;background:#fffdf4;border:3px solid var(--line);border-radius:999px;
+  padding:6px 20px;box-shadow:0 4px 0 var(--shd)}
+body.lesson #starChip,body.preview #starChip{display:flex}
+#starChip.bump{animation:pulse .5s}
+#recChip{position:absolute;top:118px;right:84px;z-index:70;display:none;align-items:center;gap:10px;
+  font:900 16px 'Nunito';color:#fff;background:#9e3b2fE6;border:3px solid #fffdf4;border-radius:999px;
+  padding:6px 18px;box-shadow:0 4px 0 var(--shd)}
+#recChip.on{display:flex}
+#recChip .rdot{width:12px;height:12px;border-radius:50%;background:#fff;animation:blink 1s infinite}
+#counter{position:absolute;bottom:18px;right:84px;z-index:50;font:700 22px 'Fredoka';color:#8b9179}
+#hints{position:absolute;bottom:18px;left:104px;z-index:50;font:800 14px 'Nunito';color:#8b9179}
+#hints b{color:#8a6a1f}
+#confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:40}
+#confetti i{position:absolute;top:0;border-radius:3px;animation:confFall linear both}
+
+#mcTimer{position:absolute;top:96px;left:50%;transform:translateX(-50%);z-index:85;display:none;align-items:center;gap:16px;
+  background:#fffdf4F2;border:4px solid var(--yel);border-radius:999px;padding:8px 38px;box-shadow:0 8px 0 var(--shd)}
+#mcTimer.on{display:flex}
+#mcTimerN{font:700 64px/1 'Fredoka';color:#8a6a1f}
+#mcTimer small{font:800 24px 'Nunito';color:var(--ink)}
+
+#codeOv{position:absolute;inset:0;z-index:90;display:none;align-items:center;justify-content:center;pointer-events:none}
+#codeOv.on{display:flex}
+#codeOv .box{background:#fffdf4F5;border:5px solid var(--yel);border-radius:30px;padding:30px 70px;text-align:center;animation:popIn .5s both;box-shadow:0 10px 0 var(--shd)}
+#codeOv .lbl{font:700 32px 'Fredoka';color:#8a6a1f;letter-spacing:4px}
+#codeOv .dig{font:700 150px/1.1 'Fredoka';color:var(--ink)}
+
+/* ---- 10-SECOND INTRO BUMPER ---- */
+#introOverlay{position:absolute;inset:0;z-index:200;background:radial-gradient(ellipse at top,#f4ecd8 0%,#ece3c9 70%);
+  display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s}
+#introOverlay.active{opacity:1;visibility:visible}
+.intro-box{display:flex;flex-direction:column;gap:28px;align-items:center;max-width:1320px;text-align:center;padding:0 60px}
+#introOverlay.active .free-chip{animation:bounceIn .8s cubic-bezier(.2,.7,.2,1) both,pulse 2s infinite .9s}
+#introOverlay.active h1{animation:riseIn .8s .3s both}
+#introOverlay.active .comment-box{animation:slideR .8s .6s both}
+#introOverlay.active .instructions{animation:flipIn .8s .9s both}
+#introOverlay.active .countdown-box{animation:popIn .8s 1.2s both}
+.free-chip{font:900 38px 'Nunito';color:#fff;background:linear-gradient(90deg,var(--grn),var(--cyan));
+  padding:16px 44px;border-radius:999px;box-shadow:0 8px 0 var(--shd)}
+.comment-box{display:flex;align-items:center;gap:20px;font:800 40px 'Nunito';color:var(--ink);background:#fffdf4;
+  padding:22px 46px;border-radius:24px;border:4px solid var(--cyan);box-shadow:0 7px 0 var(--shd)}
+.pin-icon{font-size:56px;animation:iconB 2s infinite}
+.instructions h3{font:700 48px 'Fredoka';margin-bottom:10px}
+.instructions .txt{font-size:34px;max-width:1060px}
+.countdown-box{font:800 34px 'Nunito';color:var(--mut);margin-top:8px}
+#introCount{font:700 80px 'Fredoka';color:#8a6a1f;display:inline-block;min-width:90px}
+
+.slide{position:absolute;inset:0;z-index:2;padding:64px 104px 64px;display:flex;flex-direction:column;
+  justify-content:center;align-items:stretch;gap:28px;
+  opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s;
+  overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#c4c9a8 transparent;scroll-behavior:smooth}
+.slide::-webkit-scrollbar{width:10px}
+.slide::-webkit-scrollbar-thumb{background:#c4c9a8;border-radius:999px}
+.slide.active{opacity:1;visibility:visible}
+.slide>.row[style*="flex:1"],.slide>.card[style*="flex:1"]{flex:0 0 auto !important}
+[data-step]{opacity:0;transform:translateY(30px);transition:all .8s cubic-bezier(.2,.7,.2,1)}
+[data-step].on{opacity:1;transform:none}
+.kicker{font:700 26px 'Fredoka';letter-spacing:4px;color:var(--cyan)}
+.itemno{display:inline-block;background:linear-gradient(90deg,var(--cyan),var(--yel));color:#fff;border-radius:14px;
+  padding:4px 18px;font-size:30px;letter-spacing:2px;box-shadow:0 4px 0 var(--shd);vertical-align:middle}
+h1{font:700 66px/1.15 'Fredoka';max-width:1100px}
+h2{font:700 60px/1.15 'Fredoka'}
+.hlc{background:linear-gradient(90deg,#1e6f50,#4a5d8a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hly{background:linear-gradient(90deg,#b98a2e,#9e3b2f);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hlp{background:linear-gradient(90deg,#4a5d8a,#a34a6b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.card{background:linear-gradient(160deg,var(--card),var(--card2));border:4px solid var(--line);border-radius:22px;
+  box-shadow:0 9px 0 var(--shd);padding:24px 34px;color:var(--ink)}
+.card h3{font:700 40px 'Fredoka';margin-bottom:8px;color:var(--cyan)}
+.txt{color:var(--mut);font-size:38px;font-weight:800;line-height:1.4}
+.big{font-size:46px;font-weight:900;line-height:1.3;color:var(--ink)}
+.row{display:flex;gap:26px;align-items:stretch}
+.half{flex:1}
+.chain{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap}
+.chipq{display:inline-flex;align-items:center;gap:10px;border-radius:999px;padding:12px 30px;font:900 34px 'Nunito';
+  background:#fffdf4;border:4px solid var(--line);color:var(--ink);box-shadow:0 5px 0 var(--shd)}
+.chipq.cy{background:rgba(30,111,80,.10);border-color:var(--cyan);color:var(--cyan)}
+.chipq.yl{background:rgba(185,138,46,.12);border-color:var(--yel);color:#8a6a1f}
+.chipq.gr{background:rgba(46,125,79,.10);border-color:var(--grn);color:var(--grn)}
+.chipq.pu{background:rgba(74,93,138,.10);border-color:var(--pur);color:var(--pur)}
+.chipq.pk{background:rgba(163,74,107,.10);border-color:var(--pink);color:var(--pink)}
+.obj{font:800 34px 'Nunito';padding:16px 28px}
+.heroframe{width:760px;height:600px;border-radius:26px;overflow:hidden;border:5px solid var(--line);
+  box-shadow:0 10px 0 var(--shd);background:#f6efdb;position:relative;flex-shrink:0}
+.heroframe::before{content:'🏦';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:150px;opacity:.18}
+.heroframe svg{position:absolute;inset:0;width:100%;height:100%}
+#s1{flex-direction:row;gap:44px;align-items:center;justify-content:center}
+#s1 .left{flex:1;display:flex;flex-direction:column;gap:22px;justify-content:center}
+
+/* ---- LEDGER VISUALS ---- */
+.fact{font:700 40px 'Fredoka';color:var(--ink);text-align:center;margin-top:12px}
+.flowrow{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.arr{font:700 38px 'Fredoka';color:#8a6a1f;animation:arrowB 1.6s ease-in-out infinite;white-space:nowrap}
+.prob{font:800 36px/1.6 'Nunito';color:var(--ink);max-width:1400px;margin:0 auto}
+.prob .gv{border-bottom:4px solid var(--cyan);font-weight:900}
+.prob .ak{background:rgba(185,138,46,.18);border-radius:8px;padding:0 6px;font-weight:900;color:#8a6a1f}
+.hiddenq{max-width:1000px;margin:16px auto 0;border:4px dashed var(--org);border-radius:18px;padding:14px 30px;
+  font:700 36px 'Fredoka';color:var(--org);background:rgba(158,59,47,.06)}
+.on .hiddenq{animation:dashPulse 2.6s ease-in-out infinite}
+.panels{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.panel{background:#fffdf4;border:4px solid var(--line);border-radius:18px;padding:18px 20px;box-shadow:0 6px 0 var(--shd);text-align:center}
+.panel .rn{font:700 34px 'Fredoka';color:#fff;background:var(--cyan);border-radius:12px;display:inline-block;padding:2px 18px;margin-bottom:10px}
+.panel h4{font:700 30px 'Fredoka';color:var(--ink);margin-bottom:8px}
+.panel p{font:800 24px/1.35 'Nunito';color:var(--mut)}
+.on .panel{animation:glowLoop 6s ease-in-out infinite}
+.on .panel:nth-child(2){animation-delay:1.5s}
+.on .panel:nth-child(3){animation-delay:3s}
+.on .panel:nth-child(4){animation-delay:4.5s}
+.ledger{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:6px}
+.lrow{display:flex;justify-content:space-between;align-items:baseline;border-radius:12px;padding:6px 22px;
+  font:700 40px 'Fredoka';color:var(--ink)}
+.lrow .lab{color:var(--mut);font-size:32px}
+.lrow .amt{font-family:'Courier New',monospace;font-weight:700;font-size:44px;letter-spacing:1px}
+.lrow.total{border-top:4px solid var(--ink);margin-top:6px}
+.lrow.total .amt{color:var(--grn)}
+.on .lrow{animation:rowGlow 5s ease-in-out infinite}
+.on .lrow:nth-child(2){animation-delay:1.2s}
+.on .lrow:nth-child(3){animation-delay:2.4s}
+.on .lrow:nth-child(4){animation-delay:3.6s}
+.on .lrow:nth-child(5){animation-delay:4.4s}
+.stmt{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+.srow{display:grid;grid-template-columns:1fr auto auto;gap:26px;align-items:baseline;border-radius:12px;padding:6px 22px;
+  font:700 38px 'Fredoka';color:var(--ink);background:rgba(255,253,244,.6)}
+.srow .d{font-family:'Courier New',monospace;font-size:42px;font-weight:700}
+.srow .d.plus{color:var(--grn)}
+.srow .d.minus{color:var(--org)}
+.srow.final{border:4px solid var(--grn);background:rgba(46,125,79,.08)}
+.on .srow{animation:printIn 6s ease-in-out infinite}
+.on .srow:nth-child(2){animation-delay:.8s}
+.on .srow:nth-child(3){animation-delay:1.6s}
+.on .srow:nth-child(4){animation-delay:2.4s}
+.on .srow:nth-child(5){animation-delay:3.2s}
+.barmodel{max-width:1300px;margin:0 auto}
+.bmbar{display:flex;height:96px;border-radius:14px;overflow:hidden;border:4px solid var(--ink);box-shadow:0 6px 0 var(--shd)}
+.bmseg{display:flex;align-items:center;justify-content:center;font:700 30px 'Fredoka';color:#fff}
+.bmseg.s1{background:var(--org);flex:1.25}
+.bmseg.s2{background:var(--pur);flex:0.875}
+.bmseg.s3{background:var(--grn);flex:3.375}
+.on .bmseg.s3{animation:segPulse 2.6s ease-in-out infinite}
+.bmlabs{display:flex;margin-top:10px;font:700 28px 'Fredoka';color:var(--mut)}
+.bmlabs span:nth-child(1){flex:1.25;text-align:center;color:var(--org)}
+.bmlabs span:nth-child(2){flex:0.875;text-align:center;color:var(--pur)}
+.bmlabs span:nth-child(3){flex:3.375;text-align:center;color:var(--grn)}
+.checks{display:flex;flex-direction:column;gap:14px;max-width:1200px;margin:0 auto}
+.ckrow{display:flex;gap:18px;align-items:center;background:#fffdf4;border:4px solid var(--line);border-radius:16px;
+  padding:12px 26px;box-shadow:0 6px 0 var(--shd);font:700 34px 'Fredoka';color:var(--ink)}
+.ckrow .tick{font-size:40px;color:var(--grn)}
+.ckrow .amt{font-family:'Courier New',monospace;font-size:36px;margin-left:auto}
+.stamp{align-self:center;font:700 44px 'Fredoka';color:var(--grn);border:6px solid var(--grn);border-radius:16px;
+  padding:8px 30px;opacity:0}
+.on .stamp{animation:stampIn 5s ease-in-out infinite}
+
+/* ---- MC SLIDES ---- */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:26px;max-width:1560px;margin:0 auto;width:100%}
+.opt{font:900 46px 'Nunito';color:var(--ink);background:#fffdf4;border:5px solid var(--line);border-radius:20px;
+  padding:22px 30px;cursor:pointer;box-shadow:0 6px 0 var(--shd);transition:all .2s;text-align:left;
+  display:flex;align-items:center;gap:20px;opacity:1}
+.opt b{font:700 42px 'Fredoka';background:rgba(74,93,138,.12);border-radius:12px;padding:6px 18px;color:var(--pur)}
+.opt:hover{transform:translateY(-3px)}
+.opt.good{opacity:1;background:rgba(46,125,79,.12);border-color:var(--grn);color:var(--grn);
+  animation:winSpin .7s cubic-bezier(.2,.7,.2,1);box-shadow:0 0 0 8px #2e7d4f33,0 6px 0 var(--shd)}
+.opt.good b{background:var(--grn);color:#fff}
+.opt.bad{opacity:.55;background:rgba(158,59,47,.10);border-color:var(--red);color:var(--red);pointer-events:none;animation:shake .4s}
+.opt.reveal{opacity:1;background:rgba(46,125,79,.12);border-color:var(--grn);color:var(--grn);
+  animation:winSpin .7s cubic-bezier(.2,.7,.2,1);box-shadow:0 0 0 8px #2e7d4f33,0 6px 0 var(--shd)}
+.opt.reveal b{background:var(--grn);color:#fff}
+body.preview .opt{pointer-events:none}
+.fb{font:700 42px 'Fredoka';text-align:center;min-height:120px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.fb .why{display:block;font:800 32px/1.3 'Nunito';margin-top:6px;opacity:.95}
+.fb.g{color:var(--grn)}.fb.r{color:var(--red)}
+.qbig{font:700 56px/1.3 'Fredoka';text-align:center;max-width:1560px;margin:0 auto}
+
+.master{font:700 76px 'Fredoka';color:#8a6a1f;text-align:center}
+#overlay{position:absolute;inset:0;z-index:100;background:#efe7cfF7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;text-align:center}
+#overlay .ttl{font:700 60px 'Fredoka';color:var(--cyan)}
+#overlay .sub{font:800 26px 'Nunito';color:var(--ink);max-width:1250px}
+.modeBtns{display:flex;gap:30px}
+.modeBtns button{font:700 32px 'Fredoka';border-radius:22px;border:5px solid var(--line);padding:24px 38px;cursor:pointer;
+  box-shadow:0 8px 0 var(--shd);transition:transform .15s;color:#fff}
+.modeBtns button:hover{transform:translateY(-4px)}
+.modeBtns small{display:block;font:800 19px 'Nunito';margin-top:8px}
+#btnPreview{background:var(--yel)}
+#btnLesson{background:var(--cyan)}
+#passPanel{display:none;flex-direction:column;gap:20px;align-items:center}
+.pslots{display:flex;gap:16px}
+.pslot{width:82px;height:100px;border-radius:16px;border:5px solid var(--line);background:#fffdf4;
+  font:700 54px 'Fredoka';display:flex;align-items:center;justify-content:center;color:var(--cyan)}
+#passPanel.err .pslot{animation:shake .4s;border-color:var(--red)}
+#passMsg{font:800 24px 'Nunito';color:#8a6a1f;min-height:28px}
+#passBack{font:700 26px 'Fredoka';color:var(--ink);background:#f7f1de;border:4px solid var(--line);border-radius:14px;
+  padding:10px 38px;cursor:pointer;box-shadow:0 6px 0 var(--shd);transition:transform .15s}
+#passBack:hover{transform:translateY(-3px)}
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="fx"></div>
+<div id="confetti"></div>
+<div id="progress"></div>
+<div id="tag">🏦 MATH 5 • TERM 2 • WEEK 3</div>
+<div id="voiceChip">🔊 loading voices…</div>
+<div id="starChip">⭐ <span id="starN">0</span> / 23</div>
+<div id="recChip"><span class="rdot"></span>⏺ PREVIEW • AUTO</div>
+<div id="mcTimer"><span id="mcTimerN">5</span><small>⏳ answer reveal in…</small></div>
+<div id="codeOv"><div class="box"><div class="lbl" id="codeLbl">PASSCODE DIGIT 1/5</div><div class="dig" id="codeDig">9</div></div></div>
+
+<!-- 10-SECOND INTRO BUMPER (preview only) -->
+<div id="introOverlay">
+  <div class="intro-box">
+    <div class="free-chip">🎁 FREE INTERACTIVE PRESENTATION</div>
+    <h1><span class="hly">Automated Assessment &amp; Interactive Assessment!</span></h1>
+    <div class="comment-box">
+      <span class="pin-icon">📌</span>
+      <span>Get them ALL in the <b style="color:var(--cyan)">PINNED COMMENTS</b>!</span>
+    </div>
+    <div class="instructions">
+      <h3 class="hlc">HOW TO UNLOCK LESSON MODE 🔓</h3>
+      <p class="txt">Watch this video and write down the <b style="color:var(--grn)">5 SECRET DIGITS</b> that pop up on screen — then type them to unlock the interactive lesson, answer the questions, and earn ⭐ stars!</p>
+    </div>
+    <div class="countdown-box"><span id="introCount">10</span> seconds until the ledger opens…</div>
+  </div>
+</div>
+
+<!-- 1 TITLE -->
+<section class="slide" id="s1">
+  <div class="left">
+    <div data-step="0" style="display:flex;flex-direction:column;gap:20px">
+      <div class="kicker" data-anim style="--an:slideL">WELCOME TO THE DECIMAL LEDGER 🏦</div>
+      <h1 data-anim style="--an:riseIn;--d:.12s">Lesson: <span class="hly">Multi-Step Decimal Problems</span></h1>
+      <p class="txt" data-anim style="--an:riseIn;--d:.28s;font-size:36px">Solve multi-step problems involving addition and/or subtraction of decimals, including money — formally, completely, and checked.</p>
+    </div>
+    <div data-step="1" style="display:flex;flex-direction:column;gap:14px">
+      <div class="card obj" data-anim style="--an:popIn;--d:.1s">📖 READ &amp; UNDERSTAND: identify the given, the asked, and the hidden question.</div>
+      <div class="card obj" data-anim style="--an:popIn;--d:.3s">🧮 PLAN &amp; SOLVE: sequence the operations with aligned decimal points.</div>
+      <div class="card obj" data-anim style="--an:popIn;--d:.5s">✅ CHECK &amp; ANSWER: estimate, use the inverse operation, and write a complete sentence.</div>
+    </div>
+  </div>
+  <div class="heroframe" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <svg viewBox="0 0 760 600" xmlns="http://www.w3.org/2000/svg">
+      <rect width="760" height="600" fill="#f6efdb"/>
+      <g stroke="#1e6f50" stroke-opacity=".18" stroke-width="2">
+        <line x1="0" y1="90" x2="760" y2="90"/><line x1="0" y1="140" x2="760" y2="140"/>
+        <line x1="0" y1="190" x2="760" y2="190"/><line x1="0" y1="240" x2="760" y2="240"/>
+        <line x1="0" y1="290" x2="760" y2="290"/><line x1="0" y1="340" x2="760" y2="340"/>
+        <line x1="0" y1="390" x2="760" y2="390"/><line x1="0" y1="440" x2="760" y2="440"/>
+        <line x1="0" y1="490" x2="760" y2="490"/><line x1="0" y1="540" x2="760" y2="540"/>
+      </g>
+      <line x1="70" y1="0" x2="70" y2="600" stroke="#9e3b2f" stroke-opacity=".5" stroke-width="3"/>
+      <line x1="80" y1="0" x2="80" y2="600" stroke="#9e3b2f" stroke-opacity=".5" stroke-width="3"/>
+      <text x="110" y="60" font-family="Fredoka,sans-serif" font-size="40" font-weight="700" fill="#1e6f50">THE DECIMAL LEDGER</text>
+      <circle cx="600" cy="150" r="86" fill="#c19035" stroke="#8a6a1f" stroke-width="8"/>
+      <circle cx="600" cy="150" r="62" fill="none" stroke="#f6efdb" stroke-width="4" stroke-dasharray="6 8"/>
+      <text x="600" y="182" font-family="Fredoka,sans-serif" font-size="92" font-weight="700" fill="#f6efdb" text-anchor="middle">₱</text>
+      <g font-family="'Courier New',monospace" font-size="40" font-weight="700" fill="#22301c" text-anchor="end">
+        <text x="640" y="300">128.75</text>
+        <text x="640" y="350">64.50</text>
+        <text x="640" y="410" fill="#2e7d4f">193.25</text>
+        <text x="640" y="470">500.00</text>
+        <text x="640" y="520" fill="#9e3b2f">-193.25</text>
+        <text x="640" y="576" fill="#2e7d4f">306.75</text>
+      </g>
+      <line x1="430" y1="368" x2="650" y2="368" stroke="#22301c" stroke-width="4"/>
+      <line x1="430" y1="536" x2="650" y2="536" stroke="#22301c" stroke-width="4"/>
+      <g font-family="'Courier New',monospace" font-size="30" fill="#6e7660">
+        <text x="110" y="300">notebook</text><text x="110" y="350">pen</text>
+        <text x="110" y="410">total spent</text><text x="110" y="470">paid</text>
+        <text x="110" y="520">less total</text><text x="110" y="576">CHANGE</text>
+      </g>
+      <g transform="rotate(-8 250 480)">
+        <circle cx="250" cy="480" r="62" fill="none" stroke="#2e7d4f" stroke-width="7"/>
+        <text x="250" y="494" font-family="Fredoka,sans-serif" font-size="30" font-weight="700" fill="#2e7d4f" text-anchor="middle">CHECKED</text>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<!-- 2 SECTION 1 -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SECTION 1 • DEFINITION</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">What Is a <span class="hlc">Multi-Step Problem?</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <p class="prob">Liza bought a book for <span class="gv">₱245.75</span> and a pencil case for <span class="gv">₱132.25</span>. She paid the cashier <span class="gv">₱500.00</span>. <span class="ak">How much change did she receive?</span></p>
+    <div class="hiddenq">HIDDEN QUESTION: What is the total cost of the two items?</div>
+    <p class="fact">a multi-step problem needs <b style="color:var(--cyan)">2 or more operations</b> — the hidden question is solved <b style="color:var(--org)">first</b>.</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq cy">GIVEN: the facts</span><span class="chipq pk">HIDDEN: solve first</span><span class="chipq yl">ASKED: the main question</span></div>
+    <p class="txt" style="text-align:center;margin-top:10px">Identifying these three parts correctly is half of the solution.</p>
+  </div>
+</section>
+
+<!-- P1 -->
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 1 <span class="itemno">Q1/3</span> • HIDDEN QUESTIONS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">In the example problem, which is the HIDDEN question?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> How much is the book?</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> What is the total cost of the two items?</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> How much is the change?</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> What is 500 − 132.25?</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 1 <span class="itemno">Q2/3</span> • HIDDEN QUESTIONS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">At minimum, how many operations does the example problem require?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> One</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> Two</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Three</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Four</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 1 <span class="itemno">Q3/3</span> • HIDDEN QUESTIONS</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">What is ASKED in the example problem?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> The change Liza received</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> The total cost of the items</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> The price of the book</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> The sum of 500 and 245.75</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- 3 SECTION 2 -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SECTION 2 • THE FOUR-STEP FRAMEWORK</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Read • Plan • Solve • <span class="hly">Check</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="panels">
+      <div class="panel"><span class="rn">I</span><h4>READ &amp; UNDERSTAND</h4><p>State what is given and what is asked.</p></div>
+      <div class="panel"><span class="rn">II</span><h4>PLAN</h4><p>State the hidden question; choose the operations.</p></div>
+      <div class="panel"><span class="rn">III</span><h4>SOLVE</h4><p>Compute in order; keep decimal points aligned.</p></div>
+      <div class="panel"><span class="rn">IV</span><h4>CHECK &amp; ANSWER</h4><p>Estimate or use the inverse; answer in a full sentence.</p></div>
+    </div>
+    <p class="fact">the four steps are performed <b style="color:var(--cyan)">in order, every time</b> — procedure is part of correctness.</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq cy">Step I facts</span><span class="arr">➜</span><span class="chipq pk">Step II plan</span><span class="arr">➜</span><span class="chipq yl">Step III solve</span><span class="arr">➜</span><span class="chipq gr">Step IV check</span></div>
+  </div>
+</section>
+
+<!-- P2 -->
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 2 <span class="itemno">Q1/3</span> • THE FRAMEWORK</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">In which step do we identify what is given and what is asked?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> Plan</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> Read &amp; Understand</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Solve</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Check &amp; Answer</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 2 <span class="itemno">Q2/3</span> • THE FRAMEWORK</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">In which step do we choose the operations and state the hidden question?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> Read &amp; Understand</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> Solve</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Plan</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Check &amp; Answer</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="3">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 2 <span class="itemno">Q3/3</span> • THE FRAMEWORK</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">In which step do we verify by estimation or inverse operation?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> Solve</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> Plan</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Read &amp; Understand</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Check &amp; Answer</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- 4 SECTION 3 -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SECTION 3 • WORKED EXAMPLE A (MONEY)</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Combine, Then <span class="hly">Find the Change</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="ledger">
+      <div class="lrow"><span class="lab">Step 1 (hidden) — total spent:</span><span class="amt">128.75 + 64.50</span></div>
+      <div class="lrow total"><span class="lab">total spent</span><span class="amt">193.25</span></div>
+      <div class="lrow"><span class="lab">Step 2 (asked) — change:</span><span class="amt">500.00 − 193.25</span></div>
+      <div class="lrow total"><span class="lab">change received</span><span class="amt">306.75</span></div>
+    </div>
+    <p class="fact">solve the hidden question <b style="color:var(--org)">first</b>; the asked question <b style="color:var(--grn)">second</b>.</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="flowrow"><span class="chipq gr">Check: 306.75 + 193.25 = 500.00 ✔</span><span class="chipq yl">Answer: Ana's change was ₱306.75.</span></div>
+  </div>
+</section>
+
+<!-- P3 -->
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 3 <span class="itemno">Q1/3</span> • TOTAL THEN CHANGE</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A shopper paid ₱1,000.00 for a shirt at ₱475.60 and socks at ₱124.40. How much change?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱400.00</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱600.00</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱399.90</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱425.60</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 3 <span class="itemno">Q2/3</span> • TOTAL THEN CHANGE</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Rice costs ₱286.25 and fish costs ₱175.75, paid with ₱500.00. How much change?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱462.00</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱38.00</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱37.50</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱138.00</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 3 <span class="itemno">Q3/3</span> • TOTAL THEN CHANGE</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">From ₱200.00, two items costing ₱56.25 and ₱83.75 were bought. How much is left?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱140.00</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱46.25</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱60.00</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱56.25</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- 5 SECTION 4 -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SECTION 4 • WORKED EXAMPLE B (RUNNING BALANCE)</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Follow the <span class="hlc">Order of Events</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="stmt">
+      <div class="srow"><span>Balance, beginning</span><span></span><span class="d">1,250.50</span></div>
+      <div class="srow"><span>Deposit</span><span>+</span><span class="d plus">375.25</span></div>
+      <div class="srow"><span>Subtotal</span><span></span><span class="d">1,625.75</span></div>
+      <div class="srow"><span>Withdrawal</span><span>−</span><span class="d minus">480.75</span></div>
+      <div class="srow final"><span>Balance, end</span><span></span><span class="d">1,145.00</span></div>
+    </div>
+    <p class="fact">the order of the transactions fixes the <b style="color:var(--cyan)">order of the operations</b>.</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="flowrow"><span class="chipq gr">Check: 1,145.00 + 480.75 − 375.25 = 1,250.50 ✔</span><span class="chipq yl">Answer: The new balance is ₱1,145.00.</span></div>
+  </div>
+</section>
+
+<!-- P4 -->
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 4 <span class="itemno">Q1/3</span> • RUNNING BALANCE</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Opening ₱840.00; deposit ₱260.50; withdrawal ₱175.25. New balance?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱925.25</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱1,100.50</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱924.75</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱664.75</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 4 <span class="itemno">Q2/3</span> • RUNNING BALANCE</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Opening ₱2,315.75; withdrawal ₱1,050.00; then deposit ₱485.50. New balance?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱1,265.75</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱1,751.25</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱1,750.25</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱2,801.25</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 4 <span class="itemno">Q3/3</span> • RUNNING BALANCE</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Opening ₱500.00; withdrawals of ₱125.40 and ₱89.60. New balance?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱215.00</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱374.60</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱285.00</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱284.40</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- 6 SECTION 5 -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SECTION 5 • WORKED EXAMPLE C (MEASUREMENT)</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">The Bar Model — <span class="hlp">Whole, Cuts, Remainder</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="barmodel">
+      <div class="bmbar">
+        <div class="bmseg s1">1.25</div>
+        <div class="bmseg s2">0.875</div>
+        <div class="bmseg s3">3.375 m left</div>
+      </div>
+      <div class="bmlabs"><span>cut 1</span><span>cut 2</span><span>remainder</span></div>
+    </div>
+    <p class="fact">Step 1: 1.25 + 0.875 = <b style="color:var(--org)">2.125 m cut</b> • Step 2: 5.5 − 2.125 = <b style="color:var(--grn)">3.375 m left</b></p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="flowrow"><span class="chipq gr">Check: 3.375 + 2.125 = 5.5 ✔</span><span class="chipq yl">Answer: 3.375 meters of ribbon remained.</span></div>
+  </div>
+</section>
+
+<!-- P5 -->
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 5 <span class="itemno">Q1/3</span> • MEASUREMENT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A wire 8.4 m long is cut by 2.25 m and 1.375 m. How much remains?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 4.775 m</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 3.625 m</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 4.725 m</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 6.150 m</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 5 <span class="itemno">Q2/3</span> • MEASUREMENT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Bags weigh 2.45 kg and 1.75 kg; 0.375 kg more is added. Total mass now?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 4.200 kg</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 4.575 kg</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 4.525 kg</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 3.825 kg</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 5 <span class="itemno">Q3/3</span> • MEASUREMENT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A bottle holds 1.5 L; 0.375 L and 0.625 L were used. How much is left?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 1.0 L</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 0.875 L</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 0.5 L</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 0.125 L</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- 7 SECTION 6 -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SECTION 6 • CHECKING &amp; FORMAL ANSWERS</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Verify, Then <span class="hlc">State It Properly</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="checks">
+      <div class="ckrow"><span class="tick">✔</span><span>Estimate: 129 + 65 = 194; 500 − 194 = 306</span><span class="amt">≈ 306.75 ✔</span></div>
+      <div class="ckrow"><span class="tick">✔</span><span>Inverse: 306.75 + 193.25</span><span class="amt">= 500.00 ✔</span></div>
+      <div class="ckrow"><span class="tick">✔</span><span>Sentence: Ana's change was ₱306.75.</span><span class="amt">complete ✔</span></div>
+    </div>
+    <div class="stamp">VERIFIED</div>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq cy">estimate first</span><span class="chipq pu">inverse operation second</span><span class="chipq yl">full sentence with unit last</span></div>
+  </div>
+</section>
+
+<!-- P6 -->
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 6 <span class="itemno">Q1/3</span> • CHECKING</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Which is the best estimate of 128.75 + 64.50?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> About 194</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> About 200</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> About 184</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> About 214</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 6 <span class="itemno">Q2/3</span> • CHECKING</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Which inverse-operation check verifies 500.00 − 193.25 = 306.75?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 306.75 + 193.25 = 500.00</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 306.75 − 193.25 = 113.50</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 500.00 + 193.25 = 693.25</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 193.25 − 306.75</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 6 <span class="itemno">Q3/3</span> • CHECKING</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Which is the correct formal answer sentence for Example A?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 306.75</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> Ana's change was ₱306.75.</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Ana's change was 306.75.</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Change = 306.75</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- 8 COMMON ERRORS -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">COMMON ERRORS TO AVOID ⚠️</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Three Errors That <span class="hly">Void a Solution</span></h2></div>
+  <div class="row" data-step="0">
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center" data-anim style="--an:flipIn"><h3>Error 1 • Wrong Order</h3>
+      <p class="txt">Answering the asked question before the hidden question. The steps must follow their order: hidden first, asked second.</p></div>
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center" data-anim style="--an:flipIn;--d:.25s"><h3>Error 2 • Misaligned Points</h3>
+      <p class="txt">Misaligning decimal points in an intermediate computation corrupts <b style="color:var(--org)">every step after it</b>.</p></div>
+    <div class="card" style="flex:1;display:flex;flex-direction:column;justify-content:center" data-anim style="--an:flipIn;--d:.5s"><h3>Error 3 • Wrong Final Value</h3>
+      <p class="txt">Reporting the intermediate result (₱193.25) as the answer, or omitting the unit and the complete sentence.</p></div>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <p class="big" style="text-align:center">Discipline in procedure is what makes a solution <b style="color:var(--grn)">correct</b>.</p>
+  </div>
+</section>
+
+<!-- SUMMATIVE (5) -->
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SUMMATIVE ASSESSMENT <span class="itemno">Q1/5</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">From ₱750.00, a book at ₱325.45 and a folder at ₱174.55 were bought. How much change?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱500.00</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱250.00</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱249.55</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱425.45</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SUMMATIVE ASSESSMENT <span class="itemno">Q2/5</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A rope 12.75 m long is cut by 3.5 m, then by 4.25 m. How much remains?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 7.75 m</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 5.0 m</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 8.50 m</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 4.25 m</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SUMMATIVE ASSESSMENT <span class="itemno">Q3/5</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Opening balance ₱645.30; deposit ₱355.70; withdrawal ₱500.00. New balance?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱1,001.00</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱499.00</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱501.00</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱149.00</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SUMMATIVE ASSESSMENT <span class="itemno">Q4/5</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">3.25 L of milk; 0.875 L and 1.125 L were used. How much is left?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 2.000 L</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 1.250 L</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 1.375 L</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 0.250 L</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SUMMATIVE ASSESSMENT <span class="itemno">Q5/5</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A vendor had 45.5 kg of sugar; she sold 12.25 kg in the morning and 8.75 kg in the afternoon. What is the HIDDEN question?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> How many kg were sold in all?</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> How many kg are left?</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> How much was sold in the afternoon?</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> What is 45.5 + 12.25?</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- SUMMARY -->
+<section class="slide" style="align-items:center;justify-content:center;text-align:center">
+  <div data-step="0" style="display:flex;flex-direction:column;gap:26px;align-items:center">
+    <div class="kicker" data-anim style="--an:slideL">LESSON SUMMARY</div>
+    <div class="chain" data-anim style="--an:riseIn;--d:.15s">
+      <span class="chipq cy">hidden question first</span><span class="chipq pk">Read • Plan • Solve • Check</span><span class="chipq yl">points aligned always</span><span class="chipq gr">inverse verifies</span>
+    </div>
+    <div class="chain" data-anim style="--an:riseIn;--d:.3s">
+      <span class="chipq gr">128.75 + 64.50 = 193.25</span><span class="chipq cy">500.00 − 193.25 = 306.75</span><span class="chipq yl">Answer in a full sentence.</span>
+    </div>
+    <div class="master" data-anim style="--an:zoomIn;--d:.45s">🏦 LEDGER SCHOLAR CERTIFIED!</div>
+    <p class="big" data-anim style="--an:riseIn;--d:.6s" id="starLine">Proceed with discipline — your solutions will always balance.</p>
+  </div>
+</section>
+
+<div id="hints"><b>→</b> Next &nbsp; <b>←</b> Back &nbsp; <b>F</b> Fullscreen &nbsp; <b>🖱️</b> click answers (Lesson)</div>
+<div id="counter">01 / 32</div>
+
+<div id="overlay">
+  <div class="ttl">🏦 THE DECIMAL LEDGER</div>
+  <div class="sub">Math 5 • Term 2 • Week 3 — Solve multi-step problems involving addition and/or subtraction of decimals, including problems involving money.</div>
+  <div class="modeBtns" id="modeBtns">
+    <button id="btnPreview">🎬 PREVIEW MODE<small>opens YouTube video link (Watch for the 5 Digit Code)</small></button>
+    <button id="btnLesson">🎓 LESSON MODE<small>interactive + ⭐ big star on first-try correct • needs 5-digit passcode</small></button>
+  </div>
+  <div id="passPanel">
+    <div class="sub">Enter the 5-digit passcode you collected from the Preview video 👀</div>
+    <div class="pslots"><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div></div>
+    <div id="passMsg">Type digits • Enter = unlock</div>
+    <button id="passBack">← BACK</button>
+  </div>
+</div>
+</div>
+
+<script>
+/* ============================================================
+    YOUTUBE LINK SLOT — LEAVE EMPTY ("") WHILE YOU SCREEN-RECORD.
+    AFTER uploading, paste the new video URL and redistribute:
+    var YOUTUBE_LINK = "https://youtu.be/YourNewVideo";
+============================================================ */
+var YOUTUBE_LINK = "https://youtu.be/RVL_8iB8Ebg";
+
+var PASS=[9,4,6,1,8];
+/* PERMANENT MASTER CODE — unlocks Lesson Mode in EVERY lesson,
+   type it on the passcode screen and press Enter (case-insensitive). */
+var MASTER='ronnie';
+
+/* WHY bank: [mcQuestionIndex][optionIndex] — 18 practice + 5 quiz = 23 */
+var WHY=[
+/* P1 */
+["The book's price is a given fact, not a question to solve.","The hidden question — the total cost — must be answered before the change.","The change is the ASKED question, solved last.","That expression skips the hidden question entirely."],
+["One operation cannot answer both the total and the change.","Two operations: addition for the total, then subtraction for the change.","Three operations are not required in this problem.","Four operations are not required in this problem."],
+["Correct — the main question asks for the change received.","The total cost is the hidden question, not the asked one.","The book's price is given in the problem.","That sum mixes a payment with a price — it is not asked."],
+/* P2 */
+["Planning chooses operations — after the facts are known.","Step I identifies the given facts and the asked question.","Solving performs the computations — Step III.","Checking verifies the result — Step IV."],
+["Reading gathers the facts only.","Solving executes the plan — Step III.","Step II states the hidden question and chooses the operations.","Checking comes after solving — Step IV."],
+["Solving produces the result; it does not verify it.","Planning precedes all computation.","Reading precedes everything else.","Step IV verifies by estimation or inverse operation."],
+/* P3 */
+["475.60 + 124.40 = 600.00; 1,000.00 − 600.00 = ₱400.00.","600.00 is the total spent — the hidden answer, not the change.","399.90 comes from a subtraction error in the cents column.","425.60 subtracted only the shirt's price."],
+["462.00 is the total spent — the hidden answer.","286.25 + 175.75 = 462.00; 500.00 − 462.00 = ₱38.00.","37.50 mis-subtracted the cents column.","138.00 subtracted only the rice's price."],
+["140.00 is the total spent — the hidden answer.","46.25 is not produced by correct steps.","56.25 + 83.75 = 140.00; 200.00 − 140.00 = ₱60.00.","56.25 is only the first item's price."],
+/* P4 */
+["840.00 + 260.50 = 1,100.50; minus 175.25 gives ₱925.25.","1,100.50 is the balance before the withdrawal.","924.75 mis-subtracted the cents column.","664.75 subtracted the deposit instead of adding it."],
+["1,265.75 is the balance before the deposit.","2,315.75 − 1,050.00 = 1,265.75; + 485.50 = ₱1,751.25.","1,750.25 mis-added the cents column.","2,801.25 added the withdrawal instead of subtracting it."],
+["215.00 is the total withdrawn — the hidden answer.","374.60 subtracted only the first withdrawal.","125.40 + 89.60 = 215.00; 500.00 − 215.00 = ₱285.00.","284.40 mis-added the withdrawal total."],
+/* P5 */
+["2.25 + 1.375 = 3.625; 8.4 − 3.625 = 4.775 m.","3.625 m is the total cut — the hidden answer.","4.725 m mis-subtracted the thousandths place.","6.150 m subtracted only the first cut."],
+["4.200 kg is the mass before adding — the hidden answer.","2.45 + 1.75 = 4.20; + 0.375 = 4.575 kg.","4.525 kg mis-added the thousandths place.","3.825 kg subtracted the added mass instead."],
+["1.0 L is the total used — the hidden answer.","0.875 L is only the morning amount.","0.375 + 0.625 = 1.0; 1.5 − 1.0 = 0.5 L.","0.125 L mis-subtracted the used total."],
+/* P6 */
+["129 + 65 = 194 — rounding each addend to whole pesos.","200 rounds both addends too far upward.","184 rounds both addends downward.","214 over-rounds the second addend."],
+["Addition is the inverse of subtraction — it must return the minuend, 500.00.","Subtracting again does not verify the difference.","Adding the subtrahend to the minuend verifies nothing.","Reversing the terms gives a negative value — not a check."],
+["A number alone is not a complete solution.","A complete sentence with the peso sign — formal and correct.","The unit symbol is missing from the sentence.","An equation fragment lacks the required sentence form."],
+/* QUIZ */
+["500.00 is the total spent — the hidden answer.","325.45 + 174.55 = 500.00; 750.00 − 500.00 = ₱250.00.","249.55 mis-subtracted the cents column.","425.45 subtracted only the book's price."],
+["7.75 m subtracted only the first cut.","12.75 − 3.5 = 9.25; 9.25 − 4.25 = 5.0 m.","8.50 m added the cuts incorrectly.","4.25 m is only the second cut."],
+["1,001.00 is the balance before the withdrawal.","499.00 mis-subtracted the cents column.","645.30 + 355.70 = 1,001.00; − 500.00 = ₱501.00.","149.00 subtracted the deposit instead of adding it."],
+["2.000 L is the total used — the hidden answer.","0.875 + 1.125 = 2.0; 3.25 − 2.0 = 1.25 L.","1.375 L subtracted only the afternoon amount.","0.250 L mis-subtracted the used total."],
+["Correct — the total sold must be found before the remainder.","The remainder is the ASKED question, solved last.","The afternoon amount is a given fact.","That sum mixes the whole with a part — not the hidden question."]
+];
+
+/* MC narrations: "QUESTION ||| ANSWER" — 23 entries in slide order. */
+var NARR=[
+/* 0 title */
+["Good day, learners. Welcome to Grade 5 Mathematics, Term 2, Week 3, Part Two: Solving Multi-Step Problems Involving Addition and Subtraction of Decimals, Including Problems Involving Money.",
+ "Our objectives are: first, to identify the given facts, the asked question, and the hidden question in a multi-step problem; second, to apply the four-step framework — read and understand, plan, solve, check and answer; third, to solve multi-step decimal problems accurately; and fourth, to verify answers by estimation and inverse operations, and to state them in complete sentences."],
+/* 1 section 1 */
+["Let us begin with the definition. A multi-step problem is a problem that requires two or more operations, because one or more hidden questions must first be answered before the main question can be solved.",
+ "In our example, the given facts are: the book costs 245 pesos and 75 centavos, the pencil case costs 132 pesos and 25 centavos, and Liza paid 500 pesos. The hidden question is: what is the total cost? Only after answering it can we solve the asked question: how much is the change?"],
+/* 2-4 P1 */
+["Practice one: in the example problem, which is the hidden question?|||The hidden question is: what is the total cost of the book and the pencil case? It must be answered first."],
+["Practice two: at minimum, how many operations does the example problem require?|||Two operations: addition for the total cost, then subtraction for the change."],
+["Practice three: what is asked in the example problem?|||The problem asks for the change Liza received after paying 500 pesos."],
+/* 5 section 2 */
+["The framework we shall use has four steps. Step one, read and understand: identify what is given and what is asked. Step two, plan: choose the operations and state the hidden question.",
+ "Step three, solve: perform the operations in order, keeping decimal points aligned. Step four, check and answer: verify by estimation or inverse operation, then write the answer in a complete sentence with the correct unit."],
+/* 6-8 P2 */
+["Practice one: in which step do we identify what is given and what is asked?|||Step one — Read and Understand."],
+["Practice two: in which step do we choose the operations and state the hidden question?|||Step two — Plan."],
+["Practice three: in which step do we verify by estimation or inverse operation?|||Step four — Check and Answer."],
+/* 9 section 3 */
+["Worked example A. Mother gave 500 pesos. Ana bought a notebook for 128 pesos and 75 centavos and a pen for 64 pesos and 50 centavos. How much change did she receive? Step one, the hidden question: what is the total spent? 128.75 plus 64.50 equals 193.25.",
+ "Step two, the asked question: the change is 500.00 minus 193.25, which equals 306.75. Check: 306.75 plus 193.25 returns 500.00. Therefore, Ana's change was 306 pesos and 75 centavos."],
+/* 10-12 P3 */
+["Practice one: a shopper paid 1,000 pesos for a shirt at 475.60 and socks at 124.40. How much change?|||Total: 600.00; change: 1,000.00 minus 600.00 equals 400 pesos."],
+["Practice two: rice costs 286.25 and fish costs 175.75, paid with 500 pesos. How much change?|||Total: 462.00; change: 500.00 minus 462.00 equals 38 pesos."],
+["Practice three: from 200 pesos, two items costing 56.25 and 83.75 were bought. How much is left?|||Total: 140.00; remaining: 200.00 minus 140.00 equals 60 pesos."],
+/* 13 section 4 */
+["Worked example B, a running balance. An account began with 1,250.50. A deposit of 375.25 was made, then a withdrawal of 480.75. Step one: 1,250.50 plus 375.25 equals 1,625.75.",
+ "Step two: 1,625.75 minus 480.75 equals 1,145.00. The new balance is 1,145 pesos. Notice that the order of the transactions determines the order of the operations."],
+/* 14-16 P4 */
+["Practice one: opening balance 840 pesos; deposit 260.50; withdrawal 175.25. New balance?|||840.00 plus 260.50 is 1,100.50; minus 175.25 gives 925 pesos and 25 centavos."],
+["Practice two: opening balance 2,315.75; withdrawal 1,050.00; then deposit 485.50. New balance?|||2,315.75 minus 1,050.00 is 1,265.75; plus 485.50 gives 1,751 pesos and 25 centavos."],
+["Practice three: opening balance 500 pesos; withdrawals of 125.40 and 89.60. New balance?|||Total withdrawals: 215.00; balance: 500.00 minus 215.00 equals 285 pesos."],
+/* 17 section 5 */
+["Worked example C, measurement. A ribbon 5.5 meters long was cut by 1.25 meters for a project and 0.875 meters for a banner. Step one, the total cut: 1.25 plus 0.875 equals 2.125 meters.",
+ "Step two, the remainder: 5.5 minus 2.125 equals 3.375 meters. The bar model shows the whole, the two cuts, and the remainder. Therefore, 3.375 meters of ribbon remained."],
+/* 18-20 P5 */
+["Practice one: a wire 8.4 meters long is cut by 2.25 meters and 1.375 meters. How much remains?|||Total cut: 3.625; remainder: 8.4 minus 3.625 equals 4.775 meters."],
+["Practice two: bags weigh 2.45 and 1.75 kilograms; 0.375 kilograms is added. What is the total mass now?|||2.45 plus 1.75 is 4.20; plus 0.375 gives 4.575 kilograms."],
+["Practice three: a bottle holds 1.5 liters; 0.375 and 0.625 liters were used. How much is left?|||Total used: 1.0 liter; remaining: 1.5 minus 1.0 equals 0.5 liter."],
+/* 21 section 6 */
+["Step four deserves its own section: checking. First, estimate — round 128.75 to 129 and 64.50 to 65; the sum is about 194, and 500 minus 194 is about 306, which agrees with 306.75.",
+ "Second, use the inverse operation — 306.75 plus 193.25 returns exactly 500.00. Third, state the answer formally: Ana's change was 306 pesos and 75 centavos. A complete sentence with the unit is part of a correct solution."],
+/* 22-24 P6 */
+["Practice one: which is the best estimate of 128.75 plus 64.50?|||Round to whole pesos: 129 plus 65 is about 194."],
+["Practice two: which inverse-operation check verifies 500.00 minus 193.25 equals 306.75?|||Addition checks subtraction: 306.75 plus 193.25 equals 500.00."],
+["Practice three: which is the correct formal answer sentence for example A?|||A complete sentence with the unit: Ana's change was 306 pesos and 75 centavos."],
+/* 25 errors */
+["Before we conclude, three common errors must be avoided. Error one: answering the asked question before solving the hidden question — the steps must follow their order. Error two: misaligning decimal points in an intermediate computation, which corrupts every step after it.",
+ "Error three: reporting the intermediate result as the final answer — 193.25 is the total spent, not the change — or omitting the unit and the complete sentence. Discipline in procedure is what makes a solution correct."],
+/* 26-30 quiz */
+["Quiz one: from 750 pesos, a book at 325.45 and a folder at 174.55 were bought. How much change?|||Total: 500.00; change: 750.00 minus 500.00 equals 250 pesos."],
+["Quiz two: a rope 12.75 meters long is cut by 3.5 meters, then by 4.25 meters. How much remains?|||12.75 minus 3.5 is 9.25; minus 4.25 leaves 5 meters."],
+["Quiz three: opening balance 645.30; deposit 355.70; withdrawal 500.00. New balance?|||645.30 plus 355.70 is 1,001.00; minus 500.00 gives 501 pesos."],
+["Quiz four: 3.25 liters of milk; 0.875 and 1.125 liters were used. How much is left?|||Total used: 2.0 liters; remaining: 3.25 minus 2.0 equals 1.25 liters."],
+["Quiz five: a vendor had 45.5 kilograms of sugar and sold 12.25 kilograms in the morning and 8.75 kilograms in the afternoon. What is the hidden question?|||The hidden question is: how many kilograms of sugar were sold in all? It must be answered before the remainder can be found."],
+/* 31 summary */
+["To summarize: a multi-step problem contains a hidden question; we solve it with the four-step framework — read and understand, plan, solve, check and answer. Decimal points stay aligned in every computation, and the inverse operation verifies the result.",
+ "%STARS% You have completed the lesson on multi-step decimal problems. Proceed with the same discipline in your assessments, and your solutions will always balance. Class dismissed."]
+];
+
+var slides=[].slice.call(document.querySelectorAll('.slide'));
+var mcList=[].slice.call(document.querySelectorAll('.slide.mc'));
+shuffleChoicesOnce();
+
+var si=0,step=-1,started=false,mode=null,muted=false;
+var starCount=0,firstWrong=false,answered=false;
+var mcState=slides.map(function(){return {answered:false,firstWrong:false,wrongs:{}};});
+var synth=window.speechSynthesis||null,voices=[],voiceIdx=-1;
+var chip=document.getElementById('voiceChip');
+var recChip=document.getElementById('recChip'),starChip=document.getElementById('starChip');
+var stageEl=document.getElementById('stage');
+
+function getWhy(sl,i){
+  var mi=mcList.indexOf(sl);
+  var w=WHY[mi];
+  if(w&&w[i])return w[i];
+  return (i===+sl.getAttribute('data-ans'))?'This choice follows the solution framework.':'This choice breaks the solution framework — check the order of steps or the computation.';
+}
+function setFB(sl,type,html){
+  var fb=sl.querySelector('.fb'); if(!fb)return;
+  fb.innerHTML=html;
+  fb.classList.remove('g','r');
+  if(type==='g')fb.classList.add('g');
+  if(type==='r')fb.classList.add('r');
+}
+
+var stepStart=[],T=0;slides.forEach(function(s,i){stepStart.push(T);T+=NARR[i].length;});
+var digitAt={};[.15,.37,.57,.76,.93].forEach(function(p,k){digitAt[Math.min(T-1,Math.round(T*p))]=PASS[k];});
+var shownDigits={};
+
+var passOpen=false,passBuf=[];
+var modeBtns=document.getElementById('modeBtns'),passPanel=document.getElementById('passPanel');
+document.getElementById('btnPreview').onclick=function(e){e.stopPropagation();startPreview();};
+document.getElementById('btnLesson').onclick=function(e){e.stopPropagation();openPass();};
+document.getElementById('passBack').onclick=function(e){e.stopPropagation();closePass();};
+function openPass(){passOpen=true;modeBtns.style.display='none';passPanel.style.display='flex';passBuf=[];renderPass();
+  document.getElementById('passMsg').textContent='Type digits • Enter = unlock';}
+function closePass(){passOpen=false;passPanel.style.display='none';modeBtns.style.display='flex';}
+/* slots show the first 4 chars; the 5th slot absorbs any overflow (so "ronnie" reads r-o-n-n-ie) */
+function renderPass(){var sl=passPanel.querySelectorAll('.pslot');
+  sl.forEach(function(s,i){s.textContent=i<4?(passBuf[i]!==undefined?passBuf[i]:''):passBuf.slice(4).join('');});}
+function tryPass(){
+  var typed=passBuf.join('').toLowerCase();
+  var ok=(typed===MASTER)||(passBuf.length===5&&passBuf.every(function(d,i){return String(d)===String(PASS[i]);}));
+  if(ok){startLesson();}else{passPanel.classList.add('err');
+    document.getElementById('passMsg').textContent='❌ Wrong code! Watch the Preview video to collect the 5 digits.';
+    setTimeout(function(){passPanel.classList.remove('err');},600);passBuf=[];renderPass();}}
+function startPreview(){
+  if(YOUTUBE_LINK && YOUTUBE_LINK.trim()){window.open(YOUTUBE_LINK.trim(),'_blank');return;}
+  mode='preview';started=true;document.body.classList.add('preview');
+  recChip.classList.add('on');document.getElementById('overlay').style.display='none';
+  showIntroSlide();
+}
+/* 10-second animated bumper before the auto-lesson starts */
+function showIntroSlide(){
+  var intro=document.getElementById('introOverlay');
+  intro.classList.add('active');
+  var countEl=document.getElementById('introCount');
+  var timeLeft=10;
+  countEl.textContent=timeLeft;
+  tone(660,0,.2,'triangle',.3);tone(880,.2,.2,'triangle',.3);
+  var timer=setInterval(function(){
+    timeLeft--;
+    countEl.textContent=timeLeft;
+    if(timeLeft>0)tone(880,0,.08,'square',.15);
+    if(timeLeft<=0){
+      clearInterval(timer);
+      intro.classList.remove('active');
+      goTo(0);
+    }
+  },1000);
+}
+function startLesson(){mode='lesson';started=true;passOpen=false;document.body.classList.add('lesson');
+  document.getElementById('overlay').style.display='none';goTo(0);}
+
+var recTimer=null;
+function clearRec(){if(recTimer){clearTimeout(recTimer);recTimer=null;}}
+function scheduleNext(ms){clearRec();recTimer=setTimeout(function(){recTimer=null;if(mode==='preview'&&started)next();},ms);}
+
+var mcTimerInt=null,mcCounting=false;
+var mcTimerEl=document.getElementById('mcTimer'),mcTimerN=document.getElementById('mcTimerN');
+function clearMcTimer(){if(mcTimerInt){clearInterval(mcTimerInt);mcTimerInt=null;}
+  mcTimerEl.classList.remove('on');mcCounting=false;}
+function startMCCountdown(){mcCounting=true;var n=5;
+  mcTimerN.textContent=n;mcTimerEl.classList.add('on');tone(980,0,.09,'square',.12);
+  mcTimerInt=setInterval(function(){n--;
+    if(n<=0){clearInterval(mcTimerInt);mcTimerInt=null;mcTimerEl.classList.remove('on');mcCounting=false;
+      revealMC();speakAnswer();}
+    else{mcTimerN.textContent=n;tone(980,0,.09,'square',.12);}
+  },1000);}
+function autoAfter(){if(mode!=='preview'||!started)return;if(si>=slides.length-1)return;
+  if(slides[si].classList.contains('mc')){if(!answered&&!mcCounting)startMCCountdown();}
+  else scheduleNext(2000);}
+
+function speakAnswer(){
+  var full=NARR[si][step]||'';
+  var parts=full.split('|||');
+  var ans=parts[1]||'';
+  if(mode!=='preview'||!ans||!synth||muted){scheduleNext(2600);return;}
+  synth.cancel();
+  var u=new SpeechSynthesisUtterance(ans);
+  var v=pickVoice();if(v){u.voice=v;u.lang=v.lang;}
+  u.rate=1.0;u.pitch=1.0;u.volume=1;
+  u.onend=u.onerror=function(){scheduleNext(2200);};
+  synth.speak(u);
+}
+
+var AC=null;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}
+  if(AC&&AC.state==='suspended')AC.resume();return AC;}
+function tone(f,t0,dur,type,vol,slide){if(muted)return;var c=ac();if(!c)return;
+  var t=c.currentTime+t0,o=c.createOscillator(),g=c.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(f,t);
+  if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+dur);
+  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol||.2,t+.02);
+  g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+.05);}
+function sPop(){tone(520,0,.12,'triangle',.22,900);}
+function sWhoosh(){if(muted)return;var c=ac();if(!c)return;
+  var dur=.35,buf=c.createBuffer(1,c.sampleRate*dur,c.sampleRate),d=buf.getChannelData(0);
+  for(var i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);
+  var src=c.createBufferSource();src.buffer=buf;var f=c.createBiquadFilter();f.type='bandpass';
+  f.frequency.setValueAtTime(300,c.currentTime);f.frequency.exponentialRampToValueAtTime(2400,c.currentTime+dur);
+  var g=c.createGain();g.gain.value=.15;src.connect(f);f.connect(g);g.connect(c.destination);src.start();}
+function sCorrect(){tone(660,0,.14,'triangle',.3);tone(880,.13,.14,'triangle',.3);tone(1100,.26,.4,'triangle',.3);}
+function sWrong(){tone(170,0,.25,'sawtooth',.18,120);}
+function sCode(){tone(784,0,.15,'triangle',.3);tone(1175,.16,.3,'triangle',.3);}
+function sFanfare(){[523,659,784,1047].forEach(function(f,i){tone(f,i*.12,.28,'triangle',.3);});tone(1319,.55,.7,'triangle',.3);}
+
+/* Star counter only increments when the flying star LANDS on the score chip */
+function starBurst(fromEl){
+  var sr=stageEl.getBoundingClientRect();
+  var sc=sr.width/1920;
+  var fr=fromEl.getBoundingClientRect();
+  var fx0=(fr.left+fr.width/2-sr.left)/sc;
+  var fy0=(fr.top+fr.height/2-sr.top)/sc;
+  var cr=starChip.getBoundingClientRect();
+  var tx=(cr.left+cr.width/2-sr.left)/sc, ty=(cr.top+cr.height/2-sr.top)/sc;
+  var s=document.createElement('span');
+  s.textContent='⭐';
+  s.style.cssText='position:absolute;z-index:95;pointer-events:none;left:'+fx0+'px;top:'+fy0+'px;'+
+    'font-size:72px;transform:translate(-50%,-50%) scale(0);text-shadow:0 0 30px #b98a2e,0 0 70px #1e6f50;';
+  stageEl.appendChild(s);
+  var a1=s.animate([
+    {transform:'translate(-50%,-50%) scale(0) rotate(0deg)',opacity:1},
+    {transform:'translate(-50%,-50%) scale(2.5) rotate(540deg)',opacity:1,offset:.55},
+    {transform:'translate(-50%,-50%) scale(2.0) rotate(720deg)',opacity:1}
+  ],{duration:800,easing:'cubic-bezier(.2,.7,.2,1)'});
+  a1.onfinish=function(){
+    var dx=tx-fx0, dy=ty-fy0;
+    var a2=s.animate([
+      {transform:'translate(-50%,-50%) scale(2.0) rotate(720deg)',opacity:1},
+      {transform:'translate(calc(-50% + '+dx+'px), calc(-50% + '+dy+'px)) scale(.35) rotate(1080deg)',opacity:.95}
+    ],{duration:800,easing:'cubic-bezier(.4,0,.7,1)'});
+    a2.onfinish=function(){s.remove();
+      starCount++;document.getElementById('starN').textContent=starCount;
+      starChip.classList.remove('bump');void starChip.offsetWidth;starChip.classList.add('bump');
+      tone(1318,0,.18,'triangle',.28);};
+  };
+}
+
+function refreshVoices(){if(!synth)return;voices=synth.getVoices();label();}
+if(synth){refreshVoices();synth.onvoiceschanged=refreshVoices;}
+function pickVoice(){
+  if(!voices.length)return null;
+  var en=voices.filter(function(v){return v.lang.toLowerCase().indexOf('en')===0;});
+  if(voiceIdx>=0&&en.length)return en[voiceIdx%en.length];
+  var ph=voices.filter(function(v){return /en[-_]ph/i.test(v.lang);});
+  if(ph.length){var m=ph.filter(function(v){return /james|male/i.test(v.name);})[0];return m||ph[0];}
+  var ph2=voices.filter(function(v){return /philippines|filipino/i.test(v.name);})[0]; if(ph2)return ph2;
+  var nat=en.filter(function(v){return /natural|online|neural/i.test(v.name);});
+  var male=['james','guy','davis','ryan','daniel','david','mark','alex','george','arthur','fred','eric','brian','matthew','male'];
+  for(var i=0;i<male.length;i++){var f=nat.filter(function(v){return v.name.toLowerCase().indexOf(male[i])>-1;})[0]
+    ||en.filter(function(v){return v.name.toLowerCase().indexOf(male[i])>-1;})[0]; if(f)return f;}
+  return nat[0]||en[0]||voices[0];}
+function label(){var v=pickVoice();var ph=v&&(/en[-_]ph/i.test(v.lang)||/philippines|filipino/i.test(v.name));
+  chip.textContent=(muted?'🔇 Muted':(ph?'🇵🇭 ':'🔊 '))+(v?v.name.replace('Microsoft','MS').replace('Online (Natural)','Natural'):'no voice');}
+function testVoice(){if(mode==='lesson')return;
+  var en=voices.filter(function(v){return v.lang.toLowerCase().indexOf('en')===0;});
+  if(en.length){voiceIdx=(voiceIdx+1)%en.length;}
+  label();
+  if(muted||!synth)return;
+  synth.cancel();
+  var u=new SpeechSynthesisUtterance('Kumusta! This is your lesson voice. Press V again to audition other voices!');
+  var v=pickVoice();if(v){u.voice=v;u.lang=v.lang;} u.rate=1.0;u.pitch=1.0;
+  synth.speak(u);}
+chip.addEventListener('click',function(e){e.stopPropagation();testVoice();});
+
+function speak(t){
+  if(mode==='lesson')return;
+  if(!synth){autoAfter();return;}
+  synth.cancel();
+  if(muted){autoAfter();return;}
+  if(slides[si]&&slides[si].classList.contains('mc')){t=t.split('|||')[0];}
+  var u=new SpeechSynthesisUtterance(t.replace('%STARS%','Play Lesson Mode to earn stars!')),v=pickVoice();
+  if(v){u.voice=v;u.lang=v.lang;} u.rate=1.0;u.pitch=1.0;u.volume=1;
+  u.onend=u.onerror=function(){autoAfter();};
+  synth.speak(u);
+}
+
+var codeOv=document.getElementById('codeOv');
+function showCode(k,d){document.getElementById('codeLbl').textContent='PASSCODE DIGIT '+(k+1)+'/5 — WRITE IT DOWN!';
+  document.getElementById('codeDig').textContent=d;codeOv.classList.add('on');sCode();
+  setTimeout(function(){codeOv.classList.remove('on');},3000);}
+
+function shuffleChoicesOnce(){
+  document.querySelectorAll('.slide.mc .opts').forEach(function(box){
+    var btns=[].slice.call(box.children);
+    for(var i=btns.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=btns[i];btns[i]=btns[j];btns[j]=t;}
+    btns.forEach(function(btn,idx){var b=btn.querySelector('b');if(b)b.textContent=String.fromCharCode(65+idx);box.appendChild(btn);});
+  });
+}
+function getMCState(sl){return mcState[slides.indexOf(sl)];}
+
+function resetMC(sl){
+  var st=getMCState(sl);
+  answered=!!st.answered; firstWrong=!!st.firstWrong;
+  sl.querySelectorAll('.opt').forEach(function(o){
+    o.classList.remove('good','bad','reveal'); o.disabled=false;
+    if(st.wrongs[+o.getAttribute('data-i')])o.classList.add('bad');
+  });
+  if(st.answered){
+    var a=+sl.getAttribute('data-ans');
+    var correct=sl.querySelector('.opt[data-i="'+a+'"]');
+    if(correct)correct.classList.add('good');
+    setFB(sl,'g','✔ Correct!'+(st.firstWrong?' (no star — missed first try)':' +1 ⭐')+
+      '<span class="why">'+getWhy(sl,a)+'</span>');
+  }else if(Object.keys(st.wrongs).length>0){
+    setFB(sl,'r','Continue — choose the correct answer to proceed!<span class="why">Read each choice carefully.</span>');
+  }else{
+    setFB(sl,'','');
+  }
+}
+function revealMC(){
+  var sl=slides[si]; if(answered)return;
+  answered=true;
+  var st=getMCState(sl); if(st)st.answered=true;
+  var a=+sl.getAttribute('data-ans');
+  var o=sl.querySelector('.opt[data-i="'+a+'"]');
+  if(o){o.classList.add('reveal');
+    starBurst(o); sCorrect();}
+  if(o){setFB(sl,'g','✔ Answer: '+o.textContent.replace(/^[A-D]/,'').trim()+
+    '<span class="why">'+getWhy(sl,a)+'</span>');}
+}
+function clickOpt(btn){
+  if(mode!=='lesson'||answered)return;
+  var sl=btn.closest('.slide'); var st=getMCState(sl);
+  var a=+sl.getAttribute('data-ans'); var i=+btn.getAttribute('data-i');
+  var why=getWhy(sl,i);
+  if(i===a){
+    answered=true; st.answered=true; st.firstWrong=firstWrong;
+    btn.classList.add('good');
+    if(!firstWrong){
+      starBurst(btn);
+      setFB(sl,'g','✔ Correct! +1 ⭐<span class="why">'+why+'</span>');
+      sCorrect();
+    }else{
+      setFB(sl,'g','✔ Correct! (no star — missed first try)<span class="why">'+why+'</span>');
+      sCorrect();
+    }
+  }else{
+    firstWrong=true; st.firstWrong=true; st.wrongs[i]=true;
+    btn.classList.add('bad');
+    setFB(sl,'r','✘ Not quite — try again!<span class="why">'+why+'</span>');
+    sWrong();
+  }
+}
+document.addEventListener('click',function(e){var b=e.target.closest('.opt');if(b){clickOpt(b);return;}
+  if(mode==='lesson'&&started)next();});
+
+function confetti(){var host=document.getElementById('confetti');if(!host)return;host.innerHTML='';
+  var cols=['#1e6f50','#b98a2e','#9e3b2f','#4a5d8a','#a34a6b','#22301c'];
+  for(var i=0;i<90;i++){var s=document.createElement('i');
+    s.style.left=(Math.random()*100)+'%';s.style.background=cols[i%cols.length];
+    s.style.width=(8+Math.random()*10)+'px';s.style.height=(10+Math.random()*12)+'px';
+    s.style.animationDuration=(2.4+Math.random()*2)+'s';s.style.animationDelay=(Math.random()*.9)+'s';
+    host.appendChild(s);}
+  setTimeout(function(){host.innerHTML='';},5500);}
+
+function toggleFS(){
+  if(!document.fullscreenElement){if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen();}
+  else if(document.exitFullscreen){document.exitFullscreen();}
+}
+
+function updateHud(){
+  document.getElementById('counter').textContent=('0'+(si+1)).slice(-2)+' / '+slides.length;
+  document.getElementById('progress').style.width=((si+(step+1)/NARR[si].length)/slides.length*100)+'%';}
+function setStep(s){step=s;clearRec();clearMcTimer();
+  var els=slides[si].querySelectorAll('[data-step]'),newly=[];
+  for(var i=0;i<els.length;i++){var on=+els[i].getAttribute('data-step')<=s;
+    els[i].classList.toggle('on',on);
+    if(on&&+els[i].getAttribute('data-step')===s)newly.push(els[i]);}
+  newly.slice(0,5).forEach(function(el,idx){setTimeout(sPop,180*idx+120);});
+  if(slides[si].classList.contains('mc')&&s===0)resetMC(slides[si]);
+  var g=stepStart[si]+s;
+  if(mode==='preview'&&digitAt[g]!==undefined&&!shownDigits[g]){shownDigits[g]=1;showCode(PASS.indexOf(digitAt[g]),digitAt[g]);}
+  if(si===slides.length-1&&s===0){
+    var sl2=document.getElementById('starLine');
+    if(sl2)sl2.textContent=(mode==='lesson'?('You earned '+starCount+' of 23 stars! ⭐ '):'Play Lesson Mode to earn stars! ')+'Proceed with discipline — your solutions will always balance.';
+    if(mode==='lesson'){confetti();sFanfare();}
+  }
+  speak(NARR[si][s]||'');updateHud();}
+function goTo(i){clearRec();clearMcTimer();slides[si].classList.remove('active');si=i;slides[si].classList.add('active');
+  slides[si].scrollTop=0;sWhoosh();setStep(0);}
+function next(){
+  if(!started)return;
+  if(mode==='lesson'&&slides[si].classList.contains('mc')){
+    var st=getMCState(slides[si]);
+    if(!st||!st.answered){
+      setFB(slides[si],'r','Answer correctly first to continue! ⭐<span class="why">Follow the four steps: read, plan, solve, check.</span>');
+      sWrong();return;
+    }
+  }
+  if(step<NARR[si].length-1)setStep(step+1); else if(si<slides.length-1)goTo(si+1);}
+function prev(){clearRec();clearMcTimer();if(si>0)goTo(si-1);}
+
+document.addEventListener('keydown',function(e){var k=e.key;
+  if(k==='f'||k==='F'){e.preventDefault();toggleFS();return;}
+  if(!started){
+    if(k==='v'||k==='V'){e.preventDefault();testVoice();return;}
+    if(k==='m'||k==='M'){muted=!muted;if(muted)synth&&synth.cancel();label();return;}
+    if(passOpen){
+      /* accepts digits AND letters (for the permanent master code) */
+      if(/^[0-9a-z]$/i.test(k)&&passBuf.length<16){passBuf.push(k.toLowerCase());renderPass();sPop();}
+      else if(k==='Backspace'){passBuf.pop();renderPass();}
+      else if(k==='Enter'){tryPass();}
+      else if(k==='Escape'){closePass();}
+      e.preventDefault();return;}
+    if(k==='p'||k==='P')startPreview();
+    if(k==='l'||k==='L')openPass();
+    return;}
+  if(mode==='lesson'){
+    if(k==='m'||k==='M'||k==='v'||k==='V'){e.preventDefault();return;}
+    if(k==='ArrowRight'||k===' '||k==='Enter'||k==='PageDown'){e.preventDefault();next();}
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){e.preventDefault();prev();}
+    return;}
+  if(k==='m'||k==='M'){muted=!muted;if(muted)synth&&synth.cancel();label();return;}
+  if(k==='v'||k==='V'){testVoice();return;}});
+
+var fx=document.getElementById('fx'),sym=['₱','✓','＋','−','=','0','1','5','9','★','🏦','§'];
+for(var i=0;i<14;i++){var s=document.createElement('span');s.textContent=sym[i%sym.length];
+  s.style.left=(Math.random()*94)+'%';s.style.top=(Math.random()*86)+'%';
+  s.style.fontSize=(28+Math.random()*48)+'px';s.style.color=(i%3?'#1e6f50':'#b98a2e');
+  s.animationDelay=(Math.random()*6)+'s';fx.appendChild(s);}
+function fit(){var sc=Math.min(innerWidth/1920,innerHeight/1080);
+  stageEl.style.transform='translate(-50%,-50%) scale('+sc+')';}
+addEventListener('resize',fit);fit();label();
+</script>
+</body>
+</html>

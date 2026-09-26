@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>🧮 Multi-Step Decimals - Grade 5</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  html { font-size: 20px; }
+
+  body {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    padding-top: 80px;
+  }
+
+  .top-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    max-width: 850px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    z-index: 100;
+  }
+
+  body.wide-mode .top-bar { max-width: 100%; padding: 12px 40px; }
+
+  .hint-btn {
+    background: linear-gradient(135deg, #fff9c4, #ffe082);
+    border: 3px solid #ff9800;
+    border-radius: 50%;
+    width: 60px; height: 60px;
+    font-size: 2em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 0 #ff9800, 0 6px 15px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+    line-height: 1;
+  }
+
+  .hint-btn:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 6px 0 #ff9800, 0 8px 20px rgba(0,0,0,0.25); }
+  .hint-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #ff9800; }
+
+  .score-board {
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    color: #5c4000;
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-size: 1.4em;
+    font-weight: 900;
+    box-shadow: 0 4px 0 #cc8800, 0 6px 15px rgba(0,0,0,0.2);
+    border: 3px solid #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .game-container {
+    background: white;
+    border-radius: 24px;
+    padding: 24px 20px;
+    max-width: 850px;
+    width: 100%;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.25);
+    text-align: center;
+    animation: popIn 0.5s ease;
+    position: relative;
+  }
+
+  body.wide-mode .game-container { max-width: 100%; padding: 24px 34px; }
+
+  @keyframes popIn {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  h1 {
+    color: #4a2c82;
+    font-size: 1.8em;
+    margin-bottom: 5px;
+    text-shadow: 2px 2px 0 #ffd93d;
+  }
+
+  .subtitle { color: #555; font-size: 1.1em; margin-bottom: 16px; line-height: 1.4; }
+
+  .progress-bar {
+    background: #e0e0e0;
+    border-radius: 20px;
+    height: 20px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    border: 3px solid #ffd93d;
+  }
+
+  .progress-fill {
+    background: linear-gradient(90deg, #6bcf7f, #4ecdc4);
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease;
+    border-radius: 20px;
+  }
+
+  .item-counter { font-size: 1.1em; color: #555; font-weight: bold; margin-bottom: 10px; }
+
+  .exam-area { display: block; }
+
+  .passage-box {
+    background: linear-gradient(135deg, #fff9c4, #fff59d);
+    border: 4px dashed #ff9800;
+    border-radius: 20px;
+    padding: 22px 18px;
+    margin-bottom: 16px;
+    font-size: 1.2em;
+    line-height: 1.65;
+    color: #333;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    animation: slideIn 0.4s ease;
+  }
+
+  .passage-text { display: inline; }
+
+  .blank {
+    display: inline-block;
+    min-width: 110px;
+    border-bottom: 4px solid #d32f2f;
+    margin: 0 6px;
+    text-align: center;
+    color: #d32f2f;
+  }
+
+  @keyframes slideIn {
+    0% { transform: translateX(-20px); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+  }
+
+  .question { font-size: 1.15em; color: #ff6b9d; font-weight: bold; margin-bottom: 10px; }
+
+  .choices-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .choice-btn {
+    background: linear-gradient(135deg, #a8edea, #fed6e3);
+    border: 3px solid white;
+    border-radius: 16px;
+    padding: 16px 10px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.15);
+    font-family: inherit;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .choice-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 7px 0 rgba(0,0,0,0.15); background: linear-gradient(135deg, #8fd3f4, #fbc2eb); }
+  .choice-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.15); }
+
+  .choice-btn.correct { background: linear-gradient(135deg, #84fab0, #8fd3f4) !important; animation: correctPulse 0.6s ease; border-color: #4ecdc4; }
+  .choice-btn.wrong { background: linear-gradient(135deg, #ff9a9e, #fad0c4) !important; animation: shake 0.5s ease; border-color: #ff6b6b; }
+
+  @keyframes correctPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+  .feedback { font-size: 1.1em; font-weight: bold; margin: 12px 0; min-height: 30px; transition: all 0.3s; line-height: 1.4; }
+  .feedback.correct { color: #00897b; }
+  .feedback.wrong { color: #d32f2f; }
+
+  .next-btn {
+    background: linear-gradient(135deg, #ff6b9d, #ff8e53);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    font-size: 1.2em;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+    font-family: inherit;
+    transition: all 0.2s;
+    display: none;
+    margin-top: 8px;
+  }
+
+  .next-btn.show { display: inline-block; animation: popIn 0.4s ease; }
+  .next-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 rgba(0,0,0,0.2); }
+  .next-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.2); }
+
+  .keyboard-hint { font-size: 0.9em; color: #777; margin-top: 8px; font-style: italic; }
+  .keyboard-hint kbd { background: #f0f0f0; border: 2px solid #ccc; border-radius: 6px; padding: 2px 8px; font-family: monospace; font-style: normal; font-weight: bold; }
+
+  /* ===== SPLIT LAYOUT ===== */
+  .exam-area.split { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: stretch; text-align: left; }
+  .exam-area.split .exam-left { display: flex; flex-direction: column; }
+  .exam-area.split .passage-box {
+    flex: 1;
+    min-height: 55vh;
+    max-height: 68vh;
+    overflow-y: auto;
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
+    font-size: 1.3em;
+    padding: 26px 24px;
+  }
+  .exam-area.split .question { margin-top: 14px; font-size: 1.3em; }
+  .exam-area.split .exam-right {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #f5f7ff, #eef2ff);
+    border: 3px dashed #a1c4fd;
+    border-radius: 20px;
+    padding: 16px 14px;
+  }
+  .exam-area.split .choices-grid { grid-template-columns: 1fr; gap: 10px; margin-bottom: 8px; }
+  .exam-area.split .choice-btn { min-height: 64px; font-size: 1.1em; padding: 12px 10px; }
+  .exam-area.split .feedback { text-align: center; }
+  .exam-area.split .exam-right .next-btn { align-self: center; }
+  .exam-area.split .keyboard-hint { text-align: center; }
+
+  @media (max-width: 800px) {
+    .exam-area.split { display: block; text-align: center; }
+    .exam-area.split .passage-box { min-height: 120px; max-height: none; align-items: center; justify-content: center; text-align: center; font-size: 1.1em; }
+    .exam-area.split .question { font-size: 1.15em; }
+    .exam-area.split .exam-right { padding: 12px 10px; margin-top: 4px; }
+    body.wide-mode .game-container { padding: 20px 14px; }
+    body.wide-mode .top-bar { padding: 8px 12px; }
+  }
+
+  .final-screen { display: none; text-align: center; }
+  .final-screen.active { display: block; animation: popIn 0.6s ease; }
+  .trophy { font-size: 5em; animation: bounce 1s infinite; }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+  .final-screen h1 { font-size: 2em; margin: 12px 0; color: #4ecdc4; }
+  .final-screen p { font-size: 1.2em; color: #555; margin-bottom: 12px; }
+  .score-box {
+    background: linear-gradient(135deg, #fff9c4, #ffe082);
+    border-radius: 20px;
+    padding: 16px;
+    margin: 16px auto;
+    border: 3px dashed #ff9800;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #ff6b9d;
+    max-width: 600px;
+  }
+  .restart-btn {
+    background: linear-gradient(135deg, #4ecdc4, #44a08d);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    font-size: 1.2em;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+    font-family: inherit;
+  }
+  .restart-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 rgba(0,0,0,0.2); }
+  .confetti { position: fixed; width: 12px; height: 12px; pointer-events: none; z-index: 200; animation: fall 3s linear forwards; }
+  @keyframes fall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+  .flying-star { position: fixed; font-size: 3em; z-index: 1000; pointer-events: none; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
+
+  .hint-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.65);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+    padding: 20px;
+  }
+  .hint-overlay.show { display: flex; }
+
+  .hint-modal {
+    background: white;
+    border-radius: 24px;
+    padding: 28px 24px;
+    max-width: 750px;
+    width: 100%;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    border: 4px solid #ffd93d;
+    animation: popIn 0.3s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .hint-modal h2 { color: #4a2c82; font-size: 1.6em; margin-bottom: 16px; text-align: center; }
+  .close-hint-btn {
+    position: absolute; top: 12px; right: 12px;
+    background: #ff6b6b; color: white;
+    border: none; border-radius: 50%;
+    width: 40px; height: 40px;
+    font-size: 1.3em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 0 #d32f2f;
+    transition: all 0.2s ease;
+  }
+  .close-hint-btn:hover { transform: scale(1.1); }
+  .close-hint-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #d32f2f; }
+
+  .rule-box {
+    background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+    border: 3px solid #00acc1;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    font-size: 1.05em;
+    line-height: 1.6;
+    color: #006064;
+    text-align: left;
+  }
+  .rule-box strong { color: #d32f2f; }
+
+  .step-box {
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    border: 3px solid #43a047;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    font-size: 1.05em;
+    line-height: 1.6;
+    color: #1b5e20;
+    text-align: left;
+  }
+  .step-box strong { color: #d32f2f; }
+
+  .example-box {
+    background: linear-gradient(135deg, #fff9c4, #fff59d);
+    border: 3px dashed #ff9800;
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 12px;
+    font-size: 0.95em;
+    line-height: 1.6;
+    color: #333;
+    text-align: left;
+  }
+  .example-box strong { color: #d32f2f; }
+
+  @media (max-width: 600px) {
+    html { font-size: 18px; }
+    body { padding: 10px; padding-top: 70px; }
+    .top-bar { padding: 8px 12px; }
+    .hint-btn { width: 50px; height: 50px; font-size: 1.6em; }
+    .score-board { font-size: 1.1em; padding: 8px 18px; }
+    .game-container { padding: 20px 14px; border-radius: 18px; }
+    h1 { font-size: 1.5em; }
+    .passage-box { font-size: 1.05em; padding: 16px 12px; min-height: 100px; }
+    .choice-btn { font-size: 1.05em; padding: 14px 8px; min-height: 60px; }
+    .hint-modal { padding: 24px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <button class="hint-btn" onclick="toggleHintOverlay()" aria-label="Show solving steps">💡</button>
+  <div class="score-board" id="scoreBoard">
+    <span>⭐</span>
+    <span>Score: <span id="scoreValue">0</span></span>
+  </div>
+</div>
+
+<div class="game-container">
+  <h1>🧮 Multi-Step Decimal Problems</h1>
+  <p class="subtitle">Solve step by step — add and subtract decimals!</p>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <div id="gameArea">
+    <div class="item-counter" id="itemCounter">Item 1 of 20</div>
+
+    <div class="exam-area" id="examArea">
+      <div class="exam-left">
+        <div class="passage-box">
+          <span class="passage-text" id="passageText">Loading...</span>
+        </div>
+        <div class="question" id="questionText">🤔 What number fills the blank?</div>
+      </div>
+
+      <div class="exam-right">
+        <div class="choices-grid" id="choicesGrid"></div>
+        <div class="feedback" id="feedback"></div>
+        <button class="next-btn" id="nextBtn" onclick="nextItem()">Next Item ➡️</button>
+        <div class="keyboard-hint">Press <kbd>→</kbd> for next item</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="final-screen" id="finalScreen">
+    <div class="trophy">🏆</div>
+    <h1>🎉 Decimal Champion!</h1>
+    <p>Magaling! You solved them all!</p>
+    <div class="score-box" id="scoreBox">First-Try Stars: 0 / 20</div>
+    <button class="restart-btn" onclick="restartGame()">🔁 Play Again</button>
+  </div>
+</div>
+
+<div class="hint-overlay" id="hintOverlay" onclick="closeHintOverlay(event)">
+  <div class="hint-modal" onclick="event.stopPropagation()">
+    <button class="close-hint-btn" onclick="toggleHintOverlay()">✖️</button>
+    <h2>💡 Solving Multi-Step Problems</h2>
+    
+    <div class="rule-box">
+      <strong>🎯 The Golden Rules:</strong><br>
+      1️⃣ <strong>Read carefully</strong> — What is the problem asking?<br>
+      2️⃣ <strong>Identify the steps</strong> — What comes first? What comes next?<br>
+      3️⃣ <strong>Line up the decimal points</strong> when adding or subtracting.<br>
+      4️⃣ <strong>Solve one step at a time</strong> — don't rush!<br>
+      5️⃣ <strong>Check your answer</strong> — Does it make sense?
+    </div>
+
+    <div class="step-box">
+      <strong>📝 Steps for Money Problems:</strong><br>
+      • <strong>Spending?</strong> → Subtract from the total.<br>
+      • <strong>Earning/Saving?</strong> → Add to the total.<br>
+      • <strong>Finding change?</strong> → Total paid − Total spent.<br>
+      • <strong>Finding what's left?</strong> → Start − Each expense.
+    </div>
+
+    <div class="example-box">
+      <strong>Example:</strong> Maria has ₱50. She bought a notebook for ₱18.50 and a pencil for ₱7.25. How much change?<br><br>
+      <strong>Step 1:</strong> Add the costs: ₱18.50 + ₱7.25 = ₱25.75<br>
+      <strong>Step 2:</strong> Subtract from her money: ₱50.00 − ₱25.75 = <strong>₱24.25</strong> ✅<br><br>
+      <strong>💡 Tip:</strong> Write it vertically and line up the decimal points!
+    </div>
+  </div>
+</div>
+
+<script>
+  const SPLIT_THRESHOLD = 150;
+  let audioCtx = null;
+
+  function playCorrectSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const start = now + i * 0.1;
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(0.25, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.01, start + 0.3);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + 0.35);
+      });
+    } catch(e) {}
+  }
+
+  function playStarSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
+      const notes = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1318.51];
+      notes.forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const start = now + i * 0.08;
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(0.2, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.01, start + 0.4);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + 0.45);
+        const osc2 = audioCtx.createOscillator();
+        const gain2 = audioCtx.createGain();
+        osc2.type = 'triangle';
+        osc2.frequency.value = freq * 2;
+        gain2.gain.setValueAtTime(0, start);
+        gain2.gain.linearRampToValueAtTime(0.08, start + 0.02);
+        gain2.gain.exponentialRampToValueAtTime(0.01, start + 0.3);
+        osc2.connect(gain2);
+        gain2.connect(audioCtx.destination);
+        osc2.start(start);
+        osc2.stop(start + 0.35);
+      });
+      setTimeout(() => {
+        const ct = audioCtx.currentTime;
+        [1046.50, 1318.51, 1567.98].forEach(freq => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0, ct);
+          gain.gain.linearRampToValueAtTime(0.15, ct + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.01, ct + 0.8);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(ct);
+          osc.stop(ct + 0.9);
+        });
+      }, 500);
+    } catch(e) {}
+  }
+
+  function playWrongSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.exponentialRampToValueAtTime(110, now + 0.3);
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } catch(e) {}
+  }
+
+  // ===== 20 ITEMS: Multi-Step Decimal Problems =====
+  const originalItems = [
+    // --- MONEY: SHOPPING & CHANGE ---
+    {
+      passage: "🛒 Maria has <strong>₱50</strong>. She bought a notebook for <strong>₱18.50</strong> and a pencil for <strong>₱7.25</strong>. How much change did she get? <span class='blank'>₱____</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["₱24.25", "₱25.75", "₱24.75", "₱23.25"],
+      correctAnswer: "₱24.25",
+      explanation: "Step 1: 18.50 + 7.25 = 25.75. Step 2: 50.00 − 25.75 = ₱24.25."
+    },
+    {
+      passage: "🍱 Juan had <strong>₱100</strong>. He spent <strong>₱35.75</strong> on lunch and <strong>₱22.50</strong> on snacks. How much money is left? <span class='blank'>₱____</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["₱41.75", "₱42.25", "₱41.25", "₱43.75"],
+      correctAnswer: "₱41.75",
+      explanation: "Step 1: 35.75 + 22.50 = 58.25. Step 2: 100.00 − 58.25 = ₱41.75."
+    },
+    {
+      passage: "🥚 Ana bought rice for <strong>₱45.80</strong>, eggs for <strong>₱32.45</strong>, and milk for <strong>₱28.75</strong>. She paid with <strong>₱200</strong>. How much change? <span class='blank'>₱____</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["₱93", "₱92", "₱94", "₱107"],
+      correctAnswer: "₱93",
+      explanation: "Step 1: 45.80 + 32.45 + 28.75 = 107.00. Step 2: 200.00 − 107.00 = ₱93.00."
+    },
+    {
+      passage: "👟 Pedro had <strong>₱200</strong>. He bought shoes for <strong>₱125.99</strong>, socks for <strong>₱34.50</strong>, and a shirt for <strong>₱28.75</strong>. How much is left? <span class='blank'>₱____</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["₱10.76", "₱11.76", "₱10.26", "₱9.76"],
+      correctAnswer: "₱10.76",
+      explanation: "Step 1: 125.99 + 34.50 + 28.75 = 189.24. Step 2: 200.00 − 189.24 = ₱10.76."
+    },
+    {
+      passage: "🏫 Lita had a <strong>₱500</strong> budget. She spent <strong>₱125.50</strong> on food, <strong>₱85.75</strong> on school supplies, and <strong>₱62.25</strong> on gifts. How much is left? <span class='blank'>₱____</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["₱226.50", "₱227.50", "₱225.50", "₱236.50"],
+      correctAnswer: "₱226.50",
+      explanation: "Step 1: 125.50 + 85.75 + 62.25 = 273.50. Step 2: 500.00 − 273.50 = ₱226.50."
+    },
+    {
+      passage: "🐷 Rosa saved <strong>₱25.50</strong> on Monday, <strong>₱18.75</strong> on Tuesday, and <strong>₱30.25</strong> on Wednesday. She spent <strong>₱40</strong> on a book. How much is left? <span class='blank'>₱____</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["₱34.50", "₱35.50", "₱34.25", "₱33.50"],
+      correctAnswer: "₱34.50",
+      explanation: "Step 1: 25.50 + 18.75 + 30.25 = 74.50. Step 2: 74.50 − 40.00 = ₱34.50."
+    },
+    {
+      passage: "💪 Miguel earned <strong>₱85.50</strong> on Saturday and <strong>₱67.25</strong> on Sunday. He spent <strong>₱95</strong> on a toy. How much is left? <span class='blank'>₱____</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["₱57.75", "₱58.75", "₱57.25", "₱56.75"],
+      correctAnswer: "₱57.75",
+      explanation: "Step 1: 85.50 + 67.25 = 152.75. Step 2: 152.75 − 95.00 = ₱57.75."
+    },
+    {
+      passage: "🏫 Ben had <strong>₱100</strong>. He earned <strong>₱50</strong> from doing chores. Then he spent <strong>₱35.50</strong> on snacks and <strong>₱22.25</strong> on toys. How much does he have now? <span class='blank'>₱____</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["₱92.25", "₱93.25", "₱91.25", "₱92.75"],
+      correctAnswer: "₱92.25",
+      explanation: "Step 1: 100 + 50 = 150. Step 2: 150 − 35.50 = 114.50. Step 3: 114.50 − 22.25 = ₱92.25."
+    },
+    {
+      passage: "🏘️ The barangay collected <strong>₱150.75</strong> for a project. They spent <strong>₱45.50</strong> on materials and <strong>₱62.25</strong> on food. Then they collected <strong>₱25.50</strong> more. How much do they have now? <span class='blank'>₱____</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["₱68.50", "₱69.50", "₱67.50", "₱68"],
+      correctAnswer: "₱68.50",
+      explanation: "Step 1: 150.75 − 45.50 = 105.25. Step 2: 105.25 − 62.25 = 43.00. Step 3: 43.00 + 25.50 = ₱68.50."
+    },
+
+    // --- MEASUREMENT: LENGTH ---
+    {
+      passage: "🪢 A rope is <strong>15.5 meters</strong> long. Mang Jose cut off <strong>3.75 meters</strong>, then cut off another <strong>4.25 meters</strong>. How much rope is left? <span class='blank'>____ m</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["7.5", "8.5", "7", "8"],
+      correctAnswer: "7.5",
+      explanation: "Step 1: 3.75 + 4.25 = 8.00. Step 2: 15.5 − 8.00 = 7.5 meters."
+    },
+    {
+      passage: "🚶 Carlos traveled <strong>2.5 km</strong> by foot, <strong>3.75 km</strong> by jeepney, and <strong>1.25 km</strong> by tricycle. What is the total distance he traveled? <span class='blank'>____ km</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["7.5", "7", "8", "6.5"],
+      correctAnswer: "7.5",
+      explanation: "2.5 + 3.75 + 1.25 = 7.5 km total."
+    },
+    {
+      passage: "🎋 A bamboo pole is <strong>12.8 meters</strong> long. Lolo cut <strong>2.35 meters</strong> for a fence, <strong>3.65 meters</strong> for a post, and <strong>1.8 meters</strong> for a flagpole. How much is left? <span class='blank'>____ m</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["5", "6", "5.5", "4.5"],
+      correctAnswer: "5",
+      explanation: "Step 1: 2.35 + 3.65 + 1.8 = 7.80. Step 2: 12.8 − 7.80 = 5 meters."
+    },
+    {
+      passage: "🔌 Mang Jose needs <strong>8.5 meters</strong> of wire for his fence. He already has <strong>3.25 meters</strong> and bought <strong>2.75 meters</strong> more. How much more wire does he still need? <span class='blank'>____ m</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["2.5", "3", "2", "3.5"],
+      correctAnswer: "2.5",
+      explanation: "Step 1: 3.25 + 2.75 = 6.00. Step 2: 8.5 − 6.00 = 2.5 meters still needed."
+    },
+
+    // --- MEASUREMENT: WEIGHT ---
+    {
+      passage: "🧂 Aling Nena bought <strong>2.5 kg</strong> of sugar and <strong>1.75 kg</strong> of flour. She used <strong>3.25 kg</strong> for baking. How much is left altogether? <span class='blank'>____ kg</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["1", "1.5", "0.5", "2"],
+      correctAnswer: "1",
+      explanation: "Step 1: 2.5 + 1.75 = 4.25. Step 2: 4.25 − 3.25 = 1 kg."
+    },
+    {
+      passage: "🥭 A farmer harvested <strong>45.25 kg</strong> of mangoes. He sold <strong>18.5 kg</strong> at the palengke and <strong>12.75 kg</strong> to a neighbor. How much is left? <span class='blank'>____ kg</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["14", "15", "13.5", "14.5"],
+      correctAnswer: "14",
+      explanation: "Step 1: 18.5 + 12.75 = 31.25. Step 2: 45.25 − 31.25 = 14 kg."
+    },
+    {
+      passage: "🍚 A sack of rice weighs <strong>25.5 kg</strong>. Aling Nena sold <strong>8.75 kg</strong> in the morning, <strong>6.25 kg</strong> in the afternoon, and <strong>4.5 kg</strong> in the evening. How much rice is left? <span class='blank'>____ kg</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["6", "7", "5.5", "6.5"],
+      correctAnswer: "6",
+      explanation: "Step 1: 8.75 + 6.25 + 4.5 = 19.50. Step 2: 25.5 − 19.50 = 6 kg."
+    },
+    {
+      passage: "🍞 A baker had <strong>10.5 kg</strong> of flour. He used <strong>3.25 kg</strong> for pandesal and <strong>2.75 kg</strong> for cake. Then he bought <strong>5 kg</strong> more. How much flour does he have now? <span class='blank'>____ kg</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["9.5", "10.5", "8.5", "9"],
+      correctAnswer: "9.5",
+      explanation: "Step 1: 10.5 − 3.25 = 7.25. Step 2: 7.25 − 2.75 = 4.5. Step 3: 4.5 + 5 = 9.5 kg."
+    },
+
+    // --- MEASUREMENT: VOLUME ---
+    {
+      passage: "🚰 A water tank had <strong>50.75 liters</strong>. The family used <strong>12.5 liters</strong> in the morning and <strong>18.25 liters</strong> in the afternoon. How much is left? <span class='blank'>____ L</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["20", "21", "19.5", "20.5"],
+      correctAnswer: "20",
+      explanation: "Step 1: 12.5 + 18.25 = 30.75. Step 2: 50.75 − 30.75 = 20 liters."
+    },
+    {
+      passage: "🪣 A pail had <strong>8.5 liters</strong> of water. Ana added <strong>3.25 liters</strong>, then used <strong>5.75 liters</strong> to water the plants. How much water is in the pail now? <span class='blank'>____ L</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["6", "7", "5.5", "6.5"],
+      correctAnswer: "6",
+      explanation: "Step 1: 8.5 + 3.25 = 11.75. Step 2: 11.75 − 5.75 = 6 liters."
+    },
+    {
+      passage: "🛢️ A store had <strong>100.5 liters</strong> of cooking oil. They sold <strong>25.75 liters</strong> in the morning, received <strong>50.25 liters</strong> delivery, then sold <strong>30.5 liters</strong> in the afternoon. How much is left? <span class='blank'>____ L</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["94.5", "95.5", "93.5", "94"],
+      correctAnswer: "94.5",
+      explanation: "Step 1: 100.5 − 25.75 = 74.75. Step 2: 74.75 + 50.25 = 125. Step 3: 125 − 30.5 = 94.5 liters."
+    },
+    {
+      passage: "🍧 Rosa made halo-halo. She used <strong>1.25 liters</strong> of milk, <strong>0.75 liters</strong> of coconut milk, and <strong>2.5 liters</strong> of shaved ice. What is the total amount of liquid? <span class='blank'>____ L</span>",
+      question: "🤔 What number fills the blank?",
+      choices: ["4.5", "4", "5", "3.5"],
+      correctAnswer: "4.5",
+      explanation: "1.25 + 0.75 + 2.5 = 4.5 liters total."
+    }
+  ];
+
+  let items = [];
+  let currentItem = 0;
+  let isLocked = false;
+  let correctCount = 0;
+  let wrongAttempts = 0;
+
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  function visibleTextLength(html) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return (tmp.textContent || '').trim().length;
+  }
+
+  function applyLayout(item) {
+    const isLong = visibleTextLength(item.passage) > SPLIT_THRESHOLD;
+    document.getElementById('examArea').classList.toggle('split', isLong);
+    document.body.classList.toggle('wide-mode', isLong);
+  }
+
+  function toggleHintOverlay() {
+    document.getElementById('hintOverlay').classList.toggle('show');
+  }
+
+  function closeHintOverlay(event) {
+    if (event.target === document.getElementById('hintOverlay')) toggleHintOverlay();
+  }
+
+  function animateStarToScoreboard(buttonElement) {
+    const star = document.createElement('div');
+    star.className = 'flying-star';
+    star.textContent = '⭐';
+    document.body.appendChild(star);
+
+    const startRect = buttonElement.getBoundingClientRect();
+    const endRect = document.getElementById('scoreBoard').getBoundingClientRect();
+
+    const startX = startRect.left + startRect.width / 2 - 24;
+    const startY = startRect.top + startRect.height / 2 - 24;
+    const endX = endRect.left + endRect.width / 2 - 24;
+    const endY = endRect.top + endRect.height / 2 - 24;
+
+    star.style.left = startX + 'px';
+    star.style.top = startY + 'px';
+
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
+
+    const phase1 = star.animate([
+      { transform: 'scale(1) rotate(0deg)', opacity: 1, offset: 0 },
+      { transform: 'scale(2.5) rotate(720deg)', opacity: 1, offset: 1 }
+    ], { duration: 400, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' });
+
+    phase1.onfinish = () => {
+      const phase2 = star.animate([
+        { transform: 'scale(2.5) rotate(720deg)', opacity: 1, offset: 0 },
+        { transform: `translate(${deltaX * 0.5}px, ${deltaY * 0.5 - 100}px) scale(2) rotate(1080deg)`, opacity: 1, offset: 0.4 },
+        { transform: `translate(${deltaX}px, ${deltaY}px) scale(0.5) rotate(1440deg)`, opacity: 0, offset: 1 }
+      ], { duration: 900, easing: 'cubic-bezier(0.25, 1, 0.5, 1)' });
+
+      phase2.onfinish = () => {
+        star.remove();
+        correctCount++;
+        document.getElementById('scoreValue').textContent = correctCount;
+        document.getElementById('scoreBoard').animate([
+          { transform: 'scale(1)' },
+          { transform: 'scale(1.3)' },
+          { transform: 'scale(1)' }
+        ], { duration: 400, easing: 'ease-out' });
+      };
+    };
+  }
+
+  function initGame() {
+    items = shuffleArray([...originalItems]);
+    currentItem = 0;
+    correctCount = 0;
+    document.getElementById('scoreValue').textContent = '0';
+    loadItem();
+  }
+
+  function loadItem() {
+    const item = items[currentItem];
+    document.getElementById('passageText').innerHTML = item.passage;
+    document.getElementById('questionText').innerHTML = item.question;
+    document.getElementById('itemCounter').textContent = `Item ${currentItem + 1} of ${items.length}`;
+    document.getElementById('progressFill').style.width = (currentItem / items.length) * 100 + '%';
+
+    applyLayout(item);
+
+    const shuffledChoices = shuffleArray([...item.choices]);
+
+    const choicesGrid = document.getElementById('choicesGrid');
+    choicesGrid.innerHTML = '';
+    shuffledChoices.forEach((choice) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.textContent = choice;
+      btn.dataset.value = choice;
+      btn.onclick = () => checkAnswer(btn);
+      choicesGrid.appendChild(btn);
+    });
+
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('feedback').className = 'feedback';
+    document.getElementById('nextBtn').classList.remove('show');
+    wrongAttempts = 0;
+    isLocked = false;
+  }
+
+  function checkAnswer(button) {
+    if (isLocked) return;
+    const item = items[currentItem];
+    const feedback = document.getElementById('feedback');
+
+    if (button.dataset.value === item.correctAnswer) {
+      isLocked = true;
+      button.classList.add('correct');
+
+      if (wrongAttempts === 0) {
+        playStarSound();
+        animateStarToScoreboard(button);
+      } else {
+        playCorrectSound();
+      }
+
+      feedback.innerHTML = `✅ Correct! <span style="font-size:0.9em; color:#555; display:block; margin-top:4px;">${item.explanation}</span>`;
+      feedback.className = 'feedback correct';
+      document.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = true);
+      setTimeout(() => document.getElementById('nextBtn').classList.add('show'), 600);
+    } else {
+      wrongAttempts++;
+      button.classList.add('wrong');
+      button.disabled = true;
+      playWrongSound();
+      feedback.textContent = '❌ Not quite. Solve step by step!';
+      feedback.className = 'feedback wrong';
+      setTimeout(() => button.classList.remove('wrong'), 500);
+    }
+  }
+
+  function nextItem() {
+    currentItem++;
+    if (currentItem >= items.length) {
+      document.getElementById('gameArea').style.display = 'none';
+      document.getElementById('finalScreen').classList.add('active');
+      document.getElementById('progressFill').style.width = '100%';
+      document.getElementById('scoreBox').textContent = `First-Try Stars: ${correctCount} / ${items.length}`;
+      document.getElementById('examArea').classList.remove('split');
+      document.body.classList.remove('wide-mode');
+      launchConfetti();
+      setTimeout(launchConfetti, 400);
+      setTimeout(launchConfetti, 800);
+    } else {
+      loadItem();
+    }
+  }
+
+  function restartGame() {
+    initGame();
+    document.getElementById('finalScreen').classList.remove('active');
+    document.getElementById('gameArea').style.display = 'block';
+  }
+
+  function launchConfetti() {
+    const colors = ['#ff6b9d', '#ffd93d', '#4ecdc4', '#a8edea', '#ff8e53', '#84fab0'];
+    for (let i = 0; i < 50; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.top = '-20px';
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.animationDelay = Math.random() * 0.5 + 's';
+      c.style.animationDuration = (2 + Math.random() * 2) + 's';
+      c.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 4000);
+    }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.keyCode === 39) {
+      if (document.getElementById('nextBtn').classList.contains('show')) nextItem();
+    }
+  });
+
+  initGame();
+</script>
+
+</body>
+</html>
