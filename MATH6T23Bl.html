@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math 6 T2 W3 P2 — Uses of Percentages | The Math Marketplace</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#2b2d42; --mut:#6c757d; --card:#fffbf0; --card2:#fff4e0; --line:#e9dcc4; --bg:#f1e9d2;
+  --cyan:#0891b2; --yel:#f59e0b; --org:#ef4444; --grn:#10b981; --pur:#8b5cf6; --pink:#ec4899; --red:#dc2626;
+  --shd:#e2d6b8;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#ddd0ae;overflow:hidden;font-family:'Nunito',sans-serif}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform:translate(-50%,-50%);
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(239,68,68,.04) 0 200px, transparent 200px),
+    radial-gradient(circle at 80% 70%, rgba(8,145,178,.04) 0 200px, transparent 200px),
+    linear-gradient(180deg,#f7efd9,#ece3c3);
+  color:var(--ink);overflow:hidden}
+#fx{position:absolute;inset:0;z-index:1;pointer-events:none}
+#fx span{position:absolute;font-family:'Fredoka';font-weight:700;opacity:.10;animation:float 9s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-22px) rotate(4deg)}}
+
+[data-anim]{opacity:0}
+.on[data-anim],.on [data-anim]{animation:var(--an,popIn) .8s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d,0s)}
+@keyframes popIn{0%{opacity:0;transform:scale(.4)}70%{opacity:1;transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+@keyframes riseIn{from{opacity:0;transform:translateY(60px)}to{opacity:1;transform:none}}
+@keyframes slideL{from{opacity:0;transform:translateX(-80px)}to{opacity:1;transform:none}}
+@keyframes slideR{from{opacity:0;transform:translateX(80px)}to{opacity:1;transform:none}}
+@keyframes zoomIn{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:scale(1)}}
+@keyframes flipIn{from{opacity:0;transform:perspective(900px) rotateY(65deg)}to{opacity:1;transform:none}}
+@keyframes bounceIn{0%{opacity:0;transform:translateY(70px) scale(.85)}60%{opacity:1;transform:translateY(-14px) scale(1.05)}100%{opacity:1;transform:none}}
+@keyframes confFall{0%{transform:translateY(-60px) rotate(0)}100%{transform:translateY(1150px) rotate(720deg);opacity:0}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-14px)}40%{transform:translateX(12px)}60%{transform:translateX(-9px)}80%{transform:translateX(6px)}}
+@keyframes winSpin{0%{transform:scale(1) rotate(0deg)}35%{transform:scale(1.16) rotate(-4deg)}65%{transform:scale(1.08) rotate(4deg)}100%{transform:scale(1) rotate(0deg)}}
+@keyframes arrowB{0%,100%{transform:translateX(0);opacity:1}50%{transform:translateX(10px);opacity:.6}}
+@keyframes digOnce{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:none}}
+@keyframes barFill{from{width:0}to{width:var(--pct,0%)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+#progress{position:absolute;top:0;left:0;height:8px;width:0;z-index:60;
+  background:linear-gradient(90deg,var(--cyan),var(--yel),var(--org));transition:width .5s}
+#tag{position:absolute;top:24px;left:84px;z-index:50;font:700 19px 'Fredoka';letter-spacing:3px;color:var(--cyan)}
+#voiceChip{position:absolute;top:22px;right:84px;z-index:110;font:800 15px 'Nunito';color:var(--mut);
+  border:3px solid var(--line);border-radius:999px;padding:8px 18px;background:#fffbf0;cursor:pointer}
+body.lesson #voiceChip,body.preview #voiceChip{display:none}
+#starChip{position:absolute;top:70px;right:84px;z-index:70;display:none;align-items:center;gap:10px;
+  font:900 22px 'Nunito';color:#b45309;background:#fffbf0;border:3px solid var(--line);border-radius:999px;
+  padding:6px 20px;box-shadow:0 4px 0 var(--shd)}
+body.lesson #starChip,body.preview #starChip{display:flex}
+#starChip.bump{animation:pulse .5s}
+#recChip{position:absolute;top:118px;right:84px;z-index:70;display:none;align-items:center;gap:10px;
+  font:900 16px 'Nunito';color:#fff;background:#dc2626E6;border:3px solid #fff;border-radius:999px;
+  padding:6px 18px;box-shadow:0 4px 0 var(--shd)}
+#recChip.on{display:flex}
+#recChip .rdot{width:12px;height:12px;border-radius:50%;background:#fff;animation:blink 1s infinite}
+#counter{position:absolute;bottom:18px;right:84px;z-index:50;font:700 22px 'Fredoka';color:#8b846c}
+#hints{position:absolute;bottom:18px;left:84px;z-index:50;font:800 14px 'Nunito';color:#8b846c}
+#hints b{color:#b45309}
+#confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:40}
+#confetti i{position:absolute;top:0;border-radius:3px;animation:confFall linear both}
+
+#mcTimer{position:absolute;top:96px;left:50%;transform:translateX(-50%);z-index:85;display:none;align-items:center;gap:16px;
+  background:#fffbf0F2;border:4px solid var(--yel);border-radius:999px;padding:8px 38px;box-shadow:0 8px 0 var(--shd)}
+#mcTimer.on{display:flex}
+#mcTimerN{font:700 64px/1 'Fredoka';color:#b45309}
+#mcTimer small{font:800 24px 'Nunito';color:var(--ink)}
+
+#codeOv{position:absolute;inset:0;z-index:90;display:none;align-items:center;justify-content:center;pointer-events:none}
+#codeOv.on{display:flex}
+#codeOv .box{background:#fffbf0F5;border:5px solid var(--yel);border-radius:30px;padding:30px 70px;text-align:center;animation:popIn .5s both;box-shadow:0 10px 0 var(--shd)}
+#codeOv .lbl{font:700 32px 'Fredoka';color:#b45309;letter-spacing:4px}
+#codeOv .dig{font:700 150px/1.1 'Fredoka';color:var(--ink)}
+
+#introOverlay{position:absolute;inset:0;z-index:200;background:radial-gradient(ellipse at top,#f7efd9 0%,#ece3c3 70%);
+  display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s}
+#introOverlay.active{opacity:1;visibility:visible}
+.intro-box{display:flex;flex-direction:column;gap:28px;align-items:center;max-width:1320px;text-align:center;padding:0 60px}
+#introOverlay.active .free-chip{animation:bounceIn .8s cubic-bezier(.2,.7,.2,1) both,pulse 2s infinite .9s}
+#introOverlay.active h1{animation:riseIn .8s .3s both}
+#introOverlay.active .comment-box{animation:slideR .8s .6s both}
+#introOverlay.active .instructions{animation:flipIn .8s .9s both}
+#introOverlay.active .countdown-box{animation:popIn .8s 1.2s both}
+.free-chip{font:900 38px 'Nunito';color:#fff;background:linear-gradient(90deg,var(--grn),var(--cyan));
+  padding:16px 44px;border-radius:999px;box-shadow:0 8px 0 var(--shd)}
+.comment-box{display:flex;align-items:center;gap:20px;font:800 40px 'Nunito';color:var(--ink);background:#fffbf0;
+  padding:22px 46px;border-radius:24px;border:4px solid var(--cyan);box-shadow:0 7px 0 var(--shd)}
+.pin-icon{font-size:56px}
+.instructions h3{font:700 48px 'Fredoka';margin-bottom:10px}
+.instructions .txt{font-size:34px;max-width:1060px}
+.countdown-box{font:800 34px 'Nunito';color:var(--mut);margin-top:8px}
+#introCount{font:700 80px 'Fredoka';color:#b45309;display:inline-block;min-width:90px}
+
+.slide{position:absolute;inset:0;z-index:2;padding:48px 84px 48px;display:flex;flex-direction:column;
+  justify-content:center;align-items:stretch;gap:18px;
+  opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s;
+  overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#e9dcc4 transparent;scroll-behavior:smooth}
+.slide::-webkit-scrollbar{width:10px}
+.slide::-webkit-scrollbar-thumb{background:#e9dcc4;border-radius:999px}
+.slide.active{opacity:1;visibility:visible}
+[data-step]{opacity:0;transform:translateY(30px);transition:all .8s cubic-bezier(.2,.7,.2,1)}
+[data-step].on{opacity:1;transform:none}
+.kicker{font:700 26px 'Fredoka';letter-spacing:4px;color:var(--org)}
+.itemno{display:inline-block;background:linear-gradient(90deg,var(--org),var(--yel));color:#fff;border-radius:14px;
+  padding:4px 18px;font-size:30px;letter-spacing:2px;box-shadow:0 4px 0 var(--shd);vertical-align:middle}
+h1{font:700 64px/1.15 'Fredoka';max-width:1100px}
+h2{font:700 56px/1.15 'Fredoka'}
+h2.bigh2{font-size:76px;letter-spacing:2px;line-height:1.1}
+.usesub{font:800 34px 'Nunito';color:var(--mut);text-align:center;margin-top:-4px}
+.hlc{background:linear-gradient(90deg,var(--cyan),var(--grn));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hly{background:linear-gradient(90deg,var(--yel),var(--org));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hlp{background:linear-gradient(90deg,var(--pur),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+.card{background:linear-gradient(160deg,var(--card),var(--card2));border:4px solid var(--line);border-radius:22px;
+  box-shadow:0 9px 0 var(--shd);padding:18px 32px;color:var(--ink)}
+.txt{color:var(--mut);font-size:36px;font-weight:800;line-height:1.4}
+.note{font:800 32px/1.45 'Nunito';color:var(--ink);text-align:center;margin-top:10px}
+.note b{color:var(--org)}
+.big{font-size:44px;font-weight:900;line-height:1.3;color:var(--ink)}
+.chain{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap}
+.chipq{display:inline-flex;align-items:center;gap:10px;border-radius:999px;padding:10px 28px;font:900 32px 'Nunito';
+  background:#fffbf0;border:4px solid var(--line);color:var(--ink);box-shadow:0 5px 0 var(--shd)}
+.chipq.cy{background:rgba(8,145,178,.10);border-color:var(--cyan);color:var(--cyan)}
+.chipq.yl{background:rgba(245,158,11,.14);border-color:var(--yel);color:#b45309}
+.chipq.gr{background:rgba(16,185,129,.10);border-color:var(--grn);color:var(--grn)}
+.chipq.pu{background:rgba(139,92,246,.10);border-color:var(--pur);color:var(--pur)}
+.chipq.pk{background:rgba(236,72,153,.10);border-color:var(--pink);color:var(--pink)}
+.chipq.rd{background:rgba(220,38,38,.10);border-color:var(--red);color:var(--red)}
+.obj{font:800 34px 'Nunito';padding:16px 28px}
+.heroframe{width:760px;height:600px;border-radius:26px;overflow:hidden;border:5px solid var(--line);
+  box-shadow:0 10px 0 var(--shd);background:#fff9ea;position:relative;flex-shrink:0}
+.heroframe svg{position:absolute;inset:0;width:100%;height:100%}
+#s1{flex-direction:row;gap:44px;align-items:center;justify-content:center}
+#s1 .left{flex:1;display:flex;flex-direction:column;gap:22px;justify-content:center}
+
+.fact{font:700 36px 'Fredoka';color:var(--ink);text-align:center;margin-top:10px}
+.flowrow{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap;margin:8px 0}
+.arr{font:700 38px 'Fredoka';color:#b45309;animation:arrowB 1.6s ease-in-out infinite;white-space:nowrap}
+
+/* scenes */
+.discount{display:flex;gap:30px;align-items:center;justify-content:center;flex-wrap:wrap}
+.pricecard{background:#fff;border:4px solid var(--line);border-radius:20px;padding:14px 34px;box-shadow:0 8px 0 var(--shd);text-align:center}
+.pricecard .label{font:700 26px 'Fredoka';color:var(--mut)}
+.pricecard .orig{font:700 56px 'Fredoka';color:var(--ink);text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:6px}
+.pricecard .sale{font:700 60px 'Fredoka';color:var(--grn)}
+.sasticker{background:var(--red);color:#fff;font:700 46px 'Fredoka';padding:14px 30px;border-radius:20px;
+  transform:rotate(-8deg);box-shadow:0 8px 0 var(--shd);text-align:center}
+.sasticker small{display:block;font:800 20px 'Nunito';letter-spacing:3px}
+.gsticker{background:var(--grn);color:#fff;font:700 42px 'Fredoka';padding:14px 30px;border-radius:20px;
+  transform:rotate(-6deg);box-shadow:0 8px 0 var(--shd);text-align:center}
+.gsticker small{display:block;font:800 20px 'Nunito';letter-spacing:2px}
+.battery{width:360px;height:120px;background:#fff;border:6px solid var(--ink);border-radius:20px;padding:12px;position:relative;box-shadow:0 8px 0 var(--shd)}
+.battery::after{content:'';position:absolute;right:-18px;top:38px;width:14px;height:40px;background:var(--ink);border-radius:0 8px 8px 0}
+.bfill{height:100%;background:linear-gradient(90deg,var(--grn),var(--cyan));border-radius:10px;width:0}
+.on .bfill{animation:barFill 2s cubic-bezier(.2,.7,.2,1) .5s both}
+.blabel{font:700 38px 'Fredoka';color:var(--ink);margin-top:8px;text-align:center}
+.prog{display:flex;flex-direction:column;gap:12px;max-width:620px;margin:0 auto}
+.prow{display:flex;align-items:center;gap:14px}
+.prow .lab{font:700 30px 'Fredoka';color:var(--ink);min-width:160px;text-align:right}
+.pbar{flex:1;height:34px;background:#fff;border:4px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:inset 0 2px 6px rgba(0,0,0,.08)}
+.pbarfill{height:100%;border-radius:8px;width:0}
+.on .pbarfill{animation:barFill 2s cubic-bezier(.2,.7,.2,1) .5s both}
+.prow .pct{font:700 32px 'Fredoka';color:var(--ink);min-width:76px}
+.pbarfill.cy{background:var(--cyan)} .pbarfill.yl{background:var(--yel)} .pbarfill.gr{background:var(--grn)}
+.reportcard{background:#fffbf0;border:4px solid var(--line);border-radius:20px;padding:16px 34px;box-shadow:0 8px 0 var(--shd);min-width:520px;margin:0 auto}
+.rcrow{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:14px;padding:6px 0;border-bottom:2px dashed var(--line);
+  font:700 32px 'Fredoka';color:var(--ink);align-items:center}
+.rcrow.head{font-size:24px;color:var(--mut);border-bottom:3px solid var(--ink)}
+.rcrow .grade{color:var(--grn);font-size:40px}
+.nutrition{background:#fff;border:3px solid var(--ink);border-radius:14px;padding:14px 20px;width:360px;box-shadow:0 6px 0 var(--shd);margin:0 auto}
+.nutrition h4{font:700 34px 'Fredoka';color:var(--ink);border-bottom:8px solid var(--ink);padding-bottom:4px}
+.nrow{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #ddd;font:700 27px 'Nunito'}
+.nrow.hl{background:var(--yel);color:#b45309;font-size:30px;font-weight:900;padding:8px 6px;margin-top:4px;border-radius:6px}
+.surveybar{display:flex;height:100px;border-radius:16px;overflow:hidden;border:4px solid var(--ink);box-shadow:0 8px 0 var(--shd);max-width:1100px;margin:0 auto}
+.sseg{display:flex;align-items:center;justify-content:center;font:700 30px 'Fredoka';color:#fff}
+.sseg.s1{background:var(--org);flex:75} .sseg.s2{background:var(--cyan);flex:15} .sseg.s3{background:var(--yel);flex:10;color:var(--ink)}
+.surveyleg{display:flex;gap:24px;justify-content:center;margin-top:8px;font:800 26px 'Nunito';color:var(--ink);flex-wrap:wrap}
+.surveyleg span::before{content:'';display:inline-block;width:22px;height:22px;border-radius:6px;margin-right:8px;vertical-align:middle}
+.surveyleg .l1::before{background:var(--org)} .surveyleg .l2::before{background:var(--cyan)} .surveyleg .l3::before{background:var(--yel);border:2px solid var(--ink)}
+.savings{display:flex;gap:40px;align-items:center;justify-content:center;flex-wrap:wrap}
+.jar{width:160px;height:210px;background:linear-gradient(180deg,#fff8 0%, #fff8 40%, var(--grn) 40%, var(--grn) 100%);
+  border:5px solid var(--ink);border-radius:14px 14px 30px 30px;position:relative;box-shadow:0 8px 0 var(--shd)}
+.jar::before{content:'';position:absolute;top:-20px;left:-10px;right:-10px;height:30px;background:var(--ink);border-radius:8px}
+.jar .amt{position:absolute;bottom:18px;left:0;right:0;text-align:center;font:700 38px 'Fredoka';color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.3)}
+.interestbox{font:700 42px 'Fredoka';color:var(--ink);background:#fff;border:4px solid var(--line);border-radius:16px;
+  padding:16px 28px;box-shadow:0 8px 0 var(--shd);text-align:center}
+.interestbox .rate{color:var(--grn);font-size:54px}
+.receipt{background:#fff;font-family:'Courier New',monospace;padding:16px 26px;border:3px dashed var(--ink);
+  border-radius:12px;width:460px;box-shadow:0 8px 0 var(--shd);margin:0 auto}
+.receipt h4{font:700 26px 'Fredoka';color:var(--ink);text-align:center;border-bottom:2px dashed var(--ink);padding-bottom:8px;margin-bottom:8px}
+.rrow{display:flex;justify-content:space-between;padding:4px 0;font:700 28px 'Courier New',monospace;color:var(--ink)}
+.rrow.total{border-top:3px solid var(--ink);margin-top:6px;padding-top:8px;font-size:34px;font-weight:900;color:var(--grn)}
+.rrow.hl{color:var(--org);font-weight:900}
+.tipscene{display:flex;gap:24px;align-items:center;justify-content:center;flex-wrap:wrap}
+.bill{background:#fff;border:4px solid var(--line);border-radius:18px;padding:12px 30px;box-shadow:0 8px 0 var(--shd);text-align:center;min-width:230px}
+.bill .label{font:700 24px 'Fredoka';color:var(--mut)}
+.bill .amt{font:700 52px 'Fredoka';color:var(--ink)}
+.tipbox{background:var(--grn);color:#fff;border-radius:18px;padding:12px 30px;box-shadow:0 8px 0 var(--shd);text-align:center}
+.tipbox.sc{background:var(--pur)}
+.tipbox .label{font:700 24px 'Fredoka';opacity:.9}
+.tipbox .amt{font:700 52px 'Fredoka'}
+.marbles{display:flex;gap:8px;justify-content:center}
+.mb{width:46px;height:46px;border-radius:50%;background:#cbd5e1;border:3px solid var(--ink)}
+.mb.r{background:var(--org)}
+.probcol{display:flex;flex-direction:column;align-items:center;gap:12px}
+
+/* quick check card */
+.qcbox{background:#fdf6b2;border:5px dashed var(--org);border-radius:20px;padding:18px 30px;max-width:1560px;margin:0 auto}
+.qctitle{font:700 42px 'Fredoka';color:var(--org);text-align:center;margin-bottom:10px}
+.qccols{display:grid;grid-template-columns:1fr 1fr;gap:6px 44px}
+.qcrow{display:flex;gap:12px;align-items:baseline;font:700 30px 'Fredoka';color:var(--ink);opacity:0}
+.on .qcrow{animation:digOnce .5s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--qd,0s)}
+.qcrow .q{color:#374151;font-size:30px}
+.qcrow .a{color:var(--org);font-size:46px;letter-spacing:1px}
+.qcrow .e{font-size:34px}
+
+/* method + steps */
+.method{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:1500px;margin:0 auto}
+.mcard{background:#fffbf0;border:4px solid var(--line);border-radius:18px;padding:16px;text-align:center;box-shadow:0 6px 0 var(--shd)}
+.mcard .n{font:700 30px 'Fredoka';color:#fff;background:var(--cyan);border-radius:50%;width:56px;height:56px;
+  display:flex;align-items:center;justify-content:center;margin:0 auto 8px}
+.mcard h4{font:700 32px 'Fredoka';color:var(--ink);margin-bottom:6px}
+.mcard p{font:800 25px/1.35 'Nunito';color:var(--mut)}
+.formula{font:700 42px 'Fredoka';background:var(--ink);color:var(--yel);border-radius:16px;padding:12px 30px;
+  text-align:center;box-shadow:0 6px 0 var(--shd);max-width:1100px;margin:12px auto 0}
+.steps{display:flex;flex-direction:column;gap:10px;max-width:1200px;margin:0 auto}
+.steprow{display:flex;gap:16px;align-items:center;background:#fffbf0;border:4px solid var(--line);border-radius:16px;
+  padding:10px 22px;box-shadow:0 6px 0 var(--shd);font:700 34px 'Fredoka';color:var(--ink);opacity:0}
+.steprow .n{font:700 26px 'Fredoka';color:#fff;background:var(--cyan);border-radius:50%;width:46px;height:46px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.steprow .amt{margin-left:auto;font-family:'Courier New',monospace;font-size:40px;font-weight:700;color:var(--grn)}
+.on .steprow{animation:digOnce .6s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--sd,0s)}
+.problem{font:700 38px/1.35 'Fredoka';color:var(--ink);text-align:center;max-width:1300px;margin:0 auto 6px}
+.problem b{color:var(--org)}
+
+/* summary uses grid (10) */
+.usesgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;max-width:1650px;margin:0 auto}
+.usecell{background:#fffbf0;border:4px solid var(--line);border-radius:16px;padding:14px 10px;text-align:center;box-shadow:0 6px 0 var(--shd);opacity:0}
+.usecell .emj{font-size:46px;display:block;margin-bottom:2px}
+.usecell .nm{font:700 36px 'Fredoka';color:var(--ink);letter-spacing:.5px}
+.usecell .dsc{font:800 20px 'Nunito';color:var(--mut);margin-top:2px}
+.on .usecell{animation:digOnce .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--dd,0s)}
+
+/* MC slides */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:1560px;margin:0 auto;width:100%}
+.opt{font:900 44px 'Nunito';color:var(--ink);background:#fffbf0;border:5px solid var(--line);border-radius:20px;
+  padding:20px 28px;cursor:pointer;box-shadow:0 6px 0 var(--shd);transition:all .2s;text-align:left;
+  display:flex;align-items:center;gap:18px;opacity:1}
+.opt b{font:700 40px 'Fredoka';background:rgba(139,92,246,.12);border-radius:12px;padding:6px 18px;color:var(--pur)}
+.opt:hover{transform:translateY(-3px)}
+.opt.good{opacity:1;background:#d1fae5;border-color:var(--grn);color:#065f46;
+  animation:winSpin .7s cubic-bezier(.2,.7,.2,1);box-shadow:0 0 0 8px #10b98155,0 6px 0 var(--shd)}
+.opt.good b{background:var(--grn);color:#fff}
+.opt.bad{opacity:.55;background:rgba(220,38,38,.10);border-color:var(--red);color:var(--red);pointer-events:none;animation:shake .4s}
+.opt.reveal{opacity:1;background:#d1fae5;border-color:var(--grn);color:#065f46;
+  animation:winSpin .7s cubic-bezier(.2,.7,.2,1);box-shadow:0 0 0 8px #10b98155,0 6px 0 var(--shd)}
+.opt.reveal b{background:var(--grn);color:#fff}
+body.preview .opt{pointer-events:none}
+.fb{font:700 42px 'Fredoka';text-align:center;min-height:100px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.fb .why{display:block;font:800 32px/1.3 'Nunito';margin-top:6px;opacity:1}
+.fb.g{color:var(--grn)}.fb.r{color:var(--red)}
+.qbig{font:700 54px/1.3 'Fredoka';text-align:center;max-width:1560px;margin:0 auto}
+
+.master{font:700 70px 'Fredoka';color:#b45309;text-align:center}
+#overlay{position:absolute;inset:0;z-index:100;background:#f1e9d2F7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;text-align:center}
+#overlay .ttl{font:700 60px 'Fredoka';color:var(--cyan)}
+#overlay .sub{font:800 26px 'Nunito';color:var(--ink);max-width:1250px}
+.modeBtns{display:flex;gap:30px}
+.modeBtns button{font:700 32px 'Fredoka';border-radius:22px;border:5px solid var(--line);padding:24px 38px;cursor:pointer;
+  box-shadow:0 8px 0 var(--shd);transition:transform .15s;color:#fff}
+.modeBtns button:hover{transform:translateY(-4px)}
+.modeBtns small{display:block;font:800 19px 'Nunito';margin-top:8px}
+#btnPreview{background:var(--yel)}
+#btnLesson{background:var(--cyan)}
+#passPanel{display:none;flex-direction:column;gap:20px;align-items:center}
+.pslots{display:flex;gap:16px}
+.pslot{width:82px;height:100px;border-radius:16px;border:5px solid var(--line);background:#fffbf0;
+  font:700 54px 'Fredoka';display:flex;align-items:center;justify-content:center;color:var(--cyan)}
+.pslot.p6{display:none;border-color:var(--pur);color:var(--pur)}
+.pslot.p6.show{display:flex;animation:popIn .4s cubic-bezier(.2,.7,.2,1) both}
+#passPanel.err .pslot{animation:shake .4s;border-color:var(--red)}
+#passMsg{font:800 24px 'Nunito';color:#b45309;min-height:28px}
+#passBack{font:700 26px 'Fredoka';color:var(--ink);background:#fff4e0;border:4px solid var(--line);border-radius:14px;
+  padding:10px 38px;cursor:pointer;box-shadow:0 6px 0 var(--shd);transition:transform .15s}
+#passBack:hover{transform:translateY(-3px)}
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="fx"></div>
+<div id="confetti"></div>
+<div id="progress"></div>
+<div id="tag">🛒 MATH 6 • TERM 2 • WEEK 3 • PART 2</div>
+<div id="voiceChip">🔊 loading voices…</div>
+<div id="starChip">⭐ <span id="starN">0</span> / 13</div>
+<div id="recChip"><span class="rdot"></span>⏺ PREVIEW • AUTO</div>
+<div id="mcTimer"><span id="mcTimerN">5</span><small>⏳ answer reveal in…</small></div>
+<div id="codeOv"><div class="box"><div class="lbl" id="codeLbl">PASSCODE DIGIT 1/5</div><div class="dig" id="codeDig">7</div></div></div>
+
+<div id="introOverlay">
+  <div class="intro-box">
+    <div class="free-chip">🎁 FREE INTERACTIVE PRESENTATION</div>
+    <h1><span class="hly">Automated Assessment &amp; Interactive Assessment!</span></h1>
+    <div class="comment-box">
+      <span class="pin-icon">📌</span>
+      <span>Get them ALL in the <b style="color:var(--cyan)">PINNED COMMENTS</b>!</span>
+    </div>
+    <div class="instructions">
+      <h3 class="hlc">HOW TO UNLOCK LESSON MODE 🔓</h3>
+      <p class="txt">Watch this video and write down the <b style="color:var(--grn)">5 SECRET DIGITS</b> that pop up on screen — then type them here to unlock the interactive lesson and earn ⭐ stars!</p>
+    </div>
+    <div class="countdown-box"><span id="introCount">10</span> seconds until the marketplace opens…</div>
+  </div>
+</div>
+
+<!-- 1 TITLE -->
+<section class="slide" id="s1">
+  <div class="left">
+    <div data-step="0" style="display:flex;flex-direction:column;gap:20px">
+      <div class="kicker" data-anim style="--an:slideL">WELCOME TO THE MATH MARKETPLACE 🛒</div>
+      <h1 data-anim style="--an:riseIn;--d:.12s">The <span class="hly">Ten Uses of Percent</span></h1>
+      <p class="txt" data-anim style="--an:riseIn;--d:.28s;font-size:34px">Identify and explain the uses of percentages: discount, interest, tax, commission, service charge, statistics, progress, probability, nutrition, and grade.</p>
+    </div>
+    <div data-step="1" style="display:flex;flex-direction:column;gap:12px">
+      <div class="card obj" data-anim style="--an:popIn;--d:.1s">🔍 IDENTIFY which use a percent belongs to with the Quick Check card.</div>
+      <div class="card obj" data-anim style="--an:popIn;--d:.3s">🧠 EXPLAIN what the percent means in each situation.</div>
+      <div class="card obj" data-anim style="--an:popIn;--d:.5s">🧮 SOLVE with 3 steps: whole → decimal → multiply.</div>
+    </div>
+  </div>
+  <div class="heroframe" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <svg viewBox="0 0 760 600" xmlns="http://www.w3.org/2000/svg">
+      <rect width="760" height="600" fill="#fff9ea"/>
+      <text x="380" y="58" font-family="Fredoka,sans-serif" font-size="36" font-weight="700" fill="#0891b2" text-anchor="middle">THE TEN USES OF PERCENT</text>
+      <g font-family="Fredoka,sans-serif" font-weight="700" text-anchor="middle">
+        <g transform="translate(20,90)"><rect width="132" height="150" rx="14" fill="#dc2626"/><text x="66" y="66" font-size="36" fill="#fff">30%</text><text x="66" y="108" font-size="24" fill="#ffe4e4">Discount</text><text x="66" y="140" font-size="30">🏷️</text></g>
+        <g transform="translate(172,90)"><rect width="132" height="150" rx="14" fill="#10b981"/><text x="66" y="66" font-size="36" fill="#fff">5%</text><text x="66" y="108" font-size="24" fill="#d1fae5">Interest</text><text x="66" y="140" font-size="30">🏦</text></g>
+        <g transform="translate(324,90)"><rect width="132" height="150" rx="14" fill="#ec4899"/><text x="66" y="66" font-size="36" fill="#fff">12%</text><text x="66" y="108" font-size="24" fill="#fce7f3">Tax</text><text x="66" y="140" font-size="30">🧾</text></g>
+        <g transform="translate(476,90)"><rect width="132" height="150" rx="14" fill="#8b5cf6"/><text x="66" y="66" font-size="36" fill="#fff">5%</text><text x="66" y="108" font-size="22" fill="#ede9fe">Commission</text><text x="66" y="140" font-size="30">💼</text></g>
+        <g transform="translate(628,90)"><rect width="132" height="150" rx="14" fill="#f59e0b"/><text x="66" y="66" font-size="36" fill="#fff">10%</text><text x="66" y="108" font-size="21" fill="#fef3c7">Service chg</text><text x="66" y="140" font-size="30">🍽️</text></g>
+        <g transform="translate(20,262)"><rect width="132" height="150" rx="14" fill="#0891b2"/><text x="66" y="66" font-size="36" fill="#fff">75%</text><text x="66" y="108" font-size="24" fill="#cffafe">Statistics</text><text x="66" y="140" font-size="30">📊</text></g>
+        <g transform="translate(172,262)"><rect width="132" height="150" rx="14" fill="#2b2d42"/><text x="66" y="66" font-size="36" fill="#fff">88%</text><text x="66" y="108" font-size="24" fill="#e0e7ff">Progress</text><text x="66" y="140" font-size="30">📱</text></g>
+        <g transform="translate(324,262)"><rect width="132" height="150" rx="14" fill="#ef4444"/><text x="66" y="66" font-size="36" fill="#fff">30%</text><text x="66" y="108" font-size="22" fill="#fee2e2">Probability</text><text x="66" y="140" font-size="30">🎲</text></g>
+        <g transform="translate(476,262)"><rect width="132" height="150" rx="14" fill="#10b981"/><text x="66" y="66" font-size="36" fill="#fff">25%</text><text x="66" y="108" font-size="24" fill="#d1fae5">Nutrition</text><text x="66" y="140" font-size="30">🍎</text></g>
+        <g transform="translate(628,262)"><rect width="132" height="150" rx="14" fill="#8b5cf6"/><text x="66" y="66" font-size="36" fill="#fff">92%</text><text x="66" y="108" font-size="24" fill="#ede9fe">Grade</text><text x="66" y="140" font-size="30">📚</text></g>
+      </g>
+      <rect x="120" y="452" width="520" height="80" rx="18" fill="#2b2d42"/>
+      <text x="380" y="504" font-family="Fredoka,sans-serif" font-size="34" font-weight="700" fill="#f59e0b" text-anchor="middle">(% ÷ 100) × whole = percent amount</text>
+      <text x="380" y="572" font-family="Nunito,sans-serif" font-size="24" font-weight="800" fill="#6c757d" text-anchor="middle">one amount • ten situations • one method</text>
+    </svg>
+  </div>
+</section>
+
+<!-- 2 USE 1 DISCOUNT -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">USE 1 • PRICE REDUCTION</div>
+    <h2 class="bigh2" data-anim style="--an:riseIn;--d:.1s"><span class="hly">DISCOUNT</span> 🏷️</h2>
+    <p class="usesub" data-anim style="--an:riseIn;--d:.25s">A percent taken OFF the original price — the shopper pays less.</p></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.35s">
+    <div class="discount">
+      <div class="pricecard"><div class="label">ORIGINAL</div><div class="orig">₱500</div></div>
+      <div class="sasticker" data-anim style="--an:popIn;--d:.5s">30%<small>OFF</small></div>
+      <span class="arr">➜</span>
+      <div class="pricecard"><div class="label">SAVE</div><div class="sale">₱150</div></div>
+      <div class="pricecard"><div class="label">NOW</div><div class="sale">₱350</div></div>
+    </div>
+    <p class="fact">30% of ₱500 = 0.30 × 500 = <b style="color:var(--grn)">₱150 off</b> • ₱500 − ₱150 = <b style="color:var(--cyan)">₱350</b></p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq rd">WHOLE = original price</span><span class="chipq yl">% amount = money saved</span><span class="chipq gr">SUBTRACT for sale price</span></div>
+    <p class="note">The store removes <b>30 pesos for every 100 pesos</b> of the tag price. Find that amount first (0.30 × 500 = 150), then subtract it — the sale price is what remains.</p>
+  </div>
+</section>
+
+<!-- 3 USE 2 INTEREST -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">USE 2 • MONEY GROWING / SHRINKING IN BANK</div>
+    <h2 class="bigh2" data-anim style="--an:riseIn;--d:.1s"><span class="hlp">INTEREST</span> 🏦</h2>
+    <p class="usesub" data-anim style="--an:riseIn;--d:.25s">A percent added to savings (or charged on loans) over time.</p></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.35s">
+    <div class="savings">
+      <div class="jar"><div class="amt">₱1,000</div></div>
+      <div class="interestbox">
+        <p style="font-size:28px;color:var(--mut)">saved at</p>
+        <p class="rate">5% / year</p>
+        <p style="font-size:28px;color:var(--mut);margin-top:4px">earns</p>
+        <p style="font:700 48px 'Fredoka';color:var(--grn)">₱50 / year</p>
+      </div>
+    </div>
+    <p class="fact">5% of ₱1,000 = 0.05 × 1,000 = <b style="color:var(--grn)">₱50</b> — five pesos per hundred saved</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq gr">SAVINGS: bank pays YOU the %</span><span class="chipq rd">LOANS: YOU pay the bank the %</span><span class="chipq cy">WHOLE = balance or loan</span></div>
+    <p class="note">Interest is the <b>price of money in time</b>. The bank computes it as a percent of your balance or loan each year — money grows in savings and grows against you in loans.</p>
+  </div>
+</section>
+
+<!-- 4 USE 3 TAX -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">USE 3 • GOVERNMENT FEE ON RECEIPT</div>
+    <h2 class="bigh2" data-anim style="--an:riseIn;--d:.1s"><span class="hlc">TAX</span> 🧾</h2>
+    <p class="usesub" data-anim style="--an:riseIn;--d:.25s">A percent added to every purchase, collected by the government.</p></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.35s">
+    <div class="receipt">
+      <h4>🧾 RECEIPT</h4>
+      <div class="rrow"><span>Shirt</span><span>₱400.00</span></div>
+      <div class="rrow"><span>Jeans</span><span>₱900.00</span></div>
+      <div class="rrow"><span>Socks</span><span>₱200.00</span></div>
+      <div class="rrow"><span>Subtotal</span><span>₱1,500.00</span></div>
+      <div class="rrow hl"><span>VAT (12%)</span><span>₱180.00</span></div>
+      <div class="rrow total"><span>TOTAL</span><span>₱1,680.00</span></div>
+    </div>
+    <p class="fact">12% of ₱1,500 = <b style="color:var(--org)">₱180 VAT</b> — the government's share, added at the register</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq pk">PH VAT = 12%</span><span class="chipq cy">WHOLE = subtotal</span><span class="chipq gr">ADD tax to get total</span></div>
+    <p class="note">For every <b>100 pesos you spend</b>, 12 pesos go to the government as VAT. Compute 0.12 × subtotal, then ADD it — that is why the total is always bigger than the subtotal.</p>
+  </div>
+</section>
+
+<!-- 5 USE 4 COMMISSION -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">USE 4 • PAY BASED ON SALES MADE</div>
+    <h2 class="bigh2" data-anim style="--an:riseIn;--d:.1s"><span class="hlp">COMMISSION</span> 💼</h2>
+    <p class="usesub" data-anim style="--an:riseIn;--d:.25s">A percent of total sales given to the worker as pay.</p></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.35s">
+    <div class="discount">
+      <div class="pricecard"><div class="label">TOTAL SALES</div><div class="sale" style="color:var(--ink)">₱50,000</div></div>
+      <div class="gsticker" data-anim style="--an:popIn;--d:.5s">5%<small>COMMISSION</small></div>
+      <span class="arr">➜</span>
+      <div class="pricecard"><div class="label">AGENT EARNS</div><div class="sale">₱2,500</div></div>
+    </div>
+    <p class="fact">5% of ₱50,000 = 0.05 × 50,000 = <b style="color:var(--grn)">₱2,500 pay</b> — more sales, more earn</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq pu">WHOLE = total sales made</span><span class="chipq gr">% amount = worker's pay</span><span class="chipq yl">agents, brokers, sellers</span></div>
+    <p class="note">Here the percent amount IS the salary — nothing is added or subtracted from it. The company keeps the rest of the sales, so <b>the worker's share grows exactly with the sales</b>.</p>
+  </div>
+</section>
+
+<!-- 6 USE 5 SERVICE CHARGE -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">USE 5 • EXTRA RESTAURANT FEE</div>
+    <h2 class="bigh2" data-anim style="--an:riseIn;--d:.1s"><span class="hly">SERVICE CHARGE</span> 🍽️</h2>
+    <p class="usesub" data-anim style="--an:riseIn;--d:.25s">A percent added on top of your bill by the restaurant.</p></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.35s">
+    <div class="tipscene">
+      <div class="bill"><div class="label">BILL</div><div class="amt">₱1,000</div></div>
+      <div class="tipbox sc"><div class="label">SERVICE CHARGE (10%)</div><div class="amt">₱100</div></div>
+      <span class="arr">➜</span>
+      <div class="bill" style="background:var(--grn);color:#fff;border-color:var(--grn)"><div class="label" style="color:#d1fae5">TOTAL</div><div class="amt">₱1,100</div></div>
+    </div>
+    <p class="fact">10% of ₱1,000 = <b style="color:var(--pur)">₱100</b> — added by the restaurant, not optional like a tip</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq cy">WHOLE = the bill</span><span class="chipq pu">% amount = extra fee</span><span class="chipq gr">ADD to get the total</span></div>
+    <p class="note">The house computes <b>10 pesos for every 100 pesos</b> of your order and adds it automatically for staff service. Unlike a tip, you do not choose it — it is already inside the total.</p>
+  </div>
+</section>
+
+<!-- 7 USE 6 STATISTICS -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">USE 6 • SURVEY, POLL, OR GROUP RESULTS</div>
+    <h2 class="bigh2" data-anim style="--an:riseIn;--d:.1s"><span class="hlc">STATISTICS</span> 📊</h2>
+    <p class="usesub" data-anim style="--an:riseIn;--d:.25s">A percent that summarizes what a whole group answered.</p></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.35s">
+    <p class="big" style="text-align:center;margin-bottom:10px">"Favorite ice cream?" — 200 students surveyed</p>
+    <div class="surveybar">
+      <div class="sseg s1">Chocolate 75%</div>
+      <div class="sseg s2">Vanilla 15%</div>
+      <div class="sseg s3">Other 10%</div>
+    </div>
+    <div class="surveyleg"><span class="l1">150 students</span><span class="l2">30 students</span><span class="l3">20 students</span></div>
+    <p class="fact">75% of 200 = 0.75 × 200 = <b style="color:var(--org)">150 students</b> — the surveyed group is the WHOLE</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq cy">polls &amp; group results</span><span class="chipq yl">% = per 100 people asked</span><span class="chipq rd">always check sample size!</span></div>
+    <p class="note">The percent converts any group size to a <b>common "out of 100" language</b>, so results from different surveys can be compared. Multiply the percent by the group to recover the actual headcount.</p>
+  </div>
+</section>
+
+<!-- 8 USE 7 PROGRESS -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">USE 7 • LOADING BAR OR BATTERY</div>
+    <h2 class="bigh2" data-anim style="--an:riseIn;--d:.1s"><span class="hlc">PROGRESS</span> 📱</h2>
+    <p class="usesub" data-anim style="--an:riseIn;--d:.25s">A percent showing how much of a task or charge is done or left.</p></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.35s">
+    <div style="display:flex;flex-direction:column;gap:18px;align-items:center">
+      <div style="text-align:center"><div class="battery"><div class="bfill" style="--pct:75%"></div></div><div class="blabel">Phone battery: 75%</div></div>
+      <div class="prog">
+        <div class="prow"><span class="lab">Download</span><div class="pbar"><div class="pbarfill cy" style="--pct:88%"></div></div><span class="pct">88%</span></div>
+        <div class="prow"><span class="lab">Game level</span><div class="pbar"><div class="pbarfill gr" style="--pct:65%"></div></div><span class="pct">65%</span></div>
+      </div>
+    </div>
+    <p class="fact">75% = <b style="color:var(--cyan)">75 of 100 parts</b> of the full charge still left</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq rd">0% = empty / not started</span><span class="chipq yl">50% = halfway</span><span class="chipq gr">100% = full / complete</span></div>
+    <p class="note">The bar pictures the WHOLE as a full rectangle; the filled part is the percent. Reading it tells you instantly <b>how much is done</b> — and 100% minus the shown percent tells you how much remains.</p>
+  </div>
+</section>
+
+<!-- 9 USE 8 PROBABILITY -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">USE 8 • CHANCE OF SOMETHING HAPPENING</div>
+    <h2 class="bigh2" data-anim style="--an:riseIn;--d:.1s"><span class="hly">PROBABILITY</span> 🎲</h2>
+    <p class="usesub" data-anim style="--an:riseIn;--d:.25s">A percent measuring how likely an event is to happen.</p></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.35s">
+    <div class="discount">
+      <div class="probcol">
+        <span style="font-size:72px">🌧️</span>
+        <span class="gsticker" style="background:var(--cyan)" data-anim style="--an:popIn;--d:.5s">30%<small>CHANCE OF RAIN</small></span>
+      </div>
+      <div class="probcol">
+        <div class="marbles">
+          <span class="mb r"></span><span class="mb r"></span><span class="mb r"></span><span class="mb r"></span>
+          <span class="mb"></span><span class="mb"></span><span class="mb"></span><span class="mb"></span><span class="mb"></span><span class="mb"></span>
+        </div>
+        <span class="chipq rd">4 red of 10 = 40% chance of red</span>
+      </div>
+    </div>
+    <p class="fact">30% chance = about <b style="color:var(--cyan)">30 rainy days out of every 100</b> similar days</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq rd">0% = impossible</span><span class="chipq yl">50% = equally likely</span><span class="chipq gr">100% = certain</span><span class="chipq cy">WHOLE = all outcomes</span></div>
+    <p class="note">Probability compares the <b>favorable outcomes to ALL possible outcomes</b> and writes it per hundred. It predicts likelihood over many trials — it never promises one single result.</p>
+  </div>
+</section>
+
+<!-- 10 USE 9 NUTRITION -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">USE 9 • FOOD PACKAGE LABEL</div>
+    <h2 class="bigh2" data-anim style="--an:riseIn;--d:.1s"><span class="hlp">NUTRITION</span> 🍎</h2>
+    <p class="usesub" data-anim style="--an:riseIn;--d:.25s">A percent comparing a nutrient in one serving to your whole-day need.</p></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.35s">
+    <div class="nutrition">
+      <h4>Nutrition Facts</h4>
+      <div class="nrow"><span>Serving Size</span><span>1 bar</span></div>
+      <div class="nrow"><span>Calories</span><span>180</span></div>
+      <div class="nrow hl"><span>Vitamin C</span><span>25% DV</span></div>
+      <div class="nrow"><span>Calcium</span><span>10% DV</span></div>
+      <div class="nrow"><span>Iron</span><span>8% DV</span></div>
+    </div>
+    <p class="fact">25% DV = one serving gives <b style="color:var(--org)">25 of every 100 parts</b> of your daily need</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq cy">WHOLE = your daily need</span><span class="chipq rd">5% or less = LOW</span><span class="chipq gr">20% or more = HIGH</span></div>
+    <p class="note">%DV does NOT measure the food's weight — it measures <b>how much of your day's requirement</b> one serving covers. Eat two servings and you double the percent.</p>
+  </div>
+</section>
+
+<!-- 11 USE 10 GRADE -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">USE 10 • TEST OR EXAM SCORE</div>
+    <h2 class="bigh2" data-anim style="--an:riseIn;--d:.1s"><span class="hlc">GRADE</span> 📚</h2>
+    <p class="usesub" data-anim style="--an:riseIn;--d:.25s">A percent comparing your score to the total, on a 100-point scale.</p></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.35s">
+    <div class="reportcard">
+      <div class="rcrow head"><span>Subject</span><span>Score</span><span>Total</span><span>%</span></div>
+      <div class="rcrow"><span>Math</span><span>46</span><span>50</span><span class="grade">92%</span></div>
+      <div class="rcrow"><span>Science</span><span>40</span><span>50</span><span class="grade">80%</span></div>
+      <div class="rcrow"><span>English</span><span>48</span><span>50</span><span class="grade">96%</span></div>
+    </div>
+    <p class="fact">46 ÷ 50 = 0.92 → × 100 = <b style="color:var(--grn)">92%</b> — every test on the same 100-point scale</p>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq cy">WHOLE = total items</span><span class="chipq pu">PART = correct answers</span><span class="chipq gr">part ÷ whole × 100 = grade %</span></div>
+    <p class="note">Because tests have different item counts, raw scores cannot be compared directly. Converting to percent <b>rescales every test to 100</b>, so a 46/50 and a 92/100 mean exactly the same performance.</p>
+  </div>
+</section>
+
+<!-- 12 QUICK CHECK -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">QUICK CHECK 🔍 MATCH SITUATION TO USE</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Which Use <span class="hly">Is It?</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="qcbox">
+      <div class="qctitle">🔍 Quick Check — Which use is it?</div>
+      <div class="qccols">
+        <div class="qcrow" style="--qd:.2s"><span class="q">• Price reduction?</span><span class="a">→ Discount</span><span class="e">🏷️</span></div>
+        <div class="qcrow" style="--qd:.35s"><span class="q">• Money growing/shrinking in bank?</span><span class="a">→ Interest</span><span class="e">🏦</span></div>
+        <div class="qcrow" style="--qd:.5s"><span class="q">• Government fee on receipt?</span><span class="a">→ Tax</span><span class="e">🧾</span></div>
+        <div class="qcrow" style="--qd:.65s"><span class="q">• Pay based on sales made?</span><span class="a">→ Commission</span><span class="e">💼</span></div>
+        <div class="qcrow" style="--qd:.8s"><span class="q">• Extra restaurant fee?</span><span class="a">→ Service charge</span><span class="e">🍽️</span></div>
+        <div class="qcrow" style="--qd:.95s"><span class="q">• Survey, poll, or group results?</span><span class="a">→ Statistics</span><span class="e">📊</span></div>
+        <div class="qcrow" style="--qd:1.1s"><span class="q">• Loading bar or battery?</span><span class="a">→ Progress</span><span class="e">📱</span></div>
+        <div class="qcrow" style="--qd:1.25s"><span class="q">• Chance of something happening?</span><span class="a">→ Probability</span><span class="e">🎲</span></div>
+        <div class="qcrow" style="--qd:1.4s"><span class="q">• Food package label?</span><span class="a">→ Nutrition</span><span class="e">🍎</span></div>
+        <div class="qcrow" style="--qd:1.55s"><span class="q">• Test or exam score?</span><span class="a">→ Grade</span><span class="e">📚</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq cy">1 • read the situation</span><span class="chipq yl">2 • match the keyword</span><span class="chipq gr">3 • apply the 3-step method</span></div>
+    <p class="note">Each use has a signature keyword: <b>off/reduced</b> (discount), <b>bank/per year</b> (interest), <b>VAT/receipt</b> (tax), <b>sales pay</b> (commission), <b>added fee</b> (service charge), <b>survey</b> (statistics), <b>loading/battery</b> (progress), <b>chance/likely</b> (probability), <b>DV/label</b> (nutrition), <b>score/items</b> (grade).</p>
+  </div>
+</section>
+
+<!-- 13 METHOD -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">HOW TO SOLVE 🧮</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">The <span class="hly">3-Step Method</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <div class="method">
+      <div class="mcard" data-anim style="--an:flipIn;--d:.2s"><span class="n">1</span><h4>FIND THE WHOLE</h4><p>the number the % is taken of: price, bill, sales, total items…</p></div>
+      <div class="mcard" data-anim style="--an:flipIn;--d:.45s"><span class="n">2</span><h4>% → DECIMAL</h4><p>divide the percent by 100: 30% → 0.30</p></div>
+      <div class="mcard" data-anim style="--an:flipIn;--d:.7s"><span class="n">3</span><h4>MULTIPLY</h4><p>decimal × whole = the percent amount</p></div>
+    </div>
+    <div class="formula" data-anim style="--an:riseIn;--d:.9s">percent amount = (% ÷ 100) × whole</div>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq rd">discount → SUBTRACT</span><span class="chipq gr">tax / service charge → ADD</span><span class="chipq pu">commission, interest, probability → keep as the amount</span><span class="chipq cy">part &amp; whole given → part ÷ whole × 100</span></div>
+    <p class="note">Steps 1–3 always give you the <b>percent amount</b>. What you do AFTER depends on the use: discounts remove it, taxes and service charges add it, and commission, interest, and probability answers simply ARE it.</p>
+  </div>
+</section>
+
+<!-- 14 WORKED A -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">WORKED EXAMPLE A 🏷️ DISCOUNT</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Save, Then <span class="hly">Subtract</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <p class="problem">A jacket costs <b>₱800</b> with <b>25% off</b>. Find the discount and the sale price.</p>
+    <div class="steps">
+      <div class="steprow" style="--sd:.4s"><span class="n">1</span><span>WHOLE = original price</span><span class="amt">₱800</span></div>
+      <div class="steprow" style="--sd:1.1s"><span class="n">2</span><span>25% ÷ 100</span><span class="amt">0.25</span></div>
+      <div class="steprow" style="--sd:1.8s"><span class="n">3</span><span>0.25 × 800 = discount</span><span class="amt">₱200</span></div>
+    </div>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="steps">
+      <div class="steprow" style="--sd:.3s"><span class="n">4</span><span>800 − 200 = sale price</span><span class="amt">₱600</span></div>
+    </div>
+    <div class="chain" style="margin-top:10px"><span class="chipq gr">Answer: ₱200 saved; sale price ₱600.</span></div>
+    <p class="note">This question asks TWO things — the amount saved (step 3) and the new price (step 4). <b>Never stop at step 3</b> when the sale price is what is asked.</p>
+  </div>
+</section>
+
+<!-- 15 WORKED B -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">WORKED EXAMPLE B 🍽️ SERVICE CHARGE</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Find, Then <span class="hlc">Add</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <p class="problem">A dinner bill is <b>₱1,200</b> with a <b>10% service charge</b>. Find the charge and the total.</p>
+    <div class="steps">
+      <div class="steprow" style="--sd:.4s"><span class="n">1</span><span>WHOLE = the bill</span><span class="amt">₱1,200</span></div>
+      <div class="steprow" style="--sd:1.1s"><span class="n">2</span><span>10% ÷ 100</span><span class="amt">0.10</span></div>
+      <div class="steprow" style="--sd:1.8s"><span class="n">3</span><span>0.10 × 1,200 = charge</span><span class="amt">₱120</span></div>
+    </div>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="steps">
+      <div class="steprow" style="--sd:.3s"><span class="n">4</span><span>1,200 + 120 = total paid</span><span class="amt">₱1,320</span></div>
+    </div>
+    <div class="chain" style="margin-top:10px"><span class="chipq gr">Answer: charge ₱120; total ₱1,320.</span></div>
+    <p class="note">Added-percent problems (tax, service charge) always END with addition: total = whole + percent amount. Shortcut: <b>multiply the whole by 1.10</b> to get the total in one step.</p>
+  </div>
+</section>
+
+<!-- 16 WORKED C -->
+<section class="slide">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">WORKED EXAMPLE C 📚 GRADE</div>
+    <h2 data-anim style="--an:riseIn;--d:.1s">Find the Percent: <span class="hlp">Part ÷ Whole</span></h2></div>
+  <div class="card" data-step="0" data-anim style="--an:zoomIn;--d:.2s">
+    <p class="problem">A test has <b>40 items</b>. Liza answered <b>34 correctly</b>. What is her percent grade?</p>
+    <div class="steps">
+      <div class="steprow" style="--sd:.4s"><span class="n">1</span><span>part = 34 • whole = 40</span><span class="amt">34 / 40</span></div>
+      <div class="steprow" style="--sd:1.1s"><span class="n">2</span><span>34 ÷ 40</span><span class="amt">0.85</span></div>
+      <div class="steprow" style="--sd:1.8s"><span class="n">3</span><span>0.85 × 100</span><span class="amt">85%</span></div>
+    </div>
+  </div>
+  <div class="card" data-step="1" data-anim style="--an:riseIn">
+    <div class="chain"><span class="chipq gr">Answer: Liza's grade is 85%.</span><span class="chipq pu">reverse direction of A &amp; B</span></div>
+    <p class="note">When the PART and the WHOLE are given and the PERCENT is asked, the method runs backwards: <b>divide first, then multiply by 100</b>. Grades, survey results, and probability all use this direction.</p>
+  </div>
+</section>
+
+<!-- PRACTICE SET 1 (4) IDENTIFY -->
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 1 <span class="itemno">Q1/4</span> • WHICH USE IS IT?</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A sales agent earns 5% of everything she sells. Which use?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> Commission 💼</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> Discount 🏷️</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Tax 🧾</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Interest 🏦</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 1 <span class="itemno">Q2/4</span> • WHICH USE IS IT?</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">Your game download shows 64%. Which use?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> Statistics 📊</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> Probability 🎲</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Progress 📱</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Grade 📚</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 1 <span class="itemno">Q3/4</span> • WHICH USE IS IT?</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">The weather app says a 70% chance of rain. Which use?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> Probability 🎲</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> Statistics 📊</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Progress 📱</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Nutrition 🍎</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 1 <span class="itemno">Q4/4</span> • WHICH USE IS IT?</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A restaurant adds 10% on top of your bill for staff. Which use?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> Discount 🏷️</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> Service charge 🍽️</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Commission 💼</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Tax 🧾</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- PRACTICE SET 2 (4) SOLVE -->
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 2 <span class="itemno">Q1/4</span> • SOLVE: COMMISSION</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">An agent sells ₱40,000 worth of goods at 5% commission. How much does she earn?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱400</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱2,000</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱200</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱5,000</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 2 <span class="itemno">Q2/4</span> • SOLVE: SERVICE CHARGE</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A ₱750 bill adds a 10% service charge. Total to pay?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱825</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱75</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱750</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱850</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 2 <span class="itemno">Q3/4</span> • SOLVE: PROBABILITY</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A bag has 10 marbles, 3 of them red. Percent chance of drawing red?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 3%</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 30%</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 70%</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 13%</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">PRACTICE SET 2 <span class="itemno">Q4/4</span> • SOLVE: DISCOUNT</div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A ₱2,400 laptop is 15% off. How much is saved?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱240</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱360</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱2,040</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱36</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- SUMMATIVE (5) -->
+<section class="slide mc" data-ans="2">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SUMMATIVE ASSESSMENT <span class="itemno">Q1/5</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A receipt shows 12% added for the government. Which use?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> Commission 💼</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> Interest 🏦</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Tax 🧾</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Service charge 🍽️</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="0">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SUMMATIVE ASSESSMENT <span class="itemno">Q2/5</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">A label shows 40% Daily Value of iron. Which use?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> Nutrition 🍎</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> Statistics 📊</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> Probability 🎲</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> Grade 📚</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SUMMATIVE ASSESSMENT <span class="itemno">Q3/5</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">45 correct out of 60 items. Percent grade?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 45%</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 75%</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 60%</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 85%</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SUMMATIVE ASSESSMENT <span class="itemno">Q4/5</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">₱3,000 saved at 4% per year. Interest after 1 year?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> ₱300</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> ₱120</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> ₱12</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> ₱1,200</button>
+  </div>
+  <div class="fb"></div>
+</section>
+<section class="slide mc" data-ans="1">
+  <div data-step="0"><div class="kicker" data-anim style="--an:slideL">SUMMATIVE ASSESSMENT <span class="itemno">Q5/5</span></div>
+    <div class="qbig" data-anim style="--an:riseIn;--d:.1s">80% of 500 surveyed people said yes. How many people?</div></div>
+  <div class="opts" data-step="0">
+    <button class="opt" data-i="0" data-anim style="--an:popIn;--d:.3s"><b>A</b> 80</button>
+    <button class="opt" data-i="1" data-anim style="--an:popIn;--d:.45s"><b>B</b> 400</button>
+    <button class="opt" data-i="2" data-anim style="--an:popIn;--d:.6s"><b>C</b> 450</button>
+    <button class="opt" data-i="3" data-anim style="--an:popIn;--d:.75s"><b>D</b> 500</button>
+  </div>
+  <div class="fb"></div>
+</section>
+
+<!-- SUMMARY -->
+<section class="slide" style="align-items:center;justify-content:center;text-align:center">
+  <div data-step="0" style="display:flex;flex-direction:column;gap:20px;align-items:center">
+    <div class="kicker" data-anim style="--an:slideL">LESSON SUMMARY</div>
+    <div class="usesgrid" data-step="0">
+      <div class="usecell" style="--dd:.1s"><span class="emj">🏷️</span><span class="nm">Discount</span><span class="dsc">price reduction</span></div>
+      <div class="usecell" style="--dd:.2s"><span class="emj">🏦</span><span class="nm">Interest</span><span class="dsc">bank growth</span></div>
+      <div class="usecell" style="--dd:.3s"><span class="emj">🧾</span><span class="nm">Tax</span><span class="dsc">gov't fee</span></div>
+      <div class="usecell" style="--dd:.4s"><span class="emj">💼</span><span class="nm">Commission</span><span class="dsc">pay from sales</span></div>
+      <div class="usecell" style="--dd:.5s"><span class="emj">🍽️</span><span class="nm">Service chg</span><span class="dsc">extra fee</span></div>
+      <div class="usecell" style="--dd:.6s"><span class="emj">📊</span><span class="nm">Statistics</span><span class="dsc">surveys/polls</span></div>
+      <div class="usecell" style="--dd:.7s"><span class="emj">📱</span><span class="nm">Progress</span><span class="dsc">bars/battery</span></div>
+      <div class="usecell" style="--dd:.8s"><span class="emj">🎲</span><span class="nm">Probability</span><span class="dsc">chance</span></div>
+      <div class="usecell" style="--dd:.9s"><span class="emj">🍎</span><span class="nm">Nutrition</span><span class="dsc">food label</span></div>
+      <div class="usecell" style="--dd:1s"><span class="emj">📚</span><span class="nm">Grade</span><span class="dsc">test score</span></div>
+    </div>
+    <div class="chain" data-step="1" data-anim style="--an:riseIn;--d:.2s">
+      <span class="chipq cy">1 • find the whole</span><span class="chipq yl">2 • % ÷ 100</span><span class="chipq gr">3 • multiply</span><span class="chipq rd">then add or subtract</span>
+    </div>
+    <div class="master" data-step="1" data-anim style="--an:zoomIn;--d:.4s">🛒 MARKETPLACE MASTER CERTIFIED!</div>
+    <p class="big" data-step="1" data-anim style="--an:riseIn;--d:.55s" id="starLine">Ten uses, one method — percent has no more secrets!</p>
+  </div>
+</section>
+
+<div id="hints"><b>→</b> Next &nbsp; <b>←</b> Back &nbsp; <b>F</b> Fullscreen &nbsp; <b>🖱️</b> click answers (Lesson) &nbsp; <b>V/M</b> Preview only</div>
+<div id="counter">01 / 30</div>
+
+<div id="overlay">
+  <div class="ttl">🛒 THE MATH MARKETPLACE</div>
+  <div class="sub">Math 6 • Term 2 • Week 3 Part 2 — Identify and explain the uses of percentages, and solve percent problems.</div>
+  <div class="sub" style="font-size:22px;color:#b45309">🎙️ <b>V</b> = audition voice • <b>F</b> = fullscreen • M & V disabled inside Lesson Mode.</div>
+  <div class="modeBtns" id="modeBtns">
+    <button id="btnPreview">🎬 PREVIEW MODE<small>opens YouTube video link (Watch for the 5 Digit Code)</small></button>
+    <button id="btnLesson">🎓 LESSON MODE<small>interactive + ⭐ stars • needs the 5-digit passcode</small></button>
+  </div>
+  <div id="passPanel">
+    <div class="sub">Enter the 5-digit passcode you collected from the Preview video 👀</div>
+    <div class="pslots"><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div><div class="pslot"></div><div class="pslot p6" id="pslot6"></div></div>
+    <div id="passMsg">Type the 5 digits • Enter = unlock</div>
+    <button id="passBack">← BACK</button>
+  </div>
+</div>
+</div>
+
+<script>
+var YOUTUBE_LINK = "";
+var PASS=['7','4','9','1','5'];
+var SECRET='ronnie';
+
+var WHY=[
+/* P1 identify */
+["Correct — pay based on sales made is commission.","A discount reduces a price; no sales-based pay here.","Tax goes to the government, not to a worker.","Interest is bank money growth, not sales pay."],
+["Statistics reports group results, not a loading bar.","Probability is chance, not completion.","Correct — a download bar shows progress toward 100%.","A grade scores a test, not a download."],
+["Correct — the chance of something happening is probability.","Statistics would report what people said, not a future chance.","Progress tracks completion, not chance.","Nutrition is about food labels."],
+["A discount reduces the bill — this adds to it.","Correct — an extra restaurant fee added by the house is a service charge.","Commission is a worker's pay from sales.","Tax goes to the government, not to restaurant staff."],
+/* P2 solve */
+["₱400 is 5% of 8,000, not 40,000.","5% of 40,000 = 0.05 × 40,000 = ₱2,000 — correct.","₱200 is 5% of 4,000.","₱5,000 is not 5% of any number here."],
+["750 + 75 = ₱825 — correct.","₱75 is only the service charge amount.","₱750 is the bill without the charge.","₱850 adds ₱100 instead of 10%."],
+["3% would be 3 red out of 100 marbles.","3 out of 10 = 30/100 = 30% — correct.","70% is the chance of NOT drawing red.","13% mixes the digits 3 and 10."],
+["₱240 is 10%, not 15%.","15% of 2,400 = 0.15 × 2,400 = ₱360 — correct.","₱2,040 is the sale price, not the savings.","₱36 is 15% of 240."],
+/* QUIZ */
+["Commission pays a worker from sales, not the government.","Interest is bank growth, not a receipt fee.","Correct — a government fee on the receipt is tax (VAT).","Service charge goes to the restaurant, not the government."],
+["Correct — % Daily Value appears on food package labels.","Statistics reports surveys and polls.","Probability measures chance.","Grade scores tests and exams."],
+["45% just reuses the part as the percent.","45 ÷ 60 = 0.75 → × 100 = 75% — correct.","60% just reuses the whole as the percent.","85% is a guess with no computation."],
+["₱300 is 10%, not 4%.","4% of 3,000 = 0.04 × 3,000 = ₱120 — correct.","₱12 is 4% of 300.","₱1,200 is 40%, not 4%."],
+["80 is the percent number, not the people count.","80% of 500 = 0.80 × 500 = 400 people — correct.","450 is 90% of 500.","500 is the whole surveyed group."]
+];
+
+var NARR=[
+/* 0 title */
+["Welcome to Grade 6 Math, Term 2, Week 3, Part Two — The Math Marketplace! Today we identify and explain the TEN main uses of percentages: discount, interest, tax, commission, service charge, statistics, progress, probability, nutrition, and grade.",
+ "Our objectives: first, identify which use a percent belongs to; second, explain what the percent means in that situation; and third, solve percent problems with the three-step method — find the whole, turn the percent into a decimal, multiply. Let us go!"],
+/* 1 discount */
+["Use one: DISCOUNT — a percent taken off the original price. A five-hundred-peso shirt with thirty percent off: thirty percent of five hundred is one hundred fifty pesos saved, so the new price is three hundred fifty pesos.",
+ "Here the whole is the original price, and the percent amount is the money saved. The store removes thirty pesos for every one hundred pesos of the tag, so we subtract the amount to get the sale price."],
+/* 2 interest */
+["Use two: INTEREST — money growing or shrinking in the bank. One thousand pesos saved at five percent per year earns fifty pesos: five pesos added for every one hundred saved.",
+ "Interest is the price of money in time, computed as a percent of your balance or loan each year. With savings the bank pays you the percent; with loans you pay the bank — so savings grow and debts grow too."],
+/* 3 tax */
+["Use three: TAX — a government fee on the receipt. A one-thousand-five-hundred-peso subtotal with twelve percent VAT adds one hundred eighty pesos, for a total of one thousand six hundred eighty pesos.",
+ "For every one hundred pesos you spend, twelve pesos go to the government as VAT. We compute zero point one two times the subtotal, then add it — which is why the total is always bigger than the subtotal."],
+/* 4 commission */
+["Use four: COMMISSION — pay based on sales made. An agent who sells fifty thousand pesos worth of goods at five percent commission earns two thousand five hundred pesos.",
+ "Here the percent amount IS the worker's pay — nothing is added or subtracted from it. The whole is the total sales, so the more the agent sells, the more she earns."],
+/* 5 service charge */
+["Use five: SERVICE CHARGE — an extra restaurant fee. A one-thousand-peso bill with a ten percent service charge adds one hundred pesos, for a total of one thousand one hundred pesos.",
+ "The restaurant computes ten pesos for every one hundred pesos of your order and adds it automatically for staff service. Unlike a tip it is not optional — the whole is the bill and we add the amount."],
+/* 6 statistics */
+["Use six: STATISTICS — surveys, polls, and group results. Seventy-five percent of two hundred students chose chocolate: that is one hundred fifty students.",
+ "The percent converts any group size to a common out-of-one-hundred language so results can be compared. The whole is the group surveyed — multiply the percent by it to recover the actual headcount."],
+/* 7 progress */
+["Use seven: PROGRESS — loading bars and batteries. A phone at seventy-five percent has seventy-five of every one hundred parts of its charge left; a download at eighty-eight percent is almost done.",
+ "The bar pictures the whole as a full rectangle and the filled part as the percent. Reading it tells you how much is done — and one hundred minus the shown percent tells you how much remains."],
+/* 8 probability */
+["Use eight: PROBABILITY — the chance of something happening. A thirty percent chance of rain means: out of one hundred similar days, rain is expected on about thirty. A bag with four red marbles out of ten gives a forty percent chance of drawing red.",
+ "Probability compares favorable outcomes to ALL possible outcomes and writes it per hundred. Zero percent means impossible, fifty percent equally likely, one hundred percent certain — it predicts likelihood, never a single guaranteed result."],
+/* 9 nutrition */
+["Use nine: NUTRITION — food package labels. Twenty-five percent Daily Value of Vitamin C means one serving gives twenty-five of every one hundred parts of your daily need.",
+ "Percent Daily Value does not measure the food's weight — it measures how much of your whole-day requirement one serving covers. Five percent or less is a low source; twenty percent or more is a high source."],
+/* 10 grade */
+["Use ten: GRADE — test and exam scores. Forty-six out of fifty becomes ninety-two percent, putting every test on the same one-hundred-point scale.",
+ "Because tests have different item counts, raw scores cannot be compared directly. Converting to percent rescales every test to one hundred: part divided by whole, times one hundred, equals the grade percent."],
+/* 11 quick check */
+["Here is your quick check card. Read the situation and match it to its use: price reduction — DISCOUNT. Money growing or shrinking in bank — INTEREST. Government fee on receipt — TAX. Pay based on sales made — COMMISSION. Extra restaurant fee — SERVICE CHARGE.",
+ "Survey, poll, or group results — STATISTICS. Loading bar or battery — PROGRESS. Chance of something happening — PROBABILITY. Food package label — NUTRITION. Test or exam score — GRADE. Each use has a signature keyword: off, bank, VAT, sales pay, added fee, survey, loading, chance, label, score."],
+/* 12 method */
+["How to solve any percent problem — three steps. Step one: find the WHOLE — the number the percent is taken of. Step two: turn the percent into a decimal by dividing by one hundred. Step three: multiply — decimal times whole equals the percent amount.",
+ "Then finish by the use: subtract for discounts, add for tax and service charge, keep the amount as-is for commission, interest, and probability. And if part and whole are given and the percent is asked: part divided by whole, times one hundred."],
+/* 13 worked A */
+["Worked example A — discount. A jacket costs eight hundred pesos with twenty-five percent off. Step one: the whole is eight hundred. Step two: twenty-five percent becomes zero point two five. Step three: zero point two five times eight hundred equals two hundred pesos saved.",
+ "Step four: the sale price is eight hundred minus two hundred, six hundred pesos. Notice the question asks two things — the amount saved and the new price — so we never stop at step three."],
+/* 14 worked B */
+["Worked example B — service charge. A dinner bill is one thousand two hundred pesos with a ten percent service charge. Step one: the whole is one thousand two hundred. Step two: ten percent becomes zero point one zero. Step three: the charge is one hundred twenty pesos.",
+ "Step four: the total paid is one thousand two hundred plus one hundred twenty, one thousand three hundred twenty pesos. Added-percent problems always end with addition — or use the shortcut: multiply the whole by one point one zero."],
+/* 15 worked C */
+["Worked example C — grade. A test has forty items and Liza answered thirty-four correctly. Step one: the part is thirty-four and the whole is forty. Step two: thirty-four divided by forty equals zero point eight five. Step three: zero point eight five times one hundred equals eighty-five.",
+ "Answer: Liza's grade is eighty-five percent. When part and whole are given and the percent is asked, the method runs backwards: divide first, then multiply by one hundred — the same direction grades, surveys, and probability use."],
+/* 16-19 P1 */
+["Practice one: a sales agent earns five percent of everything she sells. Which use of percent is this?|||COMMISSION — pay based on sales made."],
+["Practice two: your game download shows sixty-four percent. Which use is this?|||PROGRESS — a loading bar shows how much is done."],
+["Practice three: the weather app says a seventy percent chance of rain. Which use is this?|||PROBABILITY — the chance of something happening."],
+["Practice four: a restaurant adds ten percent on top of your bill for staff. Which use is this?|||SERVICE CHARGE — an extra restaurant fee."],
+/* 20-23 P2 */
+["Practice one: an agent sells forty thousand pesos worth of goods at five percent commission. How much does she earn?|||Five percent of forty thousand is two thousand pesos."],
+["Practice two: a seven-hundred-fifty-peso bill adds a ten percent service charge. Total to pay?|||Charge seventy-five pesos; total eight hundred twenty-five pesos."],
+["Practice three: a bag has ten marbles, three of them red. Percent chance of drawing red?|||Three out of ten is thirty percent."],
+["Practice four: a two-thousand-four-hundred-peso laptop is fifteen percent off. How much is saved?|||Fifteen percent of two thousand four hundred is three hundred sixty pesos."],
+/* 24-28 quiz */
+["Quiz one: a receipt shows twelve percent added for the government. Which use is this?|||TAX — a government fee on the receipt."],
+["Quiz two: a label shows forty percent Daily Value of iron. Which use is this?|||NUTRITION — the food package label."],
+["Quiz three: forty-five correct out of sixty items. Percent grade?|||Forty-five divided by sixty is zero point seven five — seventy-five percent."],
+["Quiz four: three thousand pesos saved at four percent per year. Interest after one year?|||Four percent of three thousand is one hundred twenty pesos."],
+["Quiz five: eighty percent of five hundred surveyed people said yes. How many people?|||Eighty percent of five hundred is four hundred people."],
+/* 29 summary */
+["To summarize: the ten uses of percent are discount, interest, tax, commission, service charge, statistics, progress, probability, nutrition, and grade. Match the situation to its use with the quick check keywords, then solve with three steps: find the whole, percent to decimal, multiply — adding or subtracting as the use requires.",
+ "%STARS% You are a certified Marketplace Master! Ten uses, one method — percent has no more secrets from you. Class dismissed!"]
+];
+
+var slides=[].slice.call(document.querySelectorAll('.slide'));
+var mcList=[].slice.call(document.querySelectorAll('.slide.mc'));
+shuffleChoicesOnce();
+
+var si=0,step=-1,started=false,mode=null,muted=false;
+var starCount=0,firstWrong=false,answered=false;
+var mcState=slides.map(function(){return {answered:false,firstWrong:false,wrongs:{}};});
+var synth=window.speechSynthesis||null,voices=[],voiceIdx=-1;
+var chip=document.getElementById('voiceChip');
+var recChip=document.getElementById('recChip'),starChip=document.getElementById('starChip');
+var stageEl=document.getElementById('stage');
+
+if(YOUTUBE_LINK && YOUTUBE_LINK.trim()){
+  var bp=document.getElementById('btnPreview');
+  if(bp)bp.querySelector('small').textContent='opens your YouTube video link (Watch for the 5 Digit Code)';
+}
+
+function getWhy(sl,i){
+  var mi=mcList.indexOf(sl);
+  var w=WHY[mi];
+  if(w&&w[i])return w[i];
+  return (i===+sl.getAttribute('data-ans'))?'This choice matches the use or the 3-step method.':'This choice mismatches the use or misapplies the method.';
+}
+function setFB(sl,type,html){
+  var fb=sl.querySelector('.fb'); if(!fb)return;
+  fb.innerHTML=html;
+  fb.classList.remove('g','r');
+  if(type==='g')fb.classList.add('g');
+  if(type==='r')fb.classList.add('r');
+}
+
+var stepStart=[],T=0;slides.forEach(function(s,i){stepStart.push(T);T+=NARR[i].length;});
+var digitAt={};[.15,.37,.57,.76,.93].forEach(function(p,k){digitAt[Math.min(T-1,Math.round(T*p))]=PASS[k];});
+var shownDigits={};
+
+/* PASSCODE: normal 5 slots; 6th appears ONLY when first 5 spell "ronni" */
+var passOpen=false,passBuf=[],sixOpen=false;
+var modeBtns=document.getElementById('modeBtns'),passPanel=document.getElementById('passPanel');
+var pslot6=document.getElementById('pslot6'),passMsg=document.getElementById('passMsg');
+document.getElementById('btnPreview').onclick=function(e){e.stopPropagation();startPreview();};
+document.getElementById('btnLesson').onclick=function(e){e.stopPropagation();openPass();};
+document.getElementById('passBack').onclick=function(e){e.stopPropagation();closePass();};
+function codeSoFar(){return passBuf.join('');}
+function digitsOk(){return passBuf.length===5&&passBuf.every(function(d,i){return d===PASS[i];});}
+function syncSix(){
+  var should=passBuf.length===5&&codeSoFar()===SECRET.slice(0,5);
+  if(should&&!sixOpen){sixOpen=true;pslot6.classList.add('show');
+    passMsg.textContent='✨ One more letter to complete the name!';
+    tone(880,0,.15,'triangle',.3);tone(1174,.15,.25,'triangle',.3);}
+  if(!should&&sixOpen&&passBuf.length<5){sixOpen=false;pslot6.classList.remove('show');passBuf[5]=undefined;}
+  renderPass();
+}
+function openPass(){passOpen=true;modeBtns.style.display='none';passPanel.style.display='flex';
+  passBuf=[];sixOpen=false;pslot6.classList.remove('show');
+  passMsg.textContent='Type the 5 digits • Enter = unlock';renderPass();}
+function closePass(){passOpen=false;passPanel.style.display='none';modeBtns.style.display='flex';}
+function renderPass(){var sl=passPanel.querySelectorAll('.pslot');
+  sl.forEach(function(s,i){s.textContent=passBuf[i]!==undefined?passBuf[i]:'';});}
+function passErr(msg){passPanel.classList.add('err');passMsg.textContent=msg;
+  setTimeout(function(){passPanel.classList.remove('err');},600);
+  passBuf=[];sixOpen=false;pslot6.classList.remove('show');renderPass();}
+function tryPass(){
+  var code=codeSoFar();
+  if(code===SECRET){startLesson();return;}
+  if(passBuf.length===5&&code===SECRET.slice(0,5)){
+    passMsg.textContent='✨ Type the final letter, then Enter.';return;}
+  if(passBuf.length===5&&digitsOk()){startLesson();return;}
+  passErr('❌ Wrong code! Watch the Preview video to collect the 5 digits.');
+}
+function startPreview(){
+  if(YOUTUBE_LINK && YOUTUBE_LINK.trim()){window.open(YOUTUBE_LINK.trim(),'_blank');return;}
+  mode='preview';started=true;document.body.classList.add('preview');
+  recChip.classList.add('on');document.getElementById('overlay').style.display='none';
+  showIntroSlide();
+}
+function showIntroSlide(){
+  var intro=document.getElementById('introOverlay');
+  intro.classList.add('active');
+  var countEl=document.getElementById('introCount');
+  var timeLeft=10;
+  countEl.textContent=timeLeft;
+  tone(660,0,.2,'triangle',.3);tone(880,.2,.2,'triangle',.3);
+  var timer=setInterval(function(){
+    timeLeft--;
+    countEl.textContent=timeLeft;
+    if(timeLeft>0)tone(880,0,.08,'square',.15);
+    if(timeLeft<=0){
+      clearInterval(timer);
+      intro.classList.remove('active');
+      goTo(0);
+    }
+  },1000);
+}
+function startLesson(){mode='lesson';started=true;passOpen=false;document.body.classList.add('lesson');
+  document.getElementById('overlay').style.display='none';goTo(0);}
+
+var recTimer=null;
+function clearRec(){if(recTimer){clearTimeout(recTimer);recTimer=null;}}
+function scheduleNext(ms){clearRec();recTimer=setTimeout(function(){recTimer=null;if(mode==='preview'&&started)next();},ms);}
+
+var mcTimerInt=null,mcCounting=false;
+var mcTimerEl=document.getElementById('mcTimer'),mcTimerN=document.getElementById('mcTimerN');
+function clearMcTimer(){if(mcTimerInt){clearInterval(mcTimerInt);mcTimerInt=null;}
+  mcTimerEl.classList.remove('on');mcCounting=false;}
+function startMCCountdown(){mcCounting=true;var n=5;
+  mcTimerN.textContent=n;mcTimerEl.classList.add('on');tone(980,0,.09,'square',.12);
+  mcTimerInt=setInterval(function(){n--;
+    if(n<=0){clearInterval(mcTimerInt);mcTimerInt=null;mcTimerEl.classList.remove('on');mcCounting=false;
+      revealMC();speakAnswer();}
+    else{mcTimerN.textContent=n;tone(980,0,.09,'square',.12);}
+  },1000);}
+function autoAfter(){if(mode!=='preview'||!started)return;if(si>=slides.length-1)return;
+  if(slides[si].classList.contains('mc')){if(!answered&&!mcCounting)startMCCountdown();}
+  else scheduleNext(2200);}
+
+function speakAnswer(){
+  var full=NARR[si][step]||'';
+  var parts=full.split('|||');
+  var ans=parts[1]||'';
+  if(mode!=='preview'||!ans||!synth||muted){scheduleNext(2600);return;}
+  synth.cancel();
+  var u=new SpeechSynthesisUtterance(ans);
+  var v=pickVoice();if(v){u.voice=v;u.lang=v.lang;}
+  u.rate=1.0;u.pitch=1.0;u.volume=1;
+  u.onend=u.onerror=function(){scheduleNext(2200);};
+  synth.speak(u);
+}
+
+var AC=null;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}
+  if(AC&&AC.state==='suspended')AC.resume();return AC;}
+function tone(f,t0,dur,type,vol,slide){if(muted)return;var c=ac();if(!c)return;
+  var t=c.currentTime+t0,o=c.createOscillator(),g=c.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(f,t);
+  if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+dur);
+  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol||.2,t+.02);
+  g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+.05);}
+function sPop(){tone(520,0,.12,'triangle',.22,900);}
+function sWhoosh(){if(muted)return;var c=ac();if(!c)return;
+  var dur=.35,buf=c.createBuffer(1,c.sampleRate*dur,c.sampleRate),d=buf.getChannelData(0);
+  for(var i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);
+  var src=c.createBufferSource();src.buffer=buf;var f=c.createBiquadFilter();f.type='bandpass';
+  f.frequency.setValueAtTime(300,c.currentTime);f.frequency.exponentialRampToValueAtTime(2400,c.currentTime+dur);
+  var g=c.createGain();g.gain.value=.15;src.connect(f);f.connect(g);g.connect(c.destination);src.start();}
+function sCorrect(){tone(660,0,.14,'triangle',.3);tone(880,.13,.14,'triangle',.3);tone(1100,.26,.4,'triangle',.3);}
+function sWrong(){tone(170,0,.25,'sawtooth',.18,120);}
+function sCode(){tone(784,0,.15,'triangle',.3);tone(1175,.16,.3,'triangle',.3);}
+function sFanfare(){[523,659,784,1047].forEach(function(f,i){tone(f,i*.12,.28,'triangle',.3);});tone(1319,.55,.7,'triangle',.3);}
+
+function starBurst(fromEl){
+  var sr=stageEl.getBoundingClientRect();
+  var sc=sr.width/1920;
+  var fr=fromEl.getBoundingClientRect();
+  var fx0=(fr.left+fr.width/2-sr.left)/sc;
+  var fy0=(fr.top+fr.height/2-sr.top)/sc;
+  var cr=starChip.getBoundingClientRect();
+  var tx=(cr.left+cr.width/2-sr.left)/sc, ty=(cr.top+cr.height/2-sr.top)/sc;
+  var s=document.createElement('span');
+  s.textContent='⭐';
+  s.style.cssText='position:absolute;z-index:95;pointer-events:none;left:'+fx0+'px;top:'+fy0+'px;'+
+    'font-size:72px;transform:translate(-50%,-50%) scale(0);text-shadow:0 0 30px #f59e0b,0 0 70px #ef4444;';
+  stageEl.appendChild(s);
+  var a1=s.animate([
+    {transform:'translate(-50%,-50%) scale(0) rotate(0deg)',opacity:1},
+    {transform:'translate(-50%,-50%) scale(2.5) rotate(540deg)',opacity:1,offset:.55},
+    {transform:'translate(-50%,-50%) scale(2.0) rotate(720deg)',opacity:1}
+  ],{duration:800,easing:'cubic-bezier(.2,.7,.2,1)'});
+  a1.onfinish=function(){
+    var dx=tx-fx0, dy=ty-fy0;
+    var a2=s.animate([
+      {transform:'translate(-50%,-50%) scale(2.0) rotate(720deg)',opacity:1},
+      {transform:'translate(calc(-50% + '+dx+'px), calc(-50% + '+dy+'px)) scale(.35) rotate(1080deg)',opacity:.95}
+    ],{duration:800,easing:'cubic-bezier(.4,0,.7,1)'});
+    a2.onfinish=function(){s.remove();
+      starCount++;document.getElementById('starN').textContent=starCount;
+      starChip.classList.remove('bump');void starChip.offsetWidth;starChip.classList.add('bump');
+      tone(1318,0,.18,'triangle',.28);};
+  };
+}
+
+function refreshVoices(){if(!synth)return;voices=synth.getVoices();label();}
+if(synth){refreshVoices();synth.onvoiceschanged=refreshVoices;}
+function pickVoice(){
+  if(!voices.length)return null;
+  var en=voices.filter(function(v){return v.lang.toLowerCase().indexOf('en')===0;});
+  if(voiceIdx>=0&&en.length)return en[voiceIdx%en.length];
+  var ph=voices.filter(function(v){return /en[-_]ph/i.test(v.lang);});
+  if(ph.length){var m=ph.filter(function(v){return /james|male/i.test(v.name);})[0];return m||ph[0];}
+  var ph2=voices.filter(function(v){return /philippines|filipino/i.test(v.name);})[0]; if(ph2)return ph2;
+  var nat=en.filter(function(v){return /natural|online|neural/i.test(v.name);});
+  var male=['james','guy','davis','ryan','daniel','david','mark','alex','george','arthur','fred','eric','brian','matthew','male'];
+  for(var i=0;i<male.length;i++){var f=nat.filter(function(v){return v.name.toLowerCase().indexOf(male[i])>-1;})[0]
+    ||en.filter(function(v){return v.name.toLowerCase().indexOf(male[i])>-1;})[0]; if(f)return f;}
+  return nat[0]||en[0]||voices[0];}
+function label(){var v=pickVoice();var ph=v&&(/en[-_]ph/i.test(v.lang)||/philippines|filipino/i.test(v.name));
+  chip.textContent=(muted?'🔇 Muted':(ph?'🇵🇭 ':'🔊 '))+(v?v.name.replace('Microsoft','MS').replace('Online (Natural)','Natural'):'no voice');}
+function testVoice(){if(mode==='lesson')return;
+  var en=voices.filter(function(v){return v.lang.toLowerCase().indexOf('en')===0;});
+  if(en.length){voiceIdx=(voiceIdx+1)%en.length;}
+  label();
+  if(muted||!synth)return;
+  synth.cancel();
+  var u=new SpeechSynthesisUtterance('Kumusta! This is your lesson voice. Press V again to audition other voices!');
+  var v=pickVoice();if(v){u.voice=v;u.lang=v.lang;} u.rate=1.0;u.pitch=1.0;
+  synth.speak(u);}
+chip.addEventListener('click',function(e){e.stopPropagation();testVoice();});
+
+function speak(t){
+  if(mode==='lesson')return;
+  if(!synth){autoAfter();return;}
+  synth.cancel();
+  if(muted){autoAfter();return;}
+  if(slides[si]&&slides[si].classList.contains('mc')){t=t.split('|||')[0];}
+  var u=new SpeechSynthesisUtterance(t.replace('%STARS%','Play Lesson Mode to earn stars!')),v=pickVoice();
+  if(v){u.voice=v;u.lang=v.lang;} u.rate=1.0;u.pitch=1.0;u.volume=1;
+  u.onend=u.onerror=function(){autoAfter();};
+  synth.speak(u);
+}
+
+var codeOv=document.getElementById('codeOv');
+function showCode(k,d){document.getElementById('codeLbl').textContent='PASSCODE DIGIT '+(k+1)+'/5 — WRITE IT DOWN!';
+  document.getElementById('codeDig').textContent=d;codeOv.classList.add('on');sCode();
+  setTimeout(function(){codeOv.classList.remove('on');},3000);}
+
+function shuffleChoicesOnce(){
+  document.querySelectorAll('.slide.mc .opts').forEach(function(box){
+    var btns=[].slice.call(box.children);
+    for(var i=btns.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=btns[i];btns[i]=btns[j];btns[j]=t;}
+    btns.forEach(function(btn,idx){var b=btn.querySelector('b');if(b)b.textContent=String.fromCharCode(65+idx);box.appendChild(btn);});
+  });
+}
+function getMCState(sl){return mcState[slides.indexOf(sl)];}
+
+function resetMC(sl){
+  var st=getMCState(sl);
+  answered=!!st.answered; firstWrong=!!st.firstWrong;
+  sl.querySelectorAll('.opt').forEach(function(o){
+    o.classList.remove('good','bad','reveal'); o.disabled=false;
+    if(st.wrongs[+o.getAttribute('data-i')])o.classList.add('bad');
+  });
+  if(st.answered){
+    var a=+sl.getAttribute('data-ans');
+    var correct=sl.querySelector('.opt[data-i="'+a+'"]');
+    if(correct)correct.classList.add('good');
+    setFB(sl,'g','✔ Correct!'+(st.firstWrong?' (no star — missed first try)':' +1 ⭐')+
+      '<span class="why">'+getWhy(sl,a)+'</span>');
+  }else if(Object.keys(st.wrongs).length>0){
+    setFB(sl,'r','Continue — choose the correct answer to proceed!<span class="why">Read each choice carefully.</span>');
+  }else{
+    setFB(sl,'','');
+  }
+}
+function revealMC(){
+  var sl=slides[si]; if(answered)return;
+  answered=true;
+  var st=getMCState(sl); if(st)st.answered=true;
+  var a=+sl.getAttribute('data-ans');
+  var o=sl.querySelector('.opt[data-i="'+a+'"]');
+  if(o){o.classList.add('reveal');
+    starBurst(o); sCorrect();}
+  if(o){setFB(sl,'g','✔ Answer: '+o.textContent.replace(/^[A-D]/,'').trim()+
+    '<span class="why">'+getWhy(sl,a)+'</span>');}
+}
+function clickOpt(btn){
+  if(mode!=='lesson'||answered)return;
+  var sl=btn.closest('.slide'); var st=getMCState(sl);
+  var a=+sl.getAttribute('data-ans'); var i=+btn.getAttribute('data-i');
+  var why=getWhy(sl,i);
+  if(i===a){
+    answered=true; st.answered=true; st.firstWrong=firstWrong;
+    btn.classList.add('good');
+    if(!firstWrong){
+      starBurst(btn);
+      setFB(sl,'g','✔ Correct! +1 ⭐<span class="why">'+why+'</span>');
+      sCorrect();
+    }else{
+      setFB(sl,'g','✔ Correct! (no star — missed first try)<span class="why">'+why+'</span>');
+      sCorrect();
+    }
+  }else{
+    firstWrong=true; st.firstWrong=true; st.wrongs[i]=true;
+    btn.classList.add('bad');
+    setFB(sl,'r','✘ Not quite — try again!<span class="why">'+why+'</span>');
+    sWrong();
+  }
+}
+document.addEventListener('click',function(e){var b=e.target.closest('.opt');if(b){clickOpt(b);return;}
+  if(mode==='lesson'&&started)next();});
+
+function confetti(){var host=document.getElementById('confetti');if(!host)return;host.innerHTML='';
+  var cols=['#dc2626','#f59e0b','#0891b2','#10b981','#8b5cf6','#ec4899'];
+  for(var i=0;i<90;i++){var s=document.createElement('i');
+    s.style.left=(Math.random()*100)+'%';s.style.background=cols[i%cols.length];
+    s.style.width=(8+Math.random()*10)+'px';s.style.height=(10+Math.random()*12)+'px';
+    s.style.animationDuration=(2.4+Math.random()*2)+'s';s.style.animationDelay=(Math.random()*.9)+'s';
+    host.appendChild(s);}
+  setTimeout(function(){host.innerHTML='';},5500);}
+
+function toggleFS(){
+  if(!document.fullscreenElement){if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen();}
+  else if(document.exitFullscreen){document.exitFullscreen();}
+}
+
+function updateHud(){
+  document.getElementById('counter').textContent=('0'+(si+1)).slice(-2)+' / '+slides.length;
+  document.getElementById('progress').style.width=((si+(step+1)/NARR[si].length)/slides.length*100)+'%';}
+function setStep(s){step=s;clearRec();clearMcTimer();
+  var els=slides[si].querySelectorAll('[data-step]'),newly=[];
+  for(var i=0;i<els.length;i++){var on=+els[i].getAttribute('data-step')<=s;
+    els[i].classList.toggle('on',on);
+    if(on&&+els[i].getAttribute('data-step')===s)newly.push(els[i]);}
+  newly.slice(0,5).forEach(function(el,idx){setTimeout(sPop,180*idx+120);});
+  if(slides[si].classList.contains('mc')&&s===0)resetMC(slides[si]);
+  var g=stepStart[si]+s;
+  if(mode==='preview'&&digitAt[g]!==undefined&&!shownDigits[g]){shownDigits[g]=1;showCode(PASS.indexOf(digitAt[g]),digitAt[g]);}
+  if(si===slides.length-1&&s===0){
+    var sl2=document.getElementById('starLine');
+    if(sl2)sl2.textContent=(mode==='lesson'?('You earned '+starCount+' of 13 stars! ⭐ '):'Play Lesson Mode to earn stars! ')+'Ten uses, one method — percent has no more secrets!';
+    if(mode==='lesson'){confetti();sFanfare();}
+  }
+  speak(NARR[si][s]||'');updateHud();}
+function goTo(i){clearRec();clearMcTimer();slides[si].classList.remove('active');si=i;slides[si].classList.add('active');
+  slides[si].scrollTop=0;sWhoosh();setStep(0);}
+function next(){
+  if(!started)return;
+  if(mode==='lesson'&&slides[si].classList.contains('mc')){
+    var st=getMCState(slides[si]);
+    if(!st||!st.answered){
+      setFB(slides[si],'r','Answer correctly first to continue! ⭐<span class="why">Match the situation to its use, then apply the 3-step method.</span>');
+      sWrong();return;
+    }
+  }
+  if(step<NARR[si].length-1)setStep(step+1); else if(si<slides.length-1)goTo(si+1);}
+function prev(){clearRec();clearMcTimer();if(si>0)goTo(si-1);}
+
+document.addEventListener('keydown',function(e){var k=e.key;
+  if(k==='f'||k==='F'){e.preventDefault();toggleFS();return;}
+  if(!started){
+    if(passOpen){
+      if(/^[a-zA-Z0-9]$/.test(k)&&passBuf.length<(sixOpen?6:5)){
+        passBuf.push(k.toLowerCase());renderPass();sPop();syncSix();
+      }
+      else if(k==='Backspace'){
+        passBuf.pop();renderPass();syncSix();
+        if(passMsg.textContent.indexOf('Wrong')===-1)passMsg.textContent='Type the 5 digits • Enter = unlock';
+      }
+      else if(k==='Enter'){tryPass();}
+      else if(k==='Escape'){closePass();}
+      e.preventDefault();return;}
+    if(k==='v'||k==='V'){e.preventDefault();testVoice();return;}
+    if(k==='m'||k==='M'){muted=!muted;if(muted)synth&&synth.cancel();label();return;}
+    if(k==='p'||k==='P')startPreview();
+    if(k==='l'||k==='L')openPass();
+    return;}
+  if(mode==='lesson'){
+    if(k==='m'||k==='M'||k==='v'||k==='V'){e.preventDefault();return;}
+    if(k==='ArrowRight'||k===' '||k==='Enter'||k==='PageDown'){e.preventDefault();next();}
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){e.preventDefault();prev();}
+    return;}
+  if(k==='m'||k==='M'){muted=!muted;if(muted)synth&&synth.cancel();label();return;}
+  if(k==='v'||k==='V'){testVoice();return;}});
+
+var fx=document.getElementById('fx'),sym=['🛒','️','%','','','💼','️','','📱','','🍎',''];
+for(var i=0;i<14;i++){var s=document.createElement('span');s.textContent=sym[i%sym.length];
+  s.style.left=(Math.random()*94)+'%';s.style.top=(Math.random()*86)+'%';
+  s.style.fontSize=(28+Math.random()*48)+'px';s.style.color=(i%3?'#ef4444':'#0891b2');
+  s.animationDelay=(Math.random()*6)+'s';fx.appendChild(s);}
+function fit(){var sc=Math.min(innerWidth/1920,innerHeight/1080);
+  stageEl.style.transform='translate(-50%,-50%) scale('+sc+')';}
+addEventListener('resize',fit);fit();label();
+</script>
+</body>
+</html>

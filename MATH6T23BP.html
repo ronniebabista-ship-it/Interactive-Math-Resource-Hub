@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>💯 Uses of Percentages - Grade 6</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  html { font-size: 20px; }
+
+  body {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    padding-top: 80px;
+  }
+
+  .top-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    max-width: 850px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    z-index: 100;
+  }
+
+  body.wide-mode .top-bar { max-width: 100%; padding: 12px 40px; }
+
+  .hint-btn {
+    background: linear-gradient(135deg, #fff9c4, #ffe082);
+    border: 3px solid #ff9800;
+    border-radius: 50%;
+    width: 60px; height: 60px;
+    font-size: 2em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 0 #ff9800, 0 6px 15px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+    line-height: 1;
+  }
+
+  .hint-btn:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 6px 0 #ff9800, 0 8px 20px rgba(0,0,0,0.25); }
+  .hint-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #ff9800; }
+
+  .score-board {
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    color: #5c4000;
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-size: 1.4em;
+    font-weight: 900;
+    box-shadow: 0 4px 0 #cc8800, 0 6px 15px rgba(0,0,0,0.2);
+    border: 3px solid #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .game-container {
+    background: white;
+    border-radius: 24px;
+    padding: 24px 20px;
+    max-width: 850px;
+    width: 100%;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.25);
+    text-align: center;
+    animation: popIn 0.5s ease;
+    position: relative;
+  }
+
+  body.wide-mode .game-container { max-width: 100%; padding: 24px 34px; }
+
+  @keyframes popIn {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  h1 {
+    color: #4a2c82;
+    font-size: 1.8em;
+    margin-bottom: 5px;
+    text-shadow: 2px 2px 0 #ffd93d;
+  }
+
+  .subtitle { color: #555; font-size: 1.1em; margin-bottom: 16px; line-height: 1.4; }
+
+  .progress-bar {
+    background: #e0e0e0;
+    border-radius: 20px;
+    height: 20px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    border: 3px solid #ffd93d;
+  }
+
+  .progress-fill {
+    background: linear-gradient(90deg, #6bcf7f, #4ecdc4);
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease;
+    border-radius: 20px;
+  }
+
+  .item-counter { font-size: 1.1em; color: #555; font-weight: bold; margin-bottom: 10px; }
+
+  .exam-area { display: block; }
+
+  .passage-box {
+    background: linear-gradient(135deg, #fff9c4, #fff59d);
+    border: 4px dashed #ff9800;
+    border-radius: 20px;
+    padding: 22px 18px;
+    margin-bottom: 16px;
+    font-size: 1.2em;
+    line-height: 1.65;
+    color: #333;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    animation: slideIn 0.4s ease;
+  }
+
+  .passage-text { display: inline; }
+
+  .highlight {
+    background: #ffeb3b;
+    color: #d32f2f;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 900;
+    display: inline-block;
+    margin: 2px 0;
+  }
+
+  .sign-box {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-weight: 900;
+    font-size: 1.15em;
+    margin: 4px 0;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+  }
+
+  @keyframes slideIn {
+    0% { transform: translateX(-20px); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+  }
+
+  .question { font-size: 1.15em; color: #ff6b9d; font-weight: bold; margin-bottom: 10px; }
+
+  .choices-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .choice-btn {
+    background: linear-gradient(135deg, #a8edea, #fed6e3);
+    border: 3px solid white;
+    border-radius: 16px;
+    padding: 16px 10px;
+    font-size: 1.15em;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.15);
+    font-family: inherit;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .choice-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 7px 0 rgba(0,0,0,0.15); background: linear-gradient(135deg, #8fd3f4, #fbc2eb); }
+  .choice-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.15); }
+
+  .choice-btn.correct { background: linear-gradient(135deg, #84fab0, #8fd3f4) !important; animation: correctPulse 0.6s ease; border-color: #4ecdc4; }
+  .choice-btn.wrong { background: linear-gradient(135deg, #ff9a9e, #fad0c4) !important; animation: shake 0.5s ease; border-color: #ff6b6b; }
+
+  @keyframes correctPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+  .feedback { font-size: 1.1em; font-weight: bold; margin: 12px 0; min-height: 30px; transition: all 0.3s; line-height: 1.4; }
+  .feedback.correct { color: #00897b; }
+  .feedback.wrong { color: #d32f2f; }
+
+  .next-btn {
+    background: linear-gradient(135deg, #ff6b9d, #ff8e53);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    font-size: 1.2em;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+    font-family: inherit;
+    transition: all 0.2s;
+    display: none;
+    margin-top: 8px;
+  }
+
+  .next-btn.show { display: inline-block; animation: popIn 0.4s ease; }
+  .next-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 rgba(0,0,0,0.2); }
+  .next-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.2); }
+
+  .keyboard-hint { font-size: 0.9em; color: #777; margin-top: 8px; font-style: italic; }
+  .keyboard-hint kbd { background: #f0f0f0; border: 2px solid #ccc; border-radius: 6px; padding: 2px 8px; font-family: monospace; font-style: normal; font-weight: bold; }
+
+  /* ===== SPLIT LAYOUT ===== */
+  .exam-area.split { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: stretch; text-align: left; }
+  .exam-area.split .exam-left { display: flex; flex-direction: column; }
+  .exam-area.split .passage-box {
+    flex: 1;
+    min-height: 55vh;
+    max-height: 68vh;
+    overflow-y: auto;
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
+    font-size: 1.3em;
+    padding: 26px 24px;
+  }
+  .exam-area.split .question { margin-top: 14px; font-size: 1.3em; }
+  .exam-area.split .exam-right {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #f5f7ff, #eef2ff);
+    border: 3px dashed #a1c4fd;
+    border-radius: 20px;
+    padding: 16px 14px;
+  }
+  .exam-area.split .choices-grid { grid-template-columns: 1fr; gap: 10px; margin-bottom: 8px; }
+  .exam-area.split .choice-btn { min-height: 64px; font-size: 1.05em; padding: 12px 10px; }
+  .exam-area.split .feedback { text-align: center; }
+  .exam-area.split .exam-right .next-btn { align-self: center; }
+  .exam-area.split .keyboard-hint { text-align: center; }
+
+  @media (max-width: 800px) {
+    .exam-area.split { display: block; text-align: center; }
+    .exam-area.split .passage-box { min-height: 120px; max-height: none; align-items: center; justify-content: center; text-align: center; font-size: 1.1em; }
+    .exam-area.split .question { font-size: 1.15em; }
+    .exam-area.split .exam-right { padding: 12px 10px; margin-top: 4px; }
+    body.wide-mode .game-container { padding: 20px 14px; }
+    body.wide-mode .top-bar { padding: 8px 12px; }
+  }
+
+  .final-screen { display: none; text-align: center; }
+  .final-screen.active { display: block; animation: popIn 0.6s ease; }
+  .trophy { font-size: 5em; animation: bounce 1s infinite; }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+  .final-screen h1 { font-size: 2em; margin: 12px 0; color: #4ecdc4; }
+  .final-screen p { font-size: 1.2em; color: #555; margin-bottom: 12px; }
+  .score-box {
+    background: linear-gradient(135deg, #fff9c4, #ffe082);
+    border-radius: 20px;
+    padding: 16px;
+    margin: 16px auto;
+    border: 3px dashed #ff9800;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #ff6b9d;
+    max-width: 600px;
+  }
+  .restart-btn {
+    background: linear-gradient(135deg, #4ecdc4, #44a08d);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    font-size: 1.2em;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+    font-family: inherit;
+  }
+  .restart-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 rgba(0,0,0,0.2); }
+  .confetti { position: fixed; width: 12px; height: 12px; pointer-events: none; z-index: 200; animation: fall 3s linear forwards; }
+  @keyframes fall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+  .flying-star { position: fixed; font-size: 3em; z-index: 1000; pointer-events: none; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
+
+  .hint-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.65);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+    padding: 20px;
+  }
+  .hint-overlay.show { display: flex; }
+
+  .hint-modal {
+    background: white;
+    border-radius: 24px;
+    padding: 28px 24px;
+    max-width: 850px;
+    width: 100%;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    border: 4px solid #ffd93d;
+    animation: popIn 0.3s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .hint-modal h2 { color: #4a2c82; font-size: 1.6em; margin-bottom: 16px; text-align: center; }
+  .hint-modal h3 { color: #4a2c82; font-size: 1.15em; margin: 14px 0 8px 0; text-align: center; }
+  .close-hint-btn {
+    position: absolute; top: 12px; right: 12px;
+    background: #ff6b6b; color: white;
+    border: none; border-radius: 50%;
+    width: 40px; height: 40px;
+    font-size: 1.3em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 0 #d32f2f;
+    transition: all 0.2s ease;
+  }
+  .close-hint-btn:hover { transform: scale(1.1); }
+  .close-hint-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #d32f2f; }
+
+  .uses-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .use-card {
+    border-radius: 12px;
+    padding: 12px;
+    text-align: left;
+    font-size: 0.92em;
+    line-height: 1.4;
+  }
+
+  .use-card .emoji { font-size: 1.4em; display: inline-block; margin-right: 4px; vertical-align: middle; }
+  .use-card .label { font-weight: 900; display: inline-block; vertical-align: middle; margin-bottom: 2px; font-size: 1.05em; }
+  .use-card .ex { display: block; margin-top: 4px; font-style: italic; font-size: 0.9em; color: #333; }
+  .use-card .ex strong { font-style: normal; }
+
+  .uc-dis { background: #ffebee; border: 2px solid #e91e63; color: #c2185b; }
+  .uc-int { background: #e8f5e9; border: 2px solid #4caf50; color: #2e7d32; }
+  .uc-tax { background: #fff3e0; border: 2px solid #ff9800; color: #e65100; }
+  .uc-com { background: #e3f2fd; border: 2px solid #2196f3; color: #1565c0; }
+  .uc-serv { background: #fce4ec; border: 2px solid #ad1457; color: #880e4f; }
+  .uc-stat { background: #f3e5f5; border: 2px solid #9c27b0; color: #7b1fa2; }
+  .uc-prog { background: #e0f2f1; border: 2px solid #009688; color: #00695c; }
+  .uc-prob { background: #fff9c4; border: 2px solid #fbc02d; color: #f57f17; }
+  .uc-nutr { background: #f1f8e9; border: 2px solid #8bc34a; color: #558b2f; }
+  .uc-grade { background: #e1f5fe; border: 2px solid #03a9f4; color: #01579b; }
+
+  .why-box {
+    background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+    border: 3px dashed #00acc1;
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 12px;
+    font-size: 0.95em;
+    line-height: 1.5;
+    color: #006064;
+    text-align: left;
+  }
+  .why-box strong { color: #d32f2f; }
+
+  .tip-box {
+    background: linear-gradient(135deg, #fff9c4, #fff59d);
+    border: 3px dashed #ff9800;
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 12px;
+    font-size: 0.95em;
+    line-height: 1.5;
+    color: #333;
+    text-align: left;
+  }
+  .tip-box strong { color: #d32f2f; }
+
+  @media (max-width: 700px) { .uses-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 600px) {
+    html { font-size: 18px; }
+    body { padding: 10px; padding-top: 70px; }
+    .top-bar { padding: 8px 12px; }
+    .hint-btn { width: 50px; height: 50px; font-size: 1.6em; }
+    .score-board { font-size: 1.1em; padding: 8px 18px; }
+    .game-container { padding: 20px 14px; border-radius: 18px; }
+    h1 { font-size: 1.5em; }
+    .passage-box { font-size: 1.05em; padding: 16px 12px; min-height: 100px; }
+    .choice-btn { font-size: 1em; padding: 14px 8px; min-height: 60px; }
+    .hint-modal { padding: 24px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <button class="hint-btn" onclick="toggleHintOverlay()" aria-label="Show uses of percentages">💡</button>
+  <div class="score-board" id="scoreBoard">
+    <span>⭐</span>
+    <span>Score: <span id="scoreValue">0</span></span>
+  </div>
+</div>
+
+<div class="game-container">
+  <h1>💯 Uses of Percentages</h1>
+  <p class="subtitle">Identify how percent is used in real life!</p>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <div id="gameArea">
+    <div class="item-counter" id="itemCounter">Item 1 of 20</div>
+
+    <div class="exam-area" id="examArea">
+      <div class="exam-left">
+        <div class="passage-box">
+          <span class="passage-text" id="passageText">Loading...</span>
+        </div>
+        <div class="question" id="questionText">🤔 How is percent being used?</div>
+      </div>
+
+      <div class="exam-right">
+        <div class="choices-grid" id="choicesGrid"></div>
+        <div class="feedback" id="feedback"></div>
+        <button class="next-btn" id="nextBtn" onclick="nextItem()">Next Item ➡️</button>
+        <div class="keyboard-hint">Press <kbd>→</kbd> for next item</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="final-screen" id="finalScreen">
+    <div class="trophy">🏆</div>
+    <h1>🎉 Percent Expert!</h1>
+    <p>Magaling! You know how percent is used in real life!</p>
+    <div class="score-box" id="scoreBox">First-Try Stars: 0 / 20</div>
+    <button class="restart-btn" onclick="restartGame()">🔁 Play Again</button>
+  </div>
+</div>
+
+<div class="hint-overlay" id="hintOverlay" onclick="closeHintOverlay(event)">
+  <div class="hint-modal" onclick="event.stopPropagation()">
+    <button class="close-hint-btn" onclick="toggleHintOverlay()">✖️</button>
+    <h2>💡 How Percent is Used in Real Life</h2>
+
+    <div class="uses-grid">
+      <div class="use-card uc-dis">
+        <span class="emoji">🏷️</span>
+        <span class="label">DISCOUNT</span>
+        Shows how much price is <strong>reduced</strong> during sales.
+        <span class="ex">"<strong>50% OFF</strong> on all shoes!"</span>
+      </div>
+      <div class="use-card uc-int">
+        <span class="emoji">🏦</span>
+        <span class="label">INTEREST</span>
+        Shows <strong>money earned</strong> (savings) or <strong>owed</strong> (loans).
+        <span class="ex">"<strong>3% interest</strong> per year in the bank."</span>
+      </div>
+      <div class="use-card uc-tax">
+        <span class="emoji">🧾</span>
+        <span class="label">TAX</span>
+        Government charge added to <strong>purchases or income</strong>.
+        <span class="ex">"<strong>12% VAT</strong> included in the price."</span>
+      </div>
+      <div class="use-card uc-com">
+        <span class="emoji">💼</span>
+        <span class="label">COMMISSION</span>
+        Pay earned as a <strong>percent of sales</strong>.
+        <span class="ex">"Agent gets <strong>5%</strong> of every sale."</span>
+      </div>
+      <div class="use-card uc-serv">
+        <span class="emoji">🍽️</span>
+        <span class="label">SERVICE CHARGE</span>
+        Extra fee for <strong>service at restaurants/hotels</strong>.
+        <span class="ex">"<strong>10% service charge</strong> added to bill."</span>
+      </div>
+      <div class="use-card uc-stat">
+        <span class="emoji">📊</span>
+        <span class="label">STATISTICS</span>
+        Shows <strong>survey results</strong> or parts of a group.
+        <span class="ex">"<strong>85%</strong> of students passed."</span>
+      </div>
+      <div class="use-card uc-prog">
+        <span class="emoji">📱</span>
+        <span class="label">PROGRESS</span>
+        Shows how much of something is <strong>complete</strong>.
+        <span class="ex">"Phone battery at <strong>35%</strong>."</span>
+      </div>
+      <div class="use-card uc-prob">
+        <span class="emoji">🎲</span>
+        <span class="label">PROBABILITY</span>
+        Shows the <strong>chance</strong> an event will happen.
+        <span class="ex">"<strong>70% chance</strong> of rain tomorrow."</span>
+      </div>
+      <div class="use-card uc-nutr">
+        <span class="emoji">🍎</span>
+        <span class="label">NUTRITION</span>
+        Shows <strong>daily value</strong> of nutrients in food.
+        <span class="ex">"<strong>25%</strong> of daily Vitamin C."</span>
+      </div>
+      <div class="use-card uc-grade">
+        <span class="emoji">📚</span>
+        <span class="label">GRADES</span>
+        Shows a <strong>test score</strong> out of 100.
+        <span class="ex">"Maria scored <strong>92%</strong> on the test."</span>
+      </div>
+    </div>
+
+    <div class="why-box">
+      <strong>🤔 Why use percent?</strong><br>
+      • Makes <strong>comparison easy</strong> (50% vs 25% is clearer than 25/50 vs 1/4)<br>
+      • Standardizes things to a <strong>common base of 100</strong><br>
+      • Works for any size of number (₱10 or ₱1,000,000 — the percent is still meaningful)
+    </div>
+
+    <div class="tip-box">
+      <strong>🔍 Quick Check — Which use is it?</strong><br>
+      • Price reduction? → <strong>Discount</strong> 🏷️<br>
+      • Money growing/shrinking in bank? → <strong>Interest</strong> 🏦<br>
+      • Government fee on receipt? → <strong>Tax</strong> 🧾<br>
+      • Pay based on sales made? → <strong>Commission</strong> 💼<br>
+      • Extra restaurant fee? → <strong>Service charge</strong> 🍽️<br>
+      • Survey, poll, or group results? → <strong>Statistics</strong> 📊<br>
+      • Loading bar or battery? → <strong>Progress</strong> 📱<br>
+      • Chance of something happening? → <strong>Probability</strong> 🎲<br>
+      • Food package label? → <strong>Nutrition</strong> 🍎<br>
+      • Test or exam score? → <strong>Grade</strong> 📚
+    </div>
+  </div>
+</div>
+
+<script>
+  const SPLIT_THRESHOLD = 150;
+  let audioCtx = null;
+
+  function playCorrectSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const start = now + i * 0.1;
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(0.25, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.01, start + 0.3);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + 0.35);
+      });
+    } catch(e) {}
+  }
+
+  function playStarSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
+      const notes = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1318.51];
+      notes.forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const start = now + i * 0.08;
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(0.2, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.01, start + 0.4);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + 0.45);
+        const osc2 = audioCtx.createOscillator();
+        const gain2 = audioCtx.createGain();
+        osc2.type = 'triangle';
+        osc2.frequency.value = freq * 2;
+        gain2.gain.setValueAtTime(0, start);
+        gain2.gain.linearRampToValueAtTime(0.08, start + 0.02);
+        gain2.gain.exponentialRampToValueAtTime(0.01, start + 0.3);
+        osc2.connect(gain2);
+        gain2.connect(audioCtx.destination);
+        osc2.start(start);
+        osc2.stop(start + 0.35);
+      });
+      setTimeout(() => {
+        const ct = audioCtx.currentTime;
+        [1046.50, 1318.51, 1567.98].forEach(freq => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0, ct);
+          gain.gain.linearRampToValueAtTime(0.15, ct + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.01, ct + 0.8);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(ct);
+          osc.stop(ct + 0.9);
+        });
+      }, 500);
+    } catch(e) {}
+  }
+
+  function playWrongSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.exponentialRampToValueAtTime(110, now + 0.3);
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } catch(e) {}
+  }
+
+  // ===== 20 ITEMS: Uses of Percentages (Filipino Context) =====
+  const originalItems = [
+    // ===== IDENTIFY THE USE =====
+    {
+      passage: "🏬 <strong>At SM Mall:</strong><br><br>Maria saw a big red sign at the shoe store that said:<br><br><span class='sign-box'>🔥 50% OFF! 🔥</span><br><br>She bought shoes originally priced at ₱2,000 for only ₱1,000.",
+      question: "🤔 How is the percent being used in this situation?",
+      choices: ["Discount — showing price reduction", "Tax — government fee", "Interest — money earned in bank", "Commission — pay for sales"],
+      correctAnswer: "Discount — showing price reduction",
+      explanation: "\"50% OFF\" means the price is REDUCED by half. This is a DISCOUNT — stores use percent to show how much you save."
+    },
+    {
+      passage: "🏦 <strong>At BDO Bank:</strong><br><br>Lola Rosa deposited her savings. The bank told her:<br><br><span class='highlight'>\"Your money will earn 2.5% interest per year.\"</span><br><br>After one year, her ₱10,000 became ₱10,250.",
+      question: "🤔 How is the percent being used here?",
+      choices: ["Interest — money earned on savings", "Discount — price reduction", "Tax — government fee", "Service charge — extra fee"],
+      correctAnswer: "Interest — money earned on savings",
+      explanation: "Banks pay INTEREST on savings. 2.5% of ₱10,000 = ₱250 earned. Percent shows how fast savings grow."
+    },
+    {
+      passage: "🧾 <strong>On a Receipt:</strong><br><br>After eating at Jollibee, Juan looked at his receipt. It showed:<br><br><span class='highlight'>\"VAT (12%) included: ₱24\"</span><br><br>This is the tax paid to the Philippine government.",
+      question: "🤔 What is the use of percent in this receipt?",
+      choices: ["Tax — government charge on purchases", "Commission — sales pay", "Discount — price reduction", "Interest — bank earnings"],
+      correctAnswer: "Tax — government charge on purchases",
+      explanation: "VAT (Value Added Tax) is 12% in the Philippines. This TAX goes to the government to fund public services."
+    },
+    {
+      passage: "📊 <strong>Barangay Report:</strong><br><br>During the meeting, the barangay captain announced:<br><br><span class='highlight'>\"85% of our senior citizens have been vaccinated.\"</span><br><br>Out of 200 senior citizens, 170 were fully vaccinated.",
+      question: "🤔 How is the percent being used?",
+      choices: ["Statistics — showing part of a group", "Discount — sale price", "Interest — bank earnings", "Probability — chance of event"],
+      correctAnswer: "Statistics — showing part of a group",
+      explanation: "Percent here shows a STATISTIC — what portion of the group (senior citizens) has a certain characteristic (vaccinated)."
+    },
+    {
+      passage: "🍎 <strong>Nutrition Label:</strong><br><br>Miguel read the back of his Chippy snack bag. It said:<br><br><span class='highlight'>\"One serving provides 15% of your daily Vitamin C.\"</span>",
+      question: "🤔 How is percent being used on this label?",
+      choices: ["Nutrition — showing daily value of a nutrient", "Statistics — survey result", "Discount — price reduction", "Progress — completion"],
+      correctAnswer: "Nutrition — showing daily value of a nutrient",
+      explanation: "Food labels use percent to show NUTRITION — how much of your DAILY VALUE of a nutrient you're getting from one serving."
+    },
+    {
+      passage: "🍽️ <strong>At a Restaurant:</strong><br><br>The Reyes family had dinner at a nice restaurant. The bill showed:<br><br><span class='highlight'>\"Food: ₱2,000 + 10% Service Charge = ₱2,200\"</span>",
+      question: "🤔 What is the percent being used for?",
+      choices: ["Service charge — extra fee for service", "Tax — government fee", "Discount — price reduction", "Interest — bank fee"],
+      correctAnswer: "Service charge — extra fee for service",
+      explanation: "SERVICE CHARGE is an extra 10% fee restaurants add for the waiters' service. It's different from tax!"
+    },
+    {
+      passage: "💼 <strong>Sales Job:</strong><br><br>Tita Fe sells insurance. Her boss said:<br><br><span class='highlight'>\"You earn 8% commission on every policy you sell.\"</span><br><br>If she sells a ₱50,000 policy, she earns ₱4,000.",
+      question: "🤔 What is the use of percent here?",
+      choices: ["Commission — pay based on sales", "Interest — bank earnings", "Discount — sale price", "Tax — government fee"],
+      correctAnswer: "Commission — pay based on sales",
+      explanation: "COMMISSION is pay calculated as a percent of sales. 8% of ₱50,000 = ₱4,000 earned for that sale."
+    },
+    {
+      passage: "📱 <strong>On a Smartphone:</strong><br><br>Before leaving for school, Ana checked her phone. It showed:<br><br><span class='highlight'>\"🔋 Battery: 35%\"</span><br><br>She quickly plugged it in to charge.",
+      question: "🤔 How is percent being used here?",
+      choices: ["Progress — showing how full/complete", "Statistics — survey result", "Probability — chance of dying", "Discount — price"],
+      correctAnswer: "Progress — showing how full/complete",
+      explanation: "Battery percent shows PROGRESS — how much power is left out of 100%. 35% means 35/100 of the battery is charged."
+    },
+    {
+      passage: "☔ <strong>PAGASA Weather Report:</strong><br><br>The weatherman on TV announced:<br><br><span class='highlight'>\"There is a 70% chance of rain tomorrow in Metro Manila.\"</span><br><br>Many people brought umbrellas to school.",
+      question: "🤔 What is the use of percent in this report?",
+      choices: ["Probability — chance of an event", "Statistics — group data", "Progress — completion", "Nutrition — daily value"],
+      correctAnswer: "Probability — chance of an event",
+      explanation: "PROBABILITY uses percent to show how LIKELY something is to happen. 70% means rain is very likely, but not certain."
+    },
+    {
+      passage: "📚 <strong>Report Card Day:</strong><br><br>When Ben got his Math test paper, his teacher wrote:<br><br><span class='highlight'>\"Score: 92%\"</span><br><br>He got 46 out of 50 items correct. His parents were proud!",
+      question: "🤔 How is percent being used here?",
+      choices: ["Grade — showing test performance", "Discount — price reduction", "Interest — bank earnings", "Probability — chance"],
+      correctAnswer: "Grade — showing test performance",
+      explanation: "GRADES use percent to show PERFORMANCE on a test. 92% means 92 out of every 100 — a very high score!"
+    },
+
+    // ===== EXPLAINING WHY =====
+    {
+      passage: "🤔 <strong>Think About It:</strong><br><br>Why do stores use <span class='highlight'>percent</span> for discounts instead of just saying \"₱500 off\"?",
+      question: "🤔 Choose the BEST reason.",
+      choices: [
+        "So customers can easily compare discounts on different-priced items",
+        "Because percent is harder to understand",
+        "Because percent makes items more expensive",
+        "Because the law requires percent"
+      ],
+      correctAnswer: "So customers can easily compare discounts on different-priced items",
+      explanation: "Percent makes comparison EASY! \"20% off\" works whether the item is ₱100 or ₱10,000. ₱500 off is only clear for one price."
+    },
+    {
+      passage: "🤔 <strong>Think About It:</strong><br><br>Why does the Philippine government use <span class='highlight'>12% VAT</span> instead of a fixed peso amount on every item?",
+      question: "🤔 Choose the BEST reason.",
+      choices: [
+        "So tax grows fairly with the price of the item",
+        "So poor people pay more tax",
+        "To make receipts longer",
+        "Because 12 is a lucky number"
+      ],
+      correctAnswer: "So tax grows fairly with the price of the item",
+      explanation: "Percent makes TAX FAIR — you pay more tax on expensive items and less on cheap ones. A fixed amount would be unfair."
+    },
+    {
+      passage: "🤔 <strong>Think About It:</strong><br><br>Why do battery icons use <span class='highlight'>percent</span> instead of saying \"3 hours left\"?",
+      question: "🤔 Choose the BEST reason.",
+      choices: [
+        "Because battery life depends on what you're doing",
+        "Because percent looks prettier",
+        "Because hours are too easy to understand",
+        "Because phones don't know what time it is"
+      ],
+      correctAnswer: "Because battery life depends on what you're doing",
+      explanation: "Percent shows how FULL the battery is regardless of use. \"3 hours\" changes based on apps, brightness, etc."
+    },
+    {
+      passage: "🤔 <strong>Think About It:</strong><br><br>Why do banks use <span class='highlight'>percent</span> for interest rates instead of a fixed peso amount?",
+      question: "🤔 Choose the BEST reason.",
+      choices: [
+        "So interest scales fairly with how much you deposit",
+        "Because banks don't like peso signs",
+        "Because percent is more confusing",
+        "Because all banks must use the same number"
+      ],
+      correctAnswer: "So interest scales fairly with how much you deposit",
+      explanation: "Percent makes interest FAIR — ₱1,000 deposit earns less interest than ₱100,000 deposit, but at the same rate."
+    },
+
+    // ===== SCENARIO ANALYSIS =====
+    {
+      passage: "🎯 <strong>Which scenario uses percent as a PROGRESS INDICATOR?</strong>",
+      question: "🤔 Choose the correct scenario.",
+      choices: [
+        "Your download is 75% complete",
+        "The shirt is 30% off",
+        "You scored 88% on the test",
+        "There is a 40% chance of snow"
+      ],
+      correctAnswer: "Your download is 75% complete",
+      explanation: "Download progress shows how COMPLETE something is — 75% done, 25% to go. That's a PROGRESS indicator."
+    },
+    {
+      passage: "🎯 <strong>Which scenario uses percent for COMPARISON between candidates?</strong>",
+      question: "🤔 Choose the correct scenario.",
+      choices: [
+        "Candidate A has 55% of votes, Candidate B has 45%",
+        "The phone battery is 60%",
+        "The shirt has 20% off",
+        "Your savings earn 3% interest"
+      ],
+      correctAnswer: "Candidate A has 55% of votes, Candidate B has 45%",
+      explanation: "ELECTION RESULTS use percent to COMPARE candidates — 55% vs 45% shows who won by how much."
+    },
+    {
+      passage: "🎯 <strong>Aling Nena's Sari-Sari Store:</strong><br><br>Aling Nena buys a pack of candy for ₱20. She increases the price by <span class='highlight'>25%</span> before selling it for ₱25.",
+      question: "🤔 What is the use of percent in this situation?",
+      choices: ["Markup/Profit — adding to cost to earn money", "Discount — reducing the price", "Tax — paying government", "Interest — bank earnings"],
+      correctAnswer: "Markup/Profit — adding to cost to earn money",
+      explanation: "MARKUP is the percent ADDED to the cost to set a selling price. 25% of ₱20 = ₱5 profit for Aling Nena."
+    },
+    {
+      passage: "🗳️ <strong>Barangay Election Results:</strong><br><br>After the election, the results were announced:<br><br><span class='highlight'>\"Kapitan Cruz won with 65% of the votes.\"</span><br><br>Out of 1,000 voters, 650 voted for him.",
+      question: "🤔 How is percent being used here?",
+      choices: ["Statistics — showing part of voting population", "Discount — price reduction", "Interest — bank earnings", "Progress — task completion"],
+      correctAnswer: "Statistics — showing part of voting population",
+      explanation: "ELECTION RESULTS are STATISTICS — percent shows what portion of the total votes a candidate received."
+    },
+    {
+      passage: "🎯 <strong>Find the ODD ONE OUT:</strong><br><br>Three of these use percent the SAME way. One is DIFFERENT. Which one is different?",
+      question: "🤔 Which does NOT show percent as part of a group (statistics)?",
+      choices: [
+        "\"Your phone is 35% charged\"",
+        "\"70% of students passed the exam\"",
+        "\"45% of voters chose Candidate A\"",
+        "\"80% of the barangay has internet\""
+      ],
+      correctAnswer: "\"Your phone is 35% charged\"",
+      explanation: "The phone battery is PROGRESS (how full). The other three are STATISTICS (part of a group of people/things)."
+    },
+    {
+      passage: "💡 <strong>Big Idea:</strong><br><br>What is the <strong>MAIN REASON</strong> percent is so widely used in daily life — in sales, banks, news, food labels, and more?",
+      question: "🤔 Choose the best answer.",
+      choices: [
+        "It standardizes everything to a common base of 100 for easy comparison",
+        "Because percent is the only way to show numbers",
+        "Because the government forces everyone to use it",
+        "Because Filipinos invented percent"
+      ],
+      correctAnswer: "It standardizes everything to a common base of 100 for easy comparison",
+      explanation: "Percent's BIG IDEA: \"per hundred\" gives a COMMON BASE. Whether ₱10 or ₱1,000,000, we can always compare using 100 as reference!"
+    }
+  ];
+
+  let items = [];
+  let currentItem = 0;
+  let isLocked = false;
+  let correctCount = 0;
+  let wrongAttempts = 0;
+
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  function visibleTextLength(html) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return (tmp.textContent || '').trim().length;
+  }
+
+  function applyLayout(item) {
+    const isLong = visibleTextLength(item.passage) > SPLIT_THRESHOLD;
+    document.getElementById('examArea').classList.toggle('split', isLong);
+    document.body.classList.toggle('wide-mode', isLong);
+  }
+
+  function toggleHintOverlay() {
+    document.getElementById('hintOverlay').classList.toggle('show');
+  }
+
+  function closeHintOverlay(event) {
+    if (event.target === document.getElementById('hintOverlay')) toggleHintOverlay();
+  }
+
+  function animateStarToScoreboard(buttonElement) {
+    const star = document.createElement('div');
+    star.className = 'flying-star';
+    star.textContent = '⭐';
+    document.body.appendChild(star);
+
+    const startRect = buttonElement.getBoundingClientRect();
+    const endRect = document.getElementById('scoreBoard').getBoundingClientRect();
+
+    const startX = startRect.left + startRect.width / 2 - 24;
+    const startY = startRect.top + startRect.height / 2 - 24;
+    const endX = endRect.left + endRect.width / 2 - 24;
+    const endY = endRect.top + endRect.height / 2 - 24;
+
+    star.style.left = startX + 'px';
+    star.style.top = startY + 'px';
+
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
+
+    const phase1 = star.animate([
+      { transform: 'scale(1) rotate(0deg)', opacity: 1, offset: 0 },
+      { transform: 'scale(2.5) rotate(720deg)', opacity: 1, offset: 1 }
+    ], { duration: 400, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' });
+
+    phase1.onfinish = () => {
+      const phase2 = star.animate([
+        { transform: 'scale(2.5) rotate(720deg)', opacity: 1, offset: 0 },
+        { transform: `translate(${deltaX * 0.5}px, ${deltaY * 0.5 - 100}px) scale(2) rotate(1080deg)`, opacity: 1, offset: 0.4 },
+        { transform: `translate(${deltaX}px, ${deltaY}px) scale(0.5) rotate(1440deg)`, opacity: 0, offset: 1 }
+      ], { duration: 900, easing: 'cubic-bezier(0.25, 1, 0.5, 1)' });
+
+      phase2.onfinish = () => {
+        star.remove();
+        correctCount++;
+        document.getElementById('scoreValue').textContent = correctCount;
+        document.getElementById('scoreBoard').animate([
+          { transform: 'scale(1)' },
+          { transform: 'scale(1.3)' },
+          { transform: 'scale(1)' }
+        ], { duration: 400, easing: 'ease-out' });
+      };
+    };
+  }
+
+  function initGame() {
+    items = shuffleArray([...originalItems]);
+    currentItem = 0;
+    correctCount = 0;
+    document.getElementById('scoreValue').textContent = '0';
+    loadItem();
+  }
+
+  function loadItem() {
+    const item = items[currentItem];
+    document.getElementById('passageText').innerHTML = item.passage;
+    document.getElementById('questionText').innerHTML = item.question;
+    document.getElementById('itemCounter').textContent = `Item ${currentItem + 1} of ${items.length}`;
+    document.getElementById('progressFill').style.width = (currentItem / items.length) * 100 + '%';
+
+    applyLayout(item);
+
+    const shuffledChoices = shuffleArray([...item.choices]);
+
+    const choicesGrid = document.getElementById('choicesGrid');
+    choicesGrid.innerHTML = '';
+    shuffledChoices.forEach((choice) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.textContent = choice;
+      btn.dataset.value = choice;
+      btn.onclick = () => checkAnswer(btn);
+      choicesGrid.appendChild(btn);
+    });
+
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('feedback').className = 'feedback';
+    document.getElementById('nextBtn').classList.remove('show');
+    wrongAttempts = 0;
+    isLocked = false;
+  }
+
+  function checkAnswer(button) {
+    if (isLocked) return;
+    const item = items[currentItem];
+    const feedback = document.getElementById('feedback');
+
+    if (button.dataset.value === item.correctAnswer) {
+      isLocked = true;
+      button.classList.add('correct');
+
+      if (wrongAttempts === 0) {
+        playStarSound();
+        animateStarToScoreboard(button);
+      } else {
+        playCorrectSound();
+      }
+
+      feedback.innerHTML = `✅ Correct! <span style="font-size:0.9em; color:#555; display:block; margin-top:4px;">${item.explanation}</span>`;
+      feedback.className = 'feedback correct';
+      document.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = true);
+      setTimeout(() => document.getElementById('nextBtn').classList.add('show'), 600);
+    } else {
+      wrongAttempts++;
+      button.classList.add('wrong');
+      button.disabled = true;
+      playWrongSound();
+      feedback.textContent = '❌ Not quite. Check the hint for the different uses!';
+      feedback.className = 'feedback wrong';
+      setTimeout(() => button.classList.remove('wrong'), 500);
+    }
+  }
+
+  function nextItem() {
+    currentItem++;
+    if (currentItem >= items.length) {
+      document.getElementById('gameArea').style.display = 'none';
+      document.getElementById('finalScreen').classList.add('active');
+      document.getElementById('progressFill').style.width = '100%';
+      document.getElementById('scoreBox').textContent = `First-Try Stars: ${correctCount} / ${items.length}`;
+      document.getElementById('examArea').classList.remove('split');
+      document.body.classList.remove('wide-mode');
+      launchConfetti();
+      setTimeout(launchConfetti, 400);
+      setTimeout(launchConfetti, 800);
+    } else {
+      loadItem();
+    }
+  }
+
+  function restartGame() {
+    initGame();
+    document.getElementById('finalScreen').classList.remove('active');
+    document.getElementById('gameArea').style.display = 'block';
+  }
+
+  function launchConfetti() {
+    const colors = ['#ff6b9d', '#ffd93d', '#4ecdc4', '#a8edea', '#ff8e53', '#84fab0'];
+    for (let i = 0; i < 50; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.top = '-20px';
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.animationDelay = Math.random() * 0.5 + 's';
+      c.style.animationDuration = (2 + Math.random() * 2) + 's';
+      c.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 4000);
+    }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.keyCode === 39) {
+      if (document.getElementById('nextBtn').classList.contains('show')) nextItem();
+    }
+  });
+
+  initGame();
+</script>
+
+</body>
+</html>
